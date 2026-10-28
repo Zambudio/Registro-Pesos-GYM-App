@@ -1,4 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Textos de feature/routines. Prefijo obligatorio: routines_ -->
 <resources>
+    <!-- Lista -->
+    <string name="routines_title">Rutinas</string>
+    <string name="routines_new">Nueva rutina</string>
+    <string name="routines_empty_title">Aún no tienes rutinas</string>
+    <string name="routines_empty_message">Crea una rutina con sus bloques de ejercicios para empezar a entrenar con ella.</string>
+    <string name="routines_empty_action">Crear rutina</string>
+    <plurals name="routines_block_count">
+        <item quantity="one">%1$d bloque</item>
+        <item quantity="other">%1$d bloques</item>
+    </plurals>
+    <plurals name="routines_exercise_count">
+        <item quantity="one">%1$d ejercicio</item>
+        <item quantity="other">%1$d ejercicios</item>
+    </plurals>
+    <string name="routines_counts">%1$s · %2$s</string>
+    <string name="routines_move_up">Subir %1$s</string>
+    <string name="routines_move_down">Bajar %1$s</string>
+    <string name="routines_delete_named">Borrar %1$s</string>
+    <string name="routines_reorder_failed">No se ha podido cambiar el orden</string>
+    <string name="routines_delete_failed">No se ha podido borrar la rutina</string>
+
+    <!-- Borrado (lista y editor) -->
+    <string name="routines_delete_title">¿Borrar rutina?</string>
+    <string name="routines_delete_message">Se borrará «%1$s». Los entrenamientos que ya hiciste con ella se conservan en el historial.</string>
+    <string name="routines_delete_confirm">Borrar</string>
+
+    <!-- Editor -->
+    <string name="routines_edit_title_new">Nueva rutina</string>
+    <string name="routines_edit_title">Editar rutina</string>
+    <string name="routines_edit_save">Guardar</string>
+    <string name="routines_edit_delete">Borrar rutina</string>
+    <string name="routines_edit_back">Volver</string>
+    <string name="routines_edit_name">Nombre</string>
+    <string name="routines_edit_name_hint">Día 1, Pecho - Tríceps…</string>
+    <string name="routines_edit_subtitle">Subtítulo o nota (opcional)</string>
+    <string name="routines_edit_subtitle_hint">4 ejer pecho, 2 tríceps</string>
+    <string name="routines_edit_blocks">Bloques</string>
+    <string name="routines_edit_no_blocks">Añade un bloque por grupo muscular y elige sus ejercicios.</string>
+    <string name="routines_edit_add_block">Añadir bloque</string>
+    <string name="routines_edit_block_empty">Este bloque aún no tiene ejercicios.</string>
+    <string name="routines_edit_add_exercises">Añadir ejercicios</string>
+    <string name="routines_edit_move_block_up">Subir bloque %1$s</string>
+    <string name="routines_edit_move_block_down">Bajar bloque %1$s</string>
+    <string name="routines_edit_remove_block">Quitar bloque %1$s</string>
+    <string name="routines_edit_move_exercise_up">Subir %1$s</string>
+    <string name="routines_edit_move_exercise_down">Bajar %1$s</string>
+    <string name="routines_edit_remove_exercise">Quitar %1$s</string>
+    <string name="routines_edit_sets_label">Series</string>
+    <string name="routines_edit_sets_decrease">Una serie menos en %1$s</string>
+    <string name="routines_edit_sets_increase">Una serie más en %1$s</string>
+    <string name="routines_edit_archived">Archivado</string>
+    <string name="routines_edit_saving">Guardando…</string>
+    <string name="routines_edit_not_found">Esta rutina ya no existe.</string>
+    <string name="routines_edit_load_failed">No se ha podido cargar la rutina.</string>
+    <string name="routines_edit_save_failed">No se ha podido guardar la rutina</string>
+    <string name="routines_edit_delete_failed">No se ha podido borrar la rutina</string>
+
+    <!-- Validación -->
+    <string name="routines_error_name_empty">Ponle un nombre a la rutina.</string>
+    <string name="routines_error_no_exercises">Añade al menos un ejercicio a algún bloque.</string>
+    <string name="routines_error_invalid_sets">Las series por defecto deben estar entre 1 y 20.</string>
+
+    <!-- Cambios sin guardar -->
+    <string name="routines_discard_title">¿Descartar cambios?</string>
+    <string name="routines_discard_message">Tienes cambios sin guardar en esta rutina. Si sales, se perderán.</string>
+    <string name="routines_discard_confirm">Descartar</string>
+    <string name="routines_discard_keep_editing">Seguir editando</string>
+
+    <!-- Selectores -->
+    <string name="routines_group_picker_title">Elige el grupo muscular</string>
+    <string name="routines_picker_title">Ejercicios de %1$s</string>
+    <string name="routines_picker_empty">%1$s no tiene ejercicios todavía. Crea uno para poder añadirlo.</string>
+    <string name="routines_picker_all_added">Todos los ejercicios de %1$s ya están en este bloque.</string>
+    <string name="routines_picker_create_exercise">Crear ejercicio</string>
+    <string name="routines_picker_add">Añadir</string>
+    <string name="routines_picker_add_count">Añadir (%1$d)</string>
+    <string name="routines_picker_cancel">Cancelar</string>
 </resources>
