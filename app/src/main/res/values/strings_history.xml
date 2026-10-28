@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Textos de feature/history. Prefijo obligatorio: history_ -->
 <resources>
+    <string name="history_title">Historial</string>
+    <string name="history_empty_title">Aún no hay entrenamientos</string>
+    <string name="history_empty_message">Cuando termines un entrenamiento aparecerá aquí.</string>
+    <string name="history_detail_title">Entrenamiento</string>
+    <string name="history_detail_no_sets">Esta sesión no tiene series registradas.</string>
+    <string name="history_not_found">Esta sesión ya no existe.</string>
+    <string name="history_delete">Borrar sesión</string>
+    <string name="history_delete_title">¿Borrar esta sesión?</string>
+    <string name="history_delete_message">Se borrarán todas sus series del historial y de las gráficas. No se puede deshacer.</string>
+    <string name="history_error_delete">No se ha podido borrar la sesión.</string>
+    <string name="history_set_number">Serie %1$d</string>
+    <string name="history_set_weight_reps">%1$s kg × %2$s</string>
+    <string name="history_set_e1rm">1RM %1$s kg</string>
+    <string name="history_no_value">–</string>
+
+    <plurals name="history_exercise_count">
+        <item quantity="one">%1$d ejercicio</item>
+        <item quantity="many">%1$d ejercicios</item>
+        <item quantity="other">%1$d ejercicios</item>
+    </plurals>
 </resources>

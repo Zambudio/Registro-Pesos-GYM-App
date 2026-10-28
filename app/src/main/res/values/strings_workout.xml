@@ -1,4 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Textos de feature/workout. Prefijo obligatorio: workout_ -->
 <resources>
+    <!-- Entrenar (inicio) -->
+    <string name="workout_train_title">Entrenar</string>
+    <string name="workout_open_history">Historial</string>
+    <string name="workout_train_routines_header">Rutinas</string>
+    <string name="workout_train_empty_title">Aún no tienes rutinas</string>
+    <string name="workout_train_empty_message">Crea una rutina con tus ejercicios para empezar a entrenar.</string>
+    <string name="workout_train_empty_action">Crear rutina</string>
+    <string name="workout_in_progress_title">Entrenamiento en curso</string>
+    <string name="workout_in_progress_started_at">Empezado a las %1$s</string>
+    <string name="workout_in_progress_resume">Reanudar</string>
+    <string name="workout_in_progress_discard">Descartar</string>
+
+    <!-- Detalle de rutina -->
+    <string name="workout_routine_detail_title">Rutina</string>
+    <string name="workout_edit_routine">Editar rutina</string>
+    <string name="workout_start">Empezar entrenamiento</string>
+    <string name="workout_routine_not_found">Esta rutina ya no existe.</string>
+    <string name="workout_routine_empty_title">Esta rutina no tiene ejercicios</string>
+    <string name="workout_routine_empty_message">Añade al menos un ejercicio para poder entrenar con ella.</string>
+    <string name="workout_conflict_title">Ya hay un entrenamiento en curso</string>
+    <string name="workout_conflict_message">Termínalo o descártalo antes de empezar otro.</string>
+    <string name="workout_conflict_go">Ir al entrenamiento</string>
+
+    <!-- Sesión -->
+    <string name="workout_session_title">Entrenamiento</string>
+    <string name="workout_more_options">Más opciones</string>
+    <string name="workout_not_in_progress">Este entrenamiento ya no está en curso.</string>
+    <string name="workout_expand">Abrir ejercicio</string>
+    <string name="workout_collapse">Cerrar ejercicio</string>
+    <string name="workout_column_set">Serie</string>
+    <string name="workout_column_kg">kg</string>
+    <string name="workout_column_reps">Reps</string>
+    <string name="workout_column_done">Hecha</string>
+    <string name="workout_weight_field">Peso de la serie %1$d en kg</string>
+    <string name="workout_reps_field">Repeticiones de la serie %1$d</string>
+    <string name="workout_set_done">Serie %1$d hecha</string>
+    <string name="workout_weight_minus">Restar %1$s kg</string>
+    <string name="workout_weight_plus">Sumar %1$s kg</string>
+    <string name="workout_add_set">Añadir serie</string>
+    <string name="workout_remove_set">Quitar serie</string>
+    <string name="workout_previous_label">Anterior: %1$s</string>
+    <string name="workout_previous_none">Primera vez con este ejercicio</string>
+    <string name="workout_copy_previous">Copiar anterior</string>
+    <string name="workout_weight_x_reps">%1$s×%2$s</string>
+    <string name="workout_no_value">–</string>
+    <string name="workout_finish_action">Terminar entrenamiento</string>
+    <string name="workout_finish_title">¿Terminar el entrenamiento?</string>
+    <string name="workout_finish_message">Se guardará en el historial. Las series sin peso ni repeticiones se descartan.</string>
+    <string name="workout_finish_confirm">Terminar</string>
+    <string name="workout_finish_empty_title">No hay ninguna serie registrada</string>
+    <string name="workout_finish_empty_message">Un entrenamiento vacío no se guarda en el historial. ¿Descartarlo?</string>
+    <string name="workout_discard_action">Descartar sesión</string>
+    <string name="workout_discard_title">¿Descartar el entrenamiento?</string>
+    <string name="workout_discard_message">Se borrarán todas las series de esta sesión. No se puede deshacer.</string>
+    <string name="workout_discard_confirm">Descartar</string>
+
+    <!-- Errores -->
+    <string name="workout_error_save">No se ha podido guardar el último cambio.</string>
+    <string name="workout_error_finish">No se ha podido terminar el entrenamiento. Inténtalo de nuevo.</string>
+    <string name="workout_error_discard">No se ha podido descartar el entrenamiento.</string>
+    <string name="workout_error_start">No se ha podido empezar el entrenamiento.</string>
+
+    <!-- Resumen -->
+    <string name="workout_summary_title">Entrenamiento terminado</string>
+    <string name="workout_summary_done">Hecho</string>
+    <string name="workout_summary_duration">Duración</string>
+    <string name="workout_summary_volume">Volumen total</string>
+    <string name="workout_summary_exercises">Ejercicios</string>
+    <string name="workout_summary_sets">Series</string>
+    <string name="workout_summary_records">Récords nuevos</string>
+    <string name="workout_summary_no_records">Sin récords nuevos esta vez.</string>
+    <string name="workout_record_weight">Peso máximo</string>
+    <string name="workout_record_e1rm">1RM estimado</string>
+    <string name="workout_record_change">%1$s: %2$s → %3$s</string>
+
+    <plurals name="workout_exercise_count">
+        <item quantity="one">%1$d ejercicio</item>
+        <item quantity="many">%1$d ejercicios</item>
+        <item quantity="other">%1$d ejercicios</item>
+    </plurals>
+    <plurals name="workout_set_count">
+        <item quantity="one">%1$d serie</item>
+        <item quantity="many">%1$d series</item>
+        <item quantity="other">%1$d series</item>
+    </plurals>
+    <plurals name="workout_sets_done">
+        <item quantity="one">%1$d/%2$d serie hecha</item>
+        <item quantity="many">%1$d/%2$d series hechas</item>
+        <item quantity="other">%1$d/%2$d series hechas</item>
+    </plurals>
 </resources>
