@@ -94,6 +94,7 @@ class WorkoutResumeAfterProcessDeathTest {
                 discardSession = DiscardSession(workouts),
                 timeProvider = clock,
                 idGenerator = ids,
+                applicationScope = immediateApplicationScope(),
             )
             collectInBackground(vm.uiState)
             return vm

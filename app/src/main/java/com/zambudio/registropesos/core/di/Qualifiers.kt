@@ -6,3 +6,11 @@ import javax.inject.Qualifier
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class IoDispatcher
+
+/**
+ * Scope de proceso (SupervisorJob + IO) para trabajo que debe terminar aunque se cierre la pantalla
+ * que lo lanzó (p. ej. escrituras ya encoladas). Nunca se cancela.
+ */
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ApplicationScope

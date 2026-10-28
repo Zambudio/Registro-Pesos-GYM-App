@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.zambudio.registropesos.core.di.ApplicationScope
 import com.zambudio.registropesos.core.navigation.WorkoutRoute
 import com.zambudio.registropesos.domain.model.AppSettings
 import com.zambudio.registropesos.domain.model.SessionDetail
@@ -24,7 +25,7 @@ import com.zambudio.registropesos.feature.workout.common.parseWeightText
 import com.zambudio.registropesos.feature.workout.common.roundKg
 import com.zambudio.registropesos.feature.workout.common.suspendRunCatching
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +39,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -49,8 +49,11 @@ import javax.inject.Inject
  * escrituras (y terminar/descartar) pasan por una única cola FIFO, así que se aplican en orden y
  * terminar nunca adelanta a la última serie tecleada. Así no hay saltos de cursor ni ediciones
  * rápidas que se pisen al releer la BD.
+ *
+ * La cola se consume en [applicationScope], no en viewModelScope: al cerrar la pantalla
+ * ([onCleared]) se cierra la cola, el consumidor aplica lo pendiente y termina; nada se pierde.
  */
-// 8 dependencias inyectadas por Hilt: agruparlas en un contenedor solo añadiría indirección.
+// 9 dependencias inyectadas por Hilt: agruparlas en un contenedor solo añadiría indirección.
 @Suppress("LongParameterList")
 @HiltViewModel
 class WorkoutViewModel @Inject constructor(
@@ -62,6 +65,7 @@ class WorkoutViewModel @Inject constructor(
     private val discardSession: DiscardSession,
     private val timeProvider: TimeProvider,
     private val idGenerator: IdGenerator,
+    @ApplicationScope applicationScope: CoroutineScope,
 ) : ViewModel() {
 
     val sessionId: String = savedStateHandle.toRoute<WorkoutRoute>().sessionId
@@ -80,13 +84,15 @@ class WorkoutViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), WorkoutUiState.Loading)
 
     init {
-        viewModelScope.launch {
-            for (write in writes) {
-                // Una escritura empezada se completa aunque se cierre la pantalla.
-                withContext(NonCancellable) { write() }
-            }
+        // Un único consumidor: FIFO. Termina cuando onCleared cierra la cola y se ha vaciado.
+        applicationScope.launch {
+            for (write in writes) write()
         }
         load()
+    }
+
+    override fun onCleared() {
+        writes.close()
     }
 
     fun retry() = load()
@@ -188,10 +194,10 @@ class WorkoutViewModel @Inject constructor(
         editor.update { it.copy(isClosing = true) }
         enqueue(reportFailure = false) {
             suspendRunCatching { finishSession(sessionId) }.flatten()
-                .onSuccess { eventChannel.send(WorkoutEvent.OpenSummary(sessionId)) }
+                .onSuccess { eventChannel.trySend(WorkoutEvent.OpenSummary(sessionId)) }
                 .onFailure {
                     editor.update { it.copy(isClosing = false) }
-                    eventChannel.send(WorkoutEvent.FinishFailed)
+                    eventChannel.trySend(WorkoutEvent.FinishFailed)
                 }
         }
     }
@@ -201,10 +207,10 @@ class WorkoutViewModel @Inject constructor(
         editor.update { it.copy(isClosing = true) }
         enqueue(reportFailure = false) {
             suspendRunCatching { discardSession(sessionId) }.flatten()
-                .onSuccess { eventChannel.send(WorkoutEvent.Discarded) }
+                .onSuccess { eventChannel.trySend(WorkoutEvent.Discarded) }
                 .onFailure {
                     editor.update { it.copy(isClosing = false) }
-                    eventChannel.send(WorkoutEvent.DiscardFailed)
+                    eventChannel.trySend(WorkoutEvent.DiscardFailed)
                 }
         }
     }
@@ -263,10 +269,12 @@ class WorkoutViewModel @Inject constructor(
         }
     }
 
+    // Los eventos de la cola usan trySend: tras cerrar la pantalla nadie los recoge y un send
+    // suspendido con el búfer lleno bloquearía las escrituras siguientes.
     private fun enqueue(reportFailure: Boolean = true, write: suspend () -> Unit) {
         writes.trySend {
             val result = suspendRunCatching { write() }
-            if (reportFailure && result.isFailure) eventChannel.send(WorkoutEvent.SaveFailed)
+            if (reportFailure && result.isFailure) eventChannel.trySend(WorkoutEvent.SaveFailed)
         }
     }
 

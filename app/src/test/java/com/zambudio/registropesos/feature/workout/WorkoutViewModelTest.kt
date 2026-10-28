@@ -13,7 +13,14 @@ import com.zambudio.registropesos.feature.workout.session.WorkoutEvent
 import com.zambudio.registropesos.feature.workout.session.WorkoutExerciseUi
 import com.zambudio.registropesos.feature.workout.session.WorkoutUiState
 import com.zambudio.registropesos.feature.workout.session.WorkoutViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.job
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -54,7 +61,10 @@ class WorkoutViewModelTest {
         )
     }
 
-    private fun TestScope.viewModel(settings: AppSettings = AppSettings()): WorkoutViewModel {
+    private fun TestScope.viewModel(
+        settings: AppSettings = AppSettings(),
+        applicationScope: CoroutineScope = immediateApplicationScope(),
+    ): WorkoutViewModel {
         val vm = WorkoutViewModel(
             savedStateHandle = routeHandle("sessionId" to sessionId),
             workoutRepository = repo,
@@ -64,6 +74,7 @@ class WorkoutViewModelTest {
             discardSession = DiscardSession(repo),
             timeProvider = clock,
             idGenerator = TestIds("new"),
+            applicationScope = applicationScope,
         )
         collectInBackground(vm.uiState)
         collectInBackground(vm.events) { events += it }
@@ -314,6 +325,28 @@ class WorkoutViewModelTest {
         vm.onRepsChange("p0", "8")
         assertEquals(80.0, repo.set("p0").weightKg)
         assertEquals(8, repo.set("p0").reps)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun pendingWritesAreAppliedAfterScreenIsClosed() = runTest {
+        // Scope de aplicación que aún no ha corrido: las escrituras se quedan en cola.
+        val applicationScope = CoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler))
+        val vm = viewModel(applicationScope = applicationScope)
+        vm.onWeightChange("p0", "80")
+        vm.onRepsChange("p0", "8")
+        vm.onToggleDone("p0")
+        assertTrue("aún en cola", repo.writes.isEmpty())
+
+        vm.clearAsIfScreenClosed()
+        advanceUntilIdle()
+
+        assertEquals(3, repo.writes.size)
+        assertEquals(80.0, repo.set("p0").weightKg)
+        assertEquals(8, repo.set("p0").reps)
+        assertTrue(repo.set("p0").isDone)
+        assertTrue("el consumidor termina al vaciar la cola", applicationScope.coroutineContext.job.children.none())
+        applicationScope.cancel()
     }
 
     @Test

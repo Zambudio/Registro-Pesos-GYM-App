@@ -1,6 +1,9 @@
 package com.zambudio.registropesos.feature.workout
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import com.zambudio.registropesos.domain.model.AppSettings
 import com.zambudio.registropesos.domain.model.Exercise
 import com.zambudio.registropesos.domain.model.MuscleGroup
@@ -24,6 +27,7 @@ import com.zambudio.registropesos.domain.repository.WorkoutRepository
 import com.zambudio.registropesos.domain.usecase.SessionVolume
 import com.zambudio.registropesos.domain.util.IdGenerator
 import com.zambudio.registropesos.domain.util.TimeProvider
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -64,6 +68,26 @@ fun routeHandle(vararg args: Pair<String, Any?>) = SavedStateHandle(mapOf(*args)
 @OptIn(ExperimentalCoroutinesApi::class)
 fun <T> TestScope.collectInBackground(flow: Flow<T>, sink: (T) -> Unit = {}) {
     backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { flow.collect { sink(it) } }
+}
+
+/**
+ * Sustituto del @ApplicationScope: inmediato (las escrituras encoladas se aplican en la misma
+ * llamada) y cancelado al acabar el test.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+fun TestScope.immediateApplicationScope(): CoroutineScope =
+    CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler))
+
+/** Simula cerrar la pantalla: ViewModelStore.clear() cancela viewModelScope y llama a onCleared(). */
+fun ViewModel.clearAsIfScreenClosed() {
+    val vm = this
+    val store = ViewModelStore()
+    val factory = object : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = vm as T
+    }
+    ViewModelProvider(store, factory)[vm.javaClass]
+    store.clear()
 }
 
 class FakeSettingsRepository(initial: AppSettings = AppSettings()) : SettingsRepository {
