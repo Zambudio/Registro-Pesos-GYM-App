@@ -4,5 +4,4 @@
     <include domain="database" path="." />
     <include domain="file" path="images/" />
     <include domain="file" path="datastore/" />
-    <exclude domain="file" path="exports/" />
 </full-backup-content>
