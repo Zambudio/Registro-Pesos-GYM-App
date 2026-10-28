@@ -1,5 +1,6 @@
 package com.zambudio.registropesos.feature.backup.navigation
 
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -8,6 +9,6 @@ import com.zambudio.registropesos.feature.backup.BackupRoute as BackupRouteScree
 
 fun NavGraphBuilder.backupGraph(navController: NavHostController) {
     composable<BackupRoute> {
-        BackupRouteScreen(onBack = { navController.popBackStack() })
+        BackupRouteScreen(onBack = dropUnlessResumed { navController.popBackStack() })
     }
 }

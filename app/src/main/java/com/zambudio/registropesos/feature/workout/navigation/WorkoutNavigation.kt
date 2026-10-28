@@ -1,5 +1,6 @@
 package com.zambudio.registropesos.feature.workout.navigation
 
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -10,6 +11,7 @@ import com.zambudio.registropesos.core.navigation.RoutineEditRoute
 import com.zambudio.registropesos.core.navigation.TrainRoute
 import com.zambudio.registropesos.core.navigation.WorkoutRoute
 import com.zambudio.registropesos.core.navigation.WorkoutSummaryRoute
+import com.zambudio.registropesos.core.navigation.dropUnlessResumedWith
 import com.zambudio.registropesos.feature.workout.routinedetail.RoutineDetailRoute as RoutineDetailDestination
 import com.zambudio.registropesos.feature.workout.session.WorkoutRoute as WorkoutDestination
 import com.zambudio.registropesos.feature.workout.summary.WorkoutSummaryRoute as WorkoutSummaryDestination
@@ -18,16 +20,16 @@ import com.zambudio.registropesos.feature.workout.train.TrainRoute as TrainDesti
 fun NavGraphBuilder.workoutGraph(navController: NavHostController) {
     composable<TrainRoute> {
         TrainDestination(
-            onOpenRoutine = { navController.navigate(RoutineDetailRoute(it)) },
-            onResumeSession = { navController.navigate(WorkoutRoute(it)) },
-            onOpenHistory = { navController.navigate(HistoryRoute) },
-            onCreateRoutine = { navController.navigate(RoutineEditRoute()) },
+            onOpenRoutine = dropUnlessResumedWith { id: String -> navController.navigate(RoutineDetailRoute(id)) },
+            onResumeSession = dropUnlessResumedWith { id: String -> navController.navigate(WorkoutRoute(id)) },
+            onOpenHistory = dropUnlessResumed { navController.navigate(HistoryRoute) },
+            onCreateRoutine = dropUnlessResumed { navController.navigate(RoutineEditRoute()) },
         )
     }
     composable<RoutineDetailRoute> {
         RoutineDetailDestination(
-            onBack = { navController.popBackStack() },
-            onEditRoutine = { navController.navigate(RoutineEditRoute(it)) },
+            onBack = dropUnlessResumed { navController.popBackStack() },
+            onEditRoutine = dropUnlessResumedWith { id: String -> navController.navigate(RoutineEditRoute(id)) },
             // Atrás desde la sesión vuelve a Entrenar, no al detalle de la rutina.
             onOpenWorkout = { sessionId ->
                 navController.navigate(WorkoutRoute(sessionId)) {
@@ -38,7 +40,7 @@ fun NavGraphBuilder.workoutGraph(navController: NavHostController) {
     }
     composable<WorkoutRoute> {
         WorkoutDestination(
-            onBack = { navController.popBackStack() },
+            onBack = dropUnlessResumed { navController.popBackStack() },
             onFinished = { sessionId ->
                 navController.navigate(WorkoutSummaryRoute(sessionId)) {
                     popUpTo<WorkoutRoute> { inclusive = true }
@@ -48,7 +50,7 @@ fun NavGraphBuilder.workoutGraph(navController: NavHostController) {
         )
     }
     composable<WorkoutSummaryRoute> {
-        WorkoutSummaryDestination(onDone = { navController.popToTrain() })
+        WorkoutSummaryDestination(onDone = dropUnlessResumed { navController.popToTrain() })
     }
 }
 

@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.zambudio.registropesos.R
 import com.zambudio.registropesos.core.theme.GymTheme
 import com.zambudio.registropesos.core.ui.ConfirmDialog
@@ -68,7 +69,8 @@ fun SessionDetailRoute(
     SessionDetailScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onBack = onBack,
+        // Solo el botón se protege del doble toque: el evento Deleted llega en STARTED y no debe perderse.
+        onBack = dropUnlessResumed(block = onBack),
         onDelete = viewModel::delete,
         onRetry = viewModel::retry,
     )

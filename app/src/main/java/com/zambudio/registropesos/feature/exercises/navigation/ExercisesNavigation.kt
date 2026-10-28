@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import com.zambudio.registropesos.core.navigation.ExerciseEditRoute
 import com.zambudio.registropesos.core.navigation.ExercisesRoute
 import com.zambudio.registropesos.core.navigation.MuscleGroupsRoute
+import com.zambudio.registropesos.core.navigation.dropUnlessResumedWith
 import com.zambudio.registropesos.feature.exercises.ExerciseEditorRoute
 import com.zambudio.registropesos.feature.exercises.ExercisesListRoute
 import com.zambudio.registropesos.feature.exercises.musclegroups.MuscleGroupsListRoute
@@ -14,9 +15,13 @@ import com.zambudio.registropesos.feature.exercises.musclegroups.MuscleGroupsLis
 fun NavGraphBuilder.exercisesGraph(navController: NavHostController) {
     composable<ExercisesRoute> {
         ExercisesListRoute(
-            onOpenExercise = { id -> navController.navigate(ExerciseEditRoute(exerciseId = id)) },
-            onAddExercise = { groupId -> navController.navigate(ExerciseEditRoute(muscleGroupId = groupId)) },
-            onManageGroups = { navController.navigate(MuscleGroupsRoute) },
+            onOpenExercise = dropUnlessResumedWith { id: String ->
+                navController.navigate(ExerciseEditRoute(exerciseId = id))
+            },
+            onAddExercise = dropUnlessResumedWith { groupId: String ->
+                navController.navigate(ExerciseEditRoute(muscleGroupId = groupId))
+            },
+            onManageGroups = dropUnlessResumed { navController.navigate(MuscleGroupsRoute) },
         )
     }
     // Los argumentos de ExerciseEditRoute los lee el ViewModel con savedStateHandle.toRoute().

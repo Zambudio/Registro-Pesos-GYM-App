@@ -1,5 +1,6 @@
 package com.zambudio.registropesos.feature.settings.navigation
 
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -14,13 +15,13 @@ import com.zambudio.registropesos.feature.settings.MoreRoute as MoreRouteScreen
 fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
     composable<MoreRoute> {
         MoreRouteScreen(
-            onOpenBackup = { navController.navigate(BackupRoute) },
-            onOpenMuscleGroups = { navController.navigate(MuscleGroupsRoute) },
-            onOpenHistory = { navController.navigate(HistoryRoute) },
-            onOpenAbout = { navController.navigate(AboutRoute) },
+            onOpenBackup = dropUnlessResumed { navController.navigate(BackupRoute) },
+            onOpenMuscleGroups = dropUnlessResumed { navController.navigate(MuscleGroupsRoute) },
+            onOpenHistory = dropUnlessResumed { navController.navigate(HistoryRoute) },
+            onOpenAbout = dropUnlessResumed { navController.navigate(AboutRoute) },
         )
     }
     composable<AboutRoute> {
-        AboutRouteScreen(onBack = { navController.popBackStack() })
+        AboutRouteScreen(onBack = dropUnlessResumed { navController.popBackStack() })
     }
 }
