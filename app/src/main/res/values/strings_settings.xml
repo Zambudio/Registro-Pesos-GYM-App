@@ -1,4 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Textos de feature/settings. Prefijo obligatorio: settings_ -->
 <resources>
+    <string name="settings_more_title">Más</string>
+
+    <!-- Entradas -->
+    <string name="settings_backup">Exportar / importar</string>
+    <string name="settings_backup_summary">Copia de seguridad en ZIP y hoja de series</string>
+    <string name="settings_muscle_groups">Grupos musculares</string>
+    <string name="settings_muscle_groups_summary">Crear, renombrar y ordenar</string>
+    <string name="settings_history">Historial</string>
+    <string name="settings_history_summary">Entrenamientos terminados</string>
+    <string name="settings_about">Acerca de</string>
+
+    <!-- Ajustes -->
+    <string name="settings_section_preferences">Ajustes</string>
+    <string name="settings_weight_step">Paso de peso</string>
+    <string name="settings_weight_step_summary">Cuánto suman o restan los botones de peso al entrenar</string>
+    <string name="settings_weight_step_option">%1$s kg</string>
+    <string name="settings_default_sets">Series por defecto</string>
+    <string name="settings_default_sets_summary">Series de cada ejercicio nuevo en una rutina</string>
+    <string name="settings_default_sets_decrease">Menos series</string>
+    <string name="settings_default_sets_increase">Más series</string>
+    <string name="settings_error">No se pudieron cargar los ajustes.</string>
+
+    <!-- Acerca de -->
+    <string name="settings_about_version">Versión %1$s</string>
+    <string name="settings_about_description">Registro de los pesos levantados en el gimnasio y de su evolución.</string>
+    <string name="settings_about_privacy_title">Privacidad</string>
+    <string name="settings_about_privacy">Tus datos se guardan solo en este móvil. La app no tiene cuentas, no envía nada a internet y no usa analítica. Las copias que exportes van donde tú decidas, y la copia automática de Android la gestiona tu cuenta de Google.</string>
 </resources>
