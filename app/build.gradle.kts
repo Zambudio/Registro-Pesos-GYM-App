@@ -66,8 +66,9 @@ android {
     }
 
     sourceSets {
-        // Esquemas exportados de Room disponibles para MigrationTestHelper.
-        getByName("test").assets.srcDir("$projectDir/schemas")
+        // Esquemas de Room como assets solo en debug: Robolectric (tests JVM) lee los assets de la
+        // variante, no los de "test". El APK release no los incluye.
+        getByName("debug").assets.srcDir("$projectDir/schemas")
     }
 }
 

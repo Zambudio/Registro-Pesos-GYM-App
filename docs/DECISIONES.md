@@ -40,3 +40,20 @@ Formato: contexto / decisión / consecuencias. Las decisiones del stack de `docs
 - **Contexto**: en un módulo único no se puede activar `-Werror` solo para el paquete `domain`.
 - **Decisión**: `allWarningsAsErrors = true` para todo `:app` (más estricto que lo pedido) + detekt con la config por defecto ajustada a Compose.
 - **Consecuencias**: el código no puede dejar avisos de compilación. detekt 1.23.8 se ejecuta con Kotlin 2.0.21 forzado en su classpath: no usar sintaxis exclusiva de Kotlin 2.2 (context parameters, guard en `when`, `$$`).
+
+## ADR-009 — Escrituras sin `@Upsert` ni `REPLACE`
+- **Contexto**: `@Upsert` descarta en silencio una fila que choca con un índice único (p. ej. una serie con el mismo `set_index`) y `REPLACE` borra la fila y dispara los `CASCADE`.
+- **Decisión**: los DAOs hacen *update* y, si no había fila, *insert*. Sin índice único de `sort_order` en bloques/ejercicios de rutina (dificulta reemplazar hijos); `RoutineRepository.save` renumera `sortOrder` según la posición.
+- **Consecuencias**: un guardado nunca borra hijos por efecto lateral.
+
+## ADR-010 — Import conservador
+- **Decisión**: seed de grupos con `updatedAt = 0` (un grupo por defecto sin tocar nunca pisa una edición real). El remapeo de grupos por nombre solo se aplica si el id entrante no existe en local. Una sesión IN_PROGRESS local nunca se pisa ni se borra por un import. En agregados importados se omite solo el hijo con FK rota (con aviso). Una sesión cuya rutina no existe se guarda con `routineId = null`.
+
+## ADR-011 — Infraestructura de migraciones probada
+- **Contexto**: requisito duro de no perder datos al actualizar.
+- **Decisión**: `Migrations.ALL_MIGRATIONS` explícito (vacío en v1) y `MigrationTest` (Robolectric + `MigrationTestHelper`): comprueba que existe el esquema exportado de cada versión, que hay `Migration(n, n+1)` para cada salto, valida cada migración contra el esquema exportado y que una BD con datos sobrevive a reabrirse con la app actual. Los esquemas se exponen como assets solo de la variante `debug` (Robolectric lee los assets de la variante, no los de `test`); el APK release no los incluye. En Windows hay que pasar rutas absolutas a `createDatabase`.
+- **Consecuencias**: para crear la v2 basta con subir `VERSION`, añadir la `Migration(1, 2)` y commitear `2.json`; el test la valida sin cambios.
+
+## ADR-012 — Robolectric con SDK 35
+- **Contexto**: Robolectric 4.16 falla con el SDK 36 en esta máquina (JDK 17).
+- **Decisión**: los tests Robolectric fijan `@Config(sdk = [35], application = Application::class)` (sin Hilt en tests).
