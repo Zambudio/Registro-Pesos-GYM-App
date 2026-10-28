@@ -1,12 +1,13 @@
 package com.zambudio.registropesos.feature.backup.navigation
 
-import androidx.navigation.NavHostController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.zambudio.registropesos.core.navigation.BackupRoute
-import com.zambudio.registropesos.core.ui.PlaceholderScreen
+import com.zambudio.registropesos.feature.backup.BackupRoute as BackupRouteScreen
 
-@Suppress("UNUSED_PARAMETER")
 fun NavGraphBuilder.backupGraph(navController: NavHostController) {
-    composable<BackupRoute> { PlaceholderScreen("BackupRoute") }
+    composable<BackupRoute> {
+        BackupRouteScreen(onBack = { navController.popBackStack() })
+    }
 }

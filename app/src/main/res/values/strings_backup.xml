@@ -1,4 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Textos de feature/backup. Prefijo obligatorio: backup_ -->
 <resources>
+    <string name="backup_title">Exportar / importar</string>
+
+    <!-- Exportar -->
+    <string name="backup_export_title">Exportar</string>
+    <string name="backup_export_body">Genera un ZIP con todos tus datos (backup.json), una hoja con todas las series (sets.csv, se abre con Excel) y las fotos de los ejercicios. La sesión en curso no se incluye.</string>
+    <string name="backup_export_action">Generar copia</string>
+    <string name="backup_export_ready">Copia lista: %1$s (%2$s)</string>
+    <plurals name="backup_export_images_missing">
+        <item quantity="one">No se encontró %d foto en el móvil; el resto de datos está completo.</item>
+        <item quantity="other">No se encontraron %d fotos en el móvil; el resto de datos está completo.</item>
+    </plurals>
+    <string name="backup_save_as">Guardar en…</string>
+    <string name="backup_share">Compartir</string>
+    <string name="backup_share_chooser">Compartir copia de seguridad</string>
+    <string name="backup_saved">Copia guardada</string>
+
+    <!-- Importar -->
+    <string name="backup_import_title">Importar</string>
+    <string name="backup_import_body">Elige un ZIP exportado con esta app. Se fusiona con tus datos sin duplicar nada: de cada registro se queda la versión modificada más recientemente.</string>
+    <string name="backup_import_action">Importar desde ZIP</string>
+    <string name="backup_import_confirm_title">¿Importar esta copia?</string>
+    <string name="backup_import_confirm_message">Copia del %1$s (app %2$s)\n\n%3$s\n%4$s\n%5$s\n\nSe fusionará con los datos actuales.</string>
+    <string name="backup_import_confirm_action">Importar</string>
+    <plurals name="backup_count_exercises">
+        <item quantity="one">%d ejercicio</item>
+        <item quantity="other">%d ejercicios</item>
+    </plurals>
+    <plurals name="backup_count_routines">
+        <item quantity="one">%d rutina</item>
+        <item quantity="other">%d rutinas</item>
+    </plurals>
+    <plurals name="backup_count_sessions">
+        <item quantity="one">%d sesión</item>
+        <item quantity="other">%d sesiones</item>
+    </plurals>
+
+    <!-- Informe de importación -->
+    <string name="backup_report_title">Importación completada</string>
+    <string name="backup_report_row">%1$s: %2$d nuevos, %3$d actualizados, %4$d sin cambios</string>
+    <string name="backup_report_groups">Grupos musculares</string>
+    <string name="backup_report_exercises">Ejercicios</string>
+    <string name="backup_report_routines">Rutinas</string>
+    <string name="backup_report_sessions">Sesiones</string>
+    <string name="backup_report_deleted">Borrados aplicados: %d</string>
+    <string name="backup_report_images">Fotos copiadas: %d</string>
+    <plurals name="backup_report_images_missing">
+        <item quantity="one">%d foto no estaba en el ZIP</item>
+        <item quantity="other">%d fotos no estaban en el ZIP</item>
+    </plurals>
+    <string name="backup_report_warnings">Avisos</string>
+    <string name="backup_report_close">Cerrar</string>
+
+    <!-- Progreso -->
+    <string name="backup_working_exporting">Generando copia…</string>
+    <string name="backup_working_saving">Guardando…</string>
+    <string name="backup_working_reading">Leyendo fichero…</string>
+    <string name="backup_working_importing">Importando…</string>
+
+    <!-- Auto Backup -->
+    <string name="backup_auto_title">Copia automática de Android</string>
+    <string name="backup_auto_body">Android guarda también automáticamente la base de datos y las fotos en tu cuenta de Google (si la copia de seguridad del móvil está activada). Esa copia solo se restaura al reinstalar la app desde un APK firmado con la misma clave; por eso conviene exportar el ZIP de vez en cuando.</string>
+
+    <!-- Errores -->
+    <string name="backup_error_export">No se pudo generar la copia.</string>
+    <string name="backup_error_save">No se pudo guardar el fichero en el destino elegido.</string>
+    <string name="backup_error_share">No se pudo compartir la copia.</string>
+    <string name="backup_error_read">No se pudo leer el fichero.</string>
+    <string name="backup_error_invalid">El fichero no es una copia de seguridad válida de esta app.</string>
+    <string name="backup_error_version">La copia es de una versión más nueva de la app. Actualiza la app para importarla.</string>
+    <string name="backup_error_import">La importación ha fallado; no se ha cambiado ningún dato.</string>
 </resources>
