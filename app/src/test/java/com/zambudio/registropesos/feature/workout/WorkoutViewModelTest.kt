@@ -264,6 +264,54 @@ class WorkoutViewModelTest {
     }
 
     @Test
+    fun removingSetWithDataOffersUndoThatRestoresIt() = runTest {
+        val vm = viewModel()
+        vm.onWeightChange("p1", "80")
+        vm.onRepsChange("p1", "8")
+        vm.onToggleDone("p1")
+        vm.onWeightChange("p2", "70")
+        val original = repo.set("p1")
+
+        vm.onRemoveSet("press", "p1")
+
+        assertEquals(listOf<WorkoutEvent>(WorkoutEvent.SetRemoved("p1")), events)
+        assertEquals(listOf("p0", "p2"), repo.setsOf(sessionId).filter { it.exerciseId == "press" }.map { it.id })
+
+        vm.onUndoRemoveSet("p1")
+
+        val press = repo.setsOf(sessionId).filter { it.exerciseId == "press" }
+        assertEquals(listOf("p0", "p1", "p2"), press.map { it.id })
+        assertEquals(listOf(0, 1, 2), press.map { it.setIndex })
+        assertEquals("mismo id y datos", original, repo.set("p1"))
+        assertEquals(70.0, repo.set("p2").weightKg)
+        // Se escribe de mayor a menor posición para no chocar con el índice único de Room.
+        assertEquals(listOf("p2" to 2, "p1" to 1), repo.writes.last().map { it.id to it.setIndex })
+        assertEquals(listOf("p0", "p1", "p2"), vm.exercise("press").sets.map { it.setId })
+        assertEquals(listOf(null, 80.0, 70.0), vm.exercise("press").sets.map { it.weightKg })
+
+        // Deshacer solo funciona una vez.
+        vm.onUndoRemoveSet("p1")
+        assertEquals(3, repo.setsOf(sessionId).count { it.exerciseId == "press" })
+    }
+
+    @Test
+    fun removingDoneOnlySetOffersUndoButEmptySetIsRemovedDirectly() = runTest {
+        val vm = viewModel()
+
+        vm.onRemoveSet("press")
+        assertTrue("vacía: sin deshacer", events.isEmpty())
+        vm.onUndoRemoveSet("p2")
+        assertEquals(listOf("p0", "p1"), repo.setsOf(sessionId).filter { it.exerciseId == "press" }.map { it.id })
+
+        vm.onToggleDone("p1")
+        vm.onRemoveSet("press")
+        assertEquals(listOf<WorkoutEvent>(WorkoutEvent.SetRemoved("p1")), events)
+        vm.onUndoRemoveSet("p1")
+        assertTrue(repo.set("p1").isDone)
+        assertEquals(1, repo.set("p1").setIndex)
+    }
+
+    @Test
     fun toggleDoneSetsAndClearsCompletedAt() = runTest {
         val vm = viewModel()
 

@@ -75,6 +75,9 @@ class WorkoutViewModel @Inject constructor(
     private val eventChannel = Channel<WorkoutEvent>(Channel.BUFFERED)
     val events: Flow<WorkoutEvent> = eventChannel.receiveAsFlow()
 
+    /** Última serie con datos quitada, pendiente de un posible "Deshacer". */
+    private var lastRemoved: WorkoutSet? = null
+
     private val weightStepKg: StateFlow<Double> = settingsRepository.settings
         .map { it.weightStepKg }
         .catch { emit(AppSettings().weightStepKg) }
@@ -135,7 +138,10 @@ class WorkoutViewModel @Inject constructor(
         enqueue { workoutRepository.upsertSet(added) }
     }
 
-    /** Quita [setId] o, si es null, la última serie. Siempre queda al menos una. */
+    /**
+     * Quita [setId] o, si es null, la última serie. Siempre queda al menos una. Si la serie tenía
+     * datos (peso, reps o hecha) se emite [WorkoutEvent.SetRemoved] para ofrecer "Deshacer".
+     */
     fun onRemoveSet(exerciseId: String, setId: String? = null) {
         if (!canEdit()) return
         val exerciseSets = setsOf(exerciseId)
@@ -150,6 +156,29 @@ class WorkoutViewModel @Inject constructor(
             workoutRepository.deleteSet(target.id)
             workoutRepository.upsertSets(shifted)
         }
+        if (!target.isEmpty || target.isDone) {
+            lastRemoved = target
+            eventChannel.trySend(WorkoutEvent.SetRemoved(target.id))
+        }
+    }
+
+    /** "Deshacer" de [onRemoveSet]: la serie vuelve con el mismo id, datos y posición. */
+    fun onUndoRemoveSet(setId: String) {
+        val removed = lastRemoved?.takeIf { it.id == setId } ?: return
+        if (!canEdit()) return
+        lastRemoved = null
+        val exerciseSets = setsOf(removed.exerciseId)
+        val index = minOf(removed.setIndex, (exerciseSets.maxOfOrNull { it.setIndex } ?: -1) + 1)
+        val restored = removed.copy(setIndex = index)
+        // De mayor a menor: cada fila sube a un hueco ya libre y no choca con el índice único
+        // (sesión, ejercicio, posición). La restaurada va al final, cuando su posición ya está libre.
+        val shifted = exerciseSets
+            .filter { it.setIndex >= index }
+            .sortedByDescending { it.setIndex }
+            .map { it.copy(setIndex = it.setIndex + 1) }
+        val changed = shifted + restored
+        applyChanges(changed = changed)
+        enqueue { workoutRepository.upsertSets(changed) }
     }
 
     /**

@@ -41,6 +41,8 @@
     <string name="workout_weight_plus">Sumar %1$s kg</string>
     <string name="workout_add_set">Añadir serie</string>
     <string name="workout_remove_set">Quitar serie</string>
+    <string name="workout_set_removed">Serie quitada</string>
+    <string name="workout_undo">Deshacer</string>
     <string name="workout_previous_label">Anterior: %1$s</string>
     <string name="workout_previous_none">Primera vez con este ejercicio</string>
     <string name="workout_copy_previous">Copiar anterior</string>

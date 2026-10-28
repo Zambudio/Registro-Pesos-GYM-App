@@ -24,8 +24,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -73,6 +75,8 @@ fun WorkoutRoute(
     val saveFailed = stringResource(R.string.workout_error_save)
     val finishFailed = stringResource(R.string.workout_error_finish)
     val discardFailed = stringResource(R.string.workout_error_discard)
+    val setRemoved = stringResource(R.string.workout_set_removed)
+    val undo = stringResource(R.string.workout_undo)
 
     // La pantalla no se apaga mientras se entrena.
     val view = LocalView.current
@@ -88,6 +92,12 @@ fun WorkoutRoute(
             WorkoutEvent.SaveFailed -> scope.launch { snackbarHostState.showSnackbar(saveFailed) }
             WorkoutEvent.FinishFailed -> scope.launch { snackbarHostState.showSnackbar(finishFailed) }
             WorkoutEvent.DiscardFailed -> scope.launch { snackbarHostState.showSnackbar(discardFailed) }
+            is WorkoutEvent.SetRemoved -> scope.launch {
+                // Solo se puede deshacer la última: un aviso anterior en pantalla ya no aplica.
+                snackbarHostState.currentSnackbarData?.dismiss()
+                val result = snackbarHostState.showSnackbar(setRemoved, undo, duration = SnackbarDuration.Long)
+                if (result == SnackbarResult.ActionPerformed) viewModel.onUndoRemoveSet(event.setId)
+            }
         }
     }
 

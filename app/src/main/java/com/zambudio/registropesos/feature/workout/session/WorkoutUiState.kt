@@ -56,6 +56,9 @@ sealed interface WorkoutEvent {
     data class OpenSummary(val sessionId: String) : WorkoutEvent
     data object Discarded : WorkoutEvent
     data object SaveFailed : WorkoutEvent
+
+    /** Se quitó una serie con datos: la pantalla ofrece "Deshacer" ([WorkoutViewModel.onUndoRemoveSet]). */
+    data class SetRemoved(val setId: String) : WorkoutEvent
     data object FinishFailed : WorkoutEvent
     data object DiscardFailed : WorkoutEvent
 }
