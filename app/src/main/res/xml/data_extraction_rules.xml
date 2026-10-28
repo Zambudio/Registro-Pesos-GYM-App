@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Auto Backup y transferencia entre dispositivos (Android 12+). -->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="database" path="." />
+        <include domain="file" path="images/" />
+        <include domain="file" path="datastore/" />
+        <exclude domain="file" path="exports/" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="database" path="." />
+        <include domain="file" path="images/" />
+        <include domain="file" path="datastore/" />
+        <exclude domain="file" path="exports/" />
+    </device-transfer>
+</data-extraction-rules>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Auto Backup (Android 6-11). Solo se respaldan BD, imágenes y ajustes; nunca la caché. -->
+<full-backup-content>
+    <include domain="database" path="." />
+    <include domain="file" path="images/" />
+    <include domain="file" path="datastore/" />
+    <exclude domain="file" path="exports/" />
+</full-backup-content>

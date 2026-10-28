@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Foto temporal de la cámara antes de redimensionarla a images/. -->
+    <cache-path name="camera" path="camera/" />
+    <!-- ZIP de exportación para compartir. -->
+    <cache-path name="exports" path="exports/" />
+</paths>

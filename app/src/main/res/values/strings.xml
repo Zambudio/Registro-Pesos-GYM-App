@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Registro Pesos GYM</string>
+
+    <!-- Navegación principal -->
+    <string name="nav_train">Entrenar</string>
+    <string name="nav_routines">Rutinas</string>
+    <string name="nav_exercises">Ejercicios</string>
+    <string name="nav_progress">Progreso</string>
+    <string name="nav_more">Más</string>
+
+    <!-- Comunes -->
+    <string name="common_back">Volver</string>
+    <string name="common_save">Guardar</string>
+    <string name="common_cancel">Cancelar</string>
+    <string name="common_delete">Borrar</string>
+    <string name="common_edit">Editar</string>
+    <string name="common_add">Añadir</string>
+    <string name="common_confirm">Confirmar</string>
+    <string name="common_loading">Cargando…</string>
+    <string name="common_error_generic">Algo ha fallado. Inténtalo de nuevo.</string>
+    <string name="common_retry">Reintentar</string>
+    <string name="common_search">Buscar</string>
+    <string name="common_kg">kg</string>
+    <string name="placeholder_screen">Pantalla en construcción</string>
+</resources>
