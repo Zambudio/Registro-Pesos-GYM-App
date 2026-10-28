@@ -15,7 +15,7 @@ enum class TopLevelDestination(
     val route: Any,
     val routeClass: KClass<*>,
     val icon: ImageVector,
-    @StringRes val labelRes: Int,
+    @param:StringRes val labelRes: Int,
 ) {
     TRAIN(TrainRoute, TrainRoute::class, Icons.Filled.FitnessCenter, R.string.nav_train),
     ROUTINES(RoutinesRoute, RoutinesRoute::class, Icons.AutoMirrored.Filled.List, R.string.nav_routines),
