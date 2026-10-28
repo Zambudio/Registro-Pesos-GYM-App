@@ -1,4 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Textos de feature/progress. Prefijo obligatorio: progress_ -->
 <resources>
+    <string name="progress_title">Progreso</string>
+    <string name="progress_tab_exercise">Por ejercicio</string>
+    <string name="progress_tab_group">Por grupo</string>
+
+    <!-- Rangos -->
+    <string name="progress_range_1m">1M</string>
+    <string name="progress_range_3m">3M</string>
+    <string name="progress_range_6m">6M</string>
+    <string name="progress_range_1y">1A</string>
+    <string name="progress_range_all">Todo</string>
+
+    <!-- Selectores -->
+    <string name="progress_group_label">Grupo muscular</string>
+    <string name="progress_exercise_label">Ejercicio</string>
+    <string name="progress_exercise_placeholder">Elige un ejercicio</string>
+    <string name="progress_select_placeholder">Elegir</string>
+    <string name="progress_exercise_archived">%1$s (archivado)</string>
+    <string name="progress_no_exercises_in_group">Este grupo no tiene ejercicios</string>
+    <string name="progress_show_all_records">Ver todos los récords</string>
+
+    <!-- Gráficas -->
+    <string name="progress_chart_max_weight">Peso máximo (kg)</string>
+    <string name="progress_chart_volume">Volumen total (kg)</string>
+    <string name="progress_chart_e1rm">1RM estimado (kg)</string>
+    <string name="progress_chart_weekly_volume">Volumen semanal (kg)</string>
+    <string name="progress_chart_weekly_sessions">Sesiones por semana</string>
+    <string name="progress_chart_latest">Última: %1$s</string>
+    <string name="progress_chart_description">Gráfica %1$s con %2$d puntos. Último valor: %3$s</string>
+
+    <!-- Récords -->
+    <string name="progress_records_title">Récords personales</string>
+    <string name="progress_record_best_weight">Mejor peso</string>
+    <string name="progress_record_best_e1rm">Mejor 1RM estimado</string>
+    <string name="progress_record_value_date">%1$s · %2$s</string>
+    <string name="progress_record_open">Ver progreso de %1$s</string>
+
+    <!-- Estados -->
+    <string name="progress_empty_exercise">Aún no hay sesiones terminadas con este ejercicio</string>
+    <string name="progress_empty_exercise_range">No hay sesiones de este ejercicio en el periodo elegido. Prueba un rango mayor.</string>
+    <string name="progress_empty_records">Aún no hay récords</string>
+    <string name="progress_empty_records_message">Termina un entrenamiento y aquí verás tu evolución.</string>
+    <string name="progress_empty_group">No hay sesiones terminadas de este grupo en el periodo elegido</string>
+    <string name="progress_empty_groups">No hay grupos musculares</string>
+    <string name="progress_error">No se pudo cargar el progreso.</string>
 </resources>
