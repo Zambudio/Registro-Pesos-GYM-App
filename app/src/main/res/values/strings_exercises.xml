@@ -1,4 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Textos de feature/exercises. Prefijo obligatorio: exercises_ -->
 <resources>
+    <!-- Listado -->
+    <string name="exercises_title">Ejercicios</string>
+    <string name="exercises_search_hint">Buscar ejercicio</string>
+    <string name="exercises_search_clear">Borrar búsqueda</string>
+    <string name="exercises_show_archived">Mostrar archivados</string>
+    <string name="exercises_add">Añadir ejercicio</string>
+    <string name="exercises_manage_groups">Gestionar grupos musculares</string>
+    <string name="exercises_empty_title">Aún no tienes ejercicios</string>
+    <string name="exercises_empty_message">Añade tu primer ejercicio eligiendo su grupo muscular.</string>
+    <string name="exercises_no_results_title">Sin resultados</string>
+    <string name="exercises_no_results_message">Ningún ejercicio coincide con «%1$s».</string>
+    <string name="exercises_archived_badge">Archivado</string>
+    <string name="exercises_pick_group_title">Elige grupo muscular</string>
+    <string name="exercises_no_groups">No hay grupos musculares. Crea uno desde la gestión de grupos.</string>
+
+    <!-- Ficha -->
+    <string name="exercises_edit_title_new">Nuevo ejercicio</string>
+    <string name="exercises_edit_title_existing">Editar ejercicio</string>
+    <string name="exercises_field_name">Nombre</string>
+    <string name="exercises_field_group">Grupo muscular</string>
+    <string name="exercises_field_group_none">Elige un grupo muscular</string>
+    <string name="exercises_field_notes">Notas (opcional)</string>
+    <string name="exercises_error_name_empty">El nombre es obligatorio</string>
+    <string name="exercises_error_name_too_long">Máximo %1$d caracteres</string>
+    <string name="exercises_error_group_missing">Elige un grupo muscular</string>
+    <string name="exercises_image_label">Imagen</string>
+    <string name="exercises_image_none">Sin imagen</string>
+    <string name="exercises_image_gallery">Galería</string>
+    <string name="exercises_image_camera">Cámara</string>
+    <string name="exercises_image_remove">Quitar imagen</string>
+    <string name="exercises_image_description">Imagen del ejercicio</string>
+    <string name="exercises_image_error">No se pudo cargar la imagen</string>
+    <string name="exercises_camera_unavailable">No hay ninguna app de cámara disponible</string>
+    <string name="exercises_gallery_unavailable">No hay ninguna app para elegir imágenes</string>
+    <string name="exercises_archive">Archivar</string>
+    <string name="exercises_unarchive">Desarchivar</string>
+    <string name="exercises_archive_confirm_title">¿Archivar ejercicio?</string>
+    <string name="exercises_archive_confirm_message">Dejará de aparecer en el listado y al crear rutinas. Su historial se conserva.</string>
+    <string name="exercises_unarchive_confirm_title">¿Desarchivar ejercicio?</string>
+    <string name="exercises_unarchive_confirm_message">Volverá a aparecer en el listado y al crear rutinas.</string>
+    <string name="exercises_archived_done">Ejercicio archivado</string>
+    <string name="exercises_unarchived_done">Ejercicio desarchivado</string>
+    <string name="exercises_archived_notice">Este ejercicio está archivado.</string>
+    <string name="exercises_not_found">Este ejercicio ya no existe.</string>
+    <string name="exercises_save_error">No se pudo guardar el ejercicio</string>
+
+    <!-- Grupos musculares -->
+    <string name="exercises_groups_title">Grupos musculares</string>
+    <string name="exercises_groups_add">Nuevo grupo</string>
+    <string name="exercises_groups_empty_title">No hay grupos musculares</string>
+    <plurals name="exercises_groups_count">
+        <item quantity="one">%d ejercicio</item>
+        <item quantity="other">%d ejercicios</item>
+    </plurals>
+    <string name="exercises_groups_move_up">Subir %1$s</string>
+    <string name="exercises_groups_move_down">Bajar %1$s</string>
+    <string name="exercises_groups_rename">Renombrar %1$s</string>
+    <string name="exercises_groups_delete">Borrar %1$s</string>
+    <string name="exercises_groups_create_title">Nuevo grupo muscular</string>
+    <string name="exercises_groups_rename_title">Renombrar grupo</string>
+    <string name="exercises_groups_field_name">Nombre</string>
+    <string name="exercises_groups_error_empty">El nombre es obligatorio</string>
+    <string name="exercises_groups_error_duplicate">Ya existe un grupo con ese nombre</string>
+    <string name="exercises_groups_delete_title">¿Borrar grupo?</string>
+    <string name="exercises_groups_delete_message">Se borrará «%1$s». No se puede deshacer.</string>
+    <string name="exercises_groups_delete_in_use">No se puede borrar «%1$s»: tiene ejercicios (también archivados) o se usa en rutinas.</string>
+    <string name="exercises_groups_deleted">Grupo borrado</string>
 </resources>
