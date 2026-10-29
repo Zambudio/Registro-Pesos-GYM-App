@@ -3,6 +3,7 @@ package com.zambudio.registropesos.feature.backup
 import android.content.ClipData
 import android.content.Intent
 import android.text.format.Formatter
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -94,6 +95,9 @@ fun BackupRoute(onBack: () -> Unit, viewModel: BackupViewModel = hiltViewModel()
         }
     }
 
+    // Mientras hay una operación en curso, "atrás" del sistema no cierra la pantalla a medias.
+    BackHandler(enabled = state.isWorking) {}
+
     BackupScreen(
         state = state,
         snackbarHostState = snackbarHostState,
@@ -129,7 +133,7 @@ fun BackupScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.backup_title)) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = onBack, enabled = !state.isWorking) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.common_back),

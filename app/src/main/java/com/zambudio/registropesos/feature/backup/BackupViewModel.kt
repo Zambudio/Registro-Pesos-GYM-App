@@ -21,6 +21,7 @@ import com.zambudio.registropesos.feature.backup.io.InvalidBackupFileException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -116,20 +117,24 @@ class BackupViewModel @Inject constructor(
         val uri = pendingUri ?: return
         clearPending()
         runOperation(BackupOperation.IMPORTING) {
-            attempt { backupRepository.importSnapshot(snapshot) }
-                .onSuccess { report ->
-                    val outcome = copyImages(uri, report)
-                    _state.update { it.copy(outcome = outcome) }
-                }
-                .onFailure { error ->
-                    // El repositorio lanza IllegalArgumentException si el formato es más nuevo que la app.
-                    val mapped = if (error is IllegalArgumentException) {
-                        BackupError.UNSUPPORTED_VERSION
-                    } else {
-                        BackupError.IMPORT_FAILED
+            // Importar + copiar imágenes es una unidad: salir de la pantalla (viewModelScope
+            // cancelado) no debe dejar los datos importados sin sus imágenes.
+            withContext(NonCancellable) {
+                attempt { backupRepository.importSnapshot(snapshot) }
+                    .onSuccess { report ->
+                        val outcome = copyImages(uri, report)
+                        _state.update { it.copy(outcome = outcome) }
                     }
-                    sendError(mapped)
-                }
+                    .onFailure { error ->
+                        // El repositorio lanza IllegalArgumentException si el formato es más nuevo que la app.
+                        val mapped = if (error is IllegalArgumentException) {
+                            BackupError.UNSUPPORTED_VERSION
+                        } else {
+                            BackupError.IMPORT_FAILED
+                        }
+                        sendError(mapped)
+                    }
+            }
         }
     }
 

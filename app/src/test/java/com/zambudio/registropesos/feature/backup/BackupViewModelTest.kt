@@ -15,10 +15,13 @@ import com.zambudio.registropesos.feature.backup.io.BackupImageSource
 import com.zambudio.registropesos.feature.backup.io.BackupZipReader
 import com.zambudio.registropesos.feature.backup.io.BackupZipWriter
 import com.zambudio.registropesos.feature.progress.MainDispatcherRule
+import com.zambudio.registropesos.feature.workout.clearAsIfScreenClosed
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -190,6 +193,25 @@ class BackupViewModelTest {
     }
 
     @Test
+    fun `leaving the screen mid-import still finishes the import and copies images`() = runTest {
+        val zip = zipFile(snapshot, mapOf("images/exercise_e1.jpg" to byteArrayOf(7, 7)))
+        repository.importReport = ImportReport(imagesToCopy = mapOf("e1" to "images/exercise_e1.jpg"))
+        val gate = CompletableDeferred<Unit>()
+        repository.importGate = gate
+        val viewModel = viewModel()
+        viewModel.onImportFileChosen(zip.path)
+        viewModel.confirmImport()
+        assertNull("import en curso", repository.imported)
+
+        viewModel.clearAsIfScreenClosed()
+        gate.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(snapshot, repository.imported)
+        assertArrayEquals(byteArrayOf(7, 7), images.imported.getValue("images/exercise_e1.jpg"))
+    }
+
+    @Test
     fun `cancelling the preview does not import`() = runTest {
         val viewModel = viewModel()
         viewModel.onImportFileChosen(zipFile(snapshot).path)
@@ -287,12 +309,16 @@ private class FakeBackupRepository(private val snapshot: BackupSnapshot) : Backu
     var importReport = ImportReport()
     var imported: BackupSnapshot? = null
 
+    /** Si se fija, importSnapshot espera a que se complete (import "en curso"). */
+    var importGate: CompletableDeferred<Unit>? = null
+
     override suspend fun exportSnapshot(appVersion: String, exportedAt: Long): BackupSnapshot {
         exportError?.let { throw it }
         return snapshot
     }
 
     override suspend fun importSnapshot(snapshot: BackupSnapshot): ImportReport {
+        importGate?.await()
         importError?.let { throw it }
         imported = snapshot
         return importReport
