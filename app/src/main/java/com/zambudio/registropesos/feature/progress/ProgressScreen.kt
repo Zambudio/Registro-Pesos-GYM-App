@@ -5,34 +5,43 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ShowChart
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
+import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,18 +49,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zambudio.registropesos.R
 import com.zambudio.registropesos.core.theme.GymTheme
+import com.zambudio.registropesos.core.ui.CardSpacing
 import com.zambudio.registropesos.core.ui.EmptyState
 import com.zambudio.registropesos.core.ui.ErrorState
+import com.zambudio.registropesos.core.ui.GymCard
+import com.zambudio.registropesos.core.ui.IconBadge
+import com.zambudio.registropesos.core.ui.ListContentPadding
 import com.zambudio.registropesos.core.ui.LoadingState
+import com.zambudio.registropesos.core.ui.PickerField
+import com.zambudio.registropesos.core.ui.ScreenPadding
 import com.zambudio.registropesos.core.util.formatDate
 import com.zambudio.registropesos.core.util.formatKgWithUnit
 import com.zambudio.registropesos.domain.model.MuscleGroup
@@ -93,6 +111,9 @@ data class ProgressCallbacks(
 fun ProgressScreen(state: ProgressUiState, callbacks: ProgressCallbacks, modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
+        // El Scaffold raíz ya aplica el inset inferior (barra de navegación).
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
+            .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
         topBar = { TopAppBar(title = { Text(stringResource(R.string.progress_title)) }) },
     ) { padding ->
         Column(
@@ -100,15 +121,7 @@ fun ProgressScreen(state: ProgressUiState, callbacks: ProgressCallbacks, modifie
                 .fillMaxSize()
                 .padding(padding),
         ) {
-            PrimaryTabRow(selectedTabIndex = state.tab.ordinal) {
-                ProgressTab.entries.forEach { tab ->
-                    Tab(
-                        selected = state.tab == tab,
-                        onClick = { callbacks.onTabSelected(tab) },
-                        text = { Text(stringResource(tab.labelRes())) },
-                    )
-                }
-            }
+            TabSelector(selected = state.tab, onSelected = callbacks.onTabSelected)
             RangeChips(selected = state.range, onSelected = callbacks.onRangeSelected)
             when {
                 state.isLoading -> LoadingState()
@@ -116,11 +129,14 @@ fun ProgressScreen(state: ProgressUiState, callbacks: ProgressCallbacks, modifie
                     message = stringResource(R.string.progress_error),
                     onRetry = callbacks.onRetry,
                 )
-                state.groups.isEmpty() -> EmptyState(title = stringResource(R.string.progress_empty_groups))
+                state.groups.isEmpty() -> EmptyState(
+                    title = stringResource(R.string.progress_empty_groups),
+                    icon = Icons.Filled.Category,
+                )
                 else -> LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = ListContentPadding,
+                    verticalArrangement = Arrangement.spacedBy(CardSpacing),
                 ) {
                     when (state.tab) {
                         ProgressTab.EXERCISE -> exerciseTab(state, callbacks)
@@ -145,7 +161,14 @@ private fun LazyListScope.exerciseTab(state: ProgressUiState, callbacks: Progres
         return
     }
     item(key = "show_all") {
-        TextButton(onClick = callbacks.onShowAllRecords) { Text(stringResource(R.string.progress_show_all_records)) }
+        TextButton(onClick = callbacks.onShowAllRecords) {
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = null,
+                modifier = Modifier.padding(end = 8.dp),
+            )
+            Text(stringResource(R.string.progress_show_all_records))
+        }
     }
     state.selectedRecord?.let { record ->
         item(key = "selected_record") {
@@ -194,7 +217,14 @@ private fun LazyListScope.recordsList(records: List<RecordCard>, onRecordClick: 
         return
     }
     item(key = "records_title") {
-        Text(stringResource(R.string.progress_records_title), style = MaterialTheme.typography.titleMedium)
+        Row(
+            modifier = Modifier.padding(start = 4.dp, top = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(Icons.Filled.EmojiEvents, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary)
+            Text(stringResource(R.string.progress_records_title), style = MaterialTheme.typography.titleLarge)
+        }
     }
     items(records, key = { it.exerciseId }) { card ->
         RecordCardView(
@@ -242,13 +272,47 @@ private fun LazyListScope.groupTab(state: ProgressUiState, callbacks: ProgressCa
     }
 }
 
+/** Selector de pestaña como botones segmentados a todo el ancho. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TabSelector(selected: ProgressTab, onSelected: (ProgressTab) -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = ScreenPadding),
+    ) {
+        ProgressTab.entries.forEachIndexed { index, tab ->
+            SegmentedButton(
+                selected = selected == tab,
+                onClick = { onSelected(tab) },
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = ProgressTab.entries.size),
+                colors = SegmentedButtonDefaults.colors(
+                    activeContainerColor = colors.primaryContainer,
+                    activeContentColor = colors.onPrimaryContainer,
+                    inactiveContainerColor = colors.surfaceContainerLow,
+                ),
+                icon = {
+                    Icon(
+                        tab.icon(),
+                        contentDescription = null,
+                        modifier = Modifier.size(SegmentedButtonDefaults.IconSize),
+                    )
+                },
+                label = { Text(stringResource(tab.labelRes())) },
+            )
+        }
+    }
+}
+
 @Composable
 private fun RangeChips(selected: ProgressRange, onSelected: (ProgressRange) -> Unit) {
+    val colors = MaterialTheme.colorScheme
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = ScreenPadding, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         ProgressRange.entries.forEach { range ->
@@ -256,6 +320,11 @@ private fun RangeChips(selected: ProgressRange, onSelected: (ProgressRange) -> U
                 selected = range == selected,
                 onClick = { onSelected(range) },
                 label = { Text(stringResource(range.labelRes())) },
+                colors = FilterChipDefaults.filterChipColors(
+                    containerColor = colors.surfaceContainerLow,
+                    selectedContainerColor = colors.primary,
+                    selectedLabelColor = colors.onPrimary,
+                ),
             )
         }
     }
@@ -267,6 +336,7 @@ private fun GroupSelector(groups: List<MuscleGroup>, selectedId: String?, onSele
         label = stringResource(R.string.progress_group_label),
         value = groups.firstOrNull { it.id == selectedId }?.name,
         placeholder = stringResource(R.string.progress_select_placeholder),
+        icon = Icons.Filled.Category,
         options = groups.map { it.id to it.name },
         onSelected = onSelected,
     )
@@ -286,6 +356,7 @@ private fun ExerciseSelector(state: ProgressUiState, onSelected: (String) -> Uni
         } else {
             stringResource(R.string.progress_exercise_placeholder)
         },
+        icon = Icons.Filled.FitnessCenter,
         options = options,
         onSelected = onSelected,
     )
@@ -297,37 +368,20 @@ private fun SelectorField(
     label: String,
     value: String?,
     placeholder: String,
+    icon: ImageVector,
     options: List<Pair<String, String>>,
     onSelected: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box {
-        OutlinedCard(
+        PickerField(
+            label = label,
+            value = value,
+            placeholder = placeholder,
             onClick = { expanded = true },
             enabled = options.isNotEmpty(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 56.dp),
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                    Text(
-                        value ?: placeholder,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = if (value == null) {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        },
-                    )
-                }
-                Icon(Icons.Filled.ArrowDropDown, contentDescription = null)
-            }
-        }
+            leadingIcon = icon,
+        )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { (id, name) ->
                 DropdownMenuItem(
@@ -342,49 +396,95 @@ private fun SelectorField(
     }
 }
 
+/**
+ * Récord personal en dorado. En la lista es una tarjeta blanca pulsable con la copa en dorado; el récord
+ * del ejercicio elegido ([onClick] null) se destaca con el fondo dorado suave.
+ */
 @Composable
 private fun RecordCardView(exerciseName: String, groupName: String?, record: PersonalRecord, onClick: (() -> Unit)?) {
+    val colors = MaterialTheme.colorScheme
+    val highlighted = onClick == null
+    val contentColor = if (highlighted) colors.onTertiaryContainer else colors.onSurface
+    val secondaryColor = if (highlighted) colors.onTertiaryContainer else colors.onSurfaceVariant
+    val valueColor = if (highlighted) colors.onTertiaryContainer else colors.tertiary
     val openDescription = stringResource(R.string.progress_record_open, exerciseName)
-    val content: @Composable () -> Unit = {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.EmojiEvents, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                Column(modifier = Modifier.padding(start = 12.dp)) {
-                    Text(exerciseName, style = MaterialTheme.typography.titleMedium)
-                    if (!groupName.isNullOrBlank()) {
-                        Text(
-                            groupName,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+    GymCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.semantics { contentDescription = openDescription } else Modifier),
+        onClick = onClick,
+        color = if (highlighted) colors.tertiaryContainer else colors.surfaceContainerLow,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            IconBadge(
+                Icons.Filled.EmojiEvents,
+                containerColor = if (highlighted) colors.tertiary else colors.tertiaryContainer,
+                contentColor = if (highlighted) colors.onTertiary else colors.onTertiaryContainer,
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    exerciseName,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = contentColor,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (!groupName.isNullOrBlank()) {
+                    Text(groupName, style = MaterialTheme.typography.bodySmall, color = secondaryColor)
                 }
             }
-            RecordLine(R.string.progress_record_best_weight, record.bestWeightKg, record.bestWeightAt)
-            RecordLine(R.string.progress_record_best_e1rm, record.bestE1rmKg, record.bestE1rmAt)
         }
-    }
-    if (onClick == null) {
-        Card(modifier = Modifier.fillMaxWidth()) { content() }
-    } else {
-        Card(
-            onClick = onClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .semantics { contentDescription = openDescription },
-        ) { content() }
+        Spacer(Modifier.height(14.dp))
+        Row(modifier = Modifier.height(IntrinsicSize.Min)) {
+            RecordStat(
+                labelRes = R.string.progress_record_best_weight,
+                valueKg = record.bestWeightKg,
+                atMillis = record.bestWeightAt,
+                valueColor = valueColor,
+                secondaryColor = secondaryColor,
+                modifier = Modifier.weight(1f),
+            )
+            VerticalDivider(
+                modifier = Modifier.padding(horizontal = 12.dp),
+                color = if (highlighted) colors.onTertiaryContainer.copy(alpha = 0.2f) else colors.outlineVariant,
+            )
+            RecordStat(
+                labelRes = R.string.progress_record_best_e1rm,
+                valueKg = record.bestE1rmKg,
+                atMillis = record.bestE1rmAt,
+                valueColor = valueColor,
+                secondaryColor = secondaryColor,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 
 @Composable
-private fun RecordLine(@StringRes labelRes: Int, valueKg: Double, atMillis: Long) {
-    Row {
-        Text(stringResource(labelRes), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+private fun RecordStat(
+    @StringRes labelRes: Int,
+    valueKg: Double,
+    atMillis: Long,
+    valueColor: Color,
+    secondaryColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
         Text(
-            stringResource(R.string.progress_record_value_date, formatKgWithUnit(valueKg), formatDate(atMillis)),
-            style = MaterialTheme.typography.bodyMedium,
+            stringResource(labelRes),
+            style = MaterialTheme.typography.labelMedium,
+            color = secondaryColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
+        Text(formatKgWithUnit(valueKg), style = MaterialTheme.typography.headlineSmall, color = valueColor)
+        Text(formatDate(atMillis), style = MaterialTheme.typography.labelSmall, color = secondaryColor)
     }
+}
+
+private fun ProgressTab.icon(): ImageVector = when (this) {
+    ProgressTab.EXERCISE -> Icons.Filled.FitnessCenter
+    ProgressTab.GROUP -> Icons.Filled.Category
 }
 
 @StringRes

@@ -34,7 +34,6 @@
     <string name="progress_records_title">Récords personales</string>
     <string name="progress_record_best_weight">Mejor peso</string>
     <string name="progress_record_best_e1rm">Mejor 1RM estimado</string>
-    <string name="progress_record_value_date">%1$s · %2$s</string>
     <string name="progress_record_open">Ver progreso de %1$s</string>
 
     <!-- Estados -->
