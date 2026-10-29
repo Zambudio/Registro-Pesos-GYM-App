@@ -1,6 +1,7 @@
 package com.zambudio.registropesos.feature.exercises.musclegroups
 
 import android.database.sqlite.SQLiteConstraintException
+import android.database.sqlite.SQLiteException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zambudio.registropesos.R
@@ -128,6 +129,9 @@ class MuscleGroupsViewModel @Inject constructor(
             } catch (ignored: SQLiteConstraintException) {
                 // Carrera con otro cambio o colación distinta en SQLite: el índice único manda.
                 editor.update { it?.copy(error = GroupNameError.DUPLICATE) }
+            } catch (ignored: SQLiteException) {
+                // Otro fallo de BD (disco lleno, BD bloqueada…): se avisa y el diálogo sigue abierto.
+                showGenericError()
             }
         }
     }
@@ -158,8 +162,16 @@ class MuscleGroupsViewModel @Inject constructor(
             val to = from + offset
             if (from < 0 || to !in ordered.indices) return@launch
             ordered.add(to, ordered.removeAt(from))
-            repository.reorder(ordered)
+            try {
+                repository.reorder(ordered)
+            } catch (ignored: SQLiteException) {
+                showGenericError()
+            }
         }
+    }
+
+    private suspend fun showGenericError() {
+        eventChannel.send(MuscleGroupsEvent.ShowMessage(UiMessage(R.string.common_error_generic)))
     }
 
     private fun buildGroup(groupId: String?, name: String, groups: List<MuscleGroup>): MuscleGroup? {

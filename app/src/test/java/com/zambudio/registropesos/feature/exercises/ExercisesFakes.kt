@@ -63,6 +63,9 @@ class FakeMuscleGroupRepository(
     /** Simula el índice único de SQLite lanzando esta excepción en el próximo upsert. */
     var upsertError: (() -> Throwable)? = null
 
+    /** Fallo a lanzar en el próximo reorder. */
+    var reorderError: (() -> Throwable)? = null
+
     override fun observeAll(): Flow<List<MuscleGroup>> = groups.map { list -> list.sortedBy { it.sortOrder } }
 
     override fun observeExerciseCounts(): Flow<Map<String, Int>> =
@@ -81,6 +84,10 @@ class FakeMuscleGroupRepository(
     }
 
     override suspend fun reorder(orderedIds: List<String>) {
+        reorderError?.let { factory ->
+            reorderError = null
+            throw factory()
+        }
         reorderCalls += orderedIds
         groups.value = groups.value.map { it.copy(sortOrder = orderedIds.indexOf(it.id)) }
     }
