@@ -1,0 +1,1892 @@
+[
+  {
+    "code": "PEC-001",
+    "group": "Pecho",
+    "name": "Press de banca plano con barra",
+    "equipment": "barra",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000001",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco plano, pies en el suelo, agarre algo más ancho que los hombros. Barra extendida sobre el pecho; baja controlada hasta rozar el pecho y empuja hasta extender los codos. Trabaja el pectoral mayor, con apoyo de tríceps y deltoides anterior."
+  },
+  {
+    "code": "PEC-002",
+    "group": "Pecho",
+    "name": "Press inclinado con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000002",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en banco inclinado (30-45 grados) con una mancuerna en cada mano a la altura del pecho. Empuja hacia arriba juntando ligeramente las mancuernas hasta extender los codos y baja controlado. Trabaja la parte superior del pectoral."
+  },
+  {
+    "code": "PEC-003",
+    "group": "Pecho",
+    "name": "Press de pecho en máquina",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000003",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado con la espalda apoyada y las asas a la altura del pecho. Empuja hacia delante hasta extender los brazos sin bloquear los codos y vuelve despacio. Trabaja el pectoral mayor."
+  },
+  {
+    "code": "PEC-004",
+    "group": "Pecho",
+    "name": "Cruces de poleas",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000004",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie entre dos poleas altas, un asa en cada mano, tronco ligeramente inclinado. Con los codos algo flexionados, lleva las manos hacia delante y abajo hasta juntarlas ante el pecho; vuelve abriendo con control. Trabaja el pectoral (aducción)."
+  },
+  {
+    "code": "PEC-005",
+    "group": "Pecho",
+    "name": "Press de banca plano con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000005",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco plano con una mancuerna en cada mano a los lados del pecho. Empuja hasta extender los codos sobre el pecho y baja controlado. Trabaja el pectoral mayor con mayor recorrido."
+  },
+  {
+    "code": "PEC-006",
+    "group": "Pecho",
+    "name": "Press inclinado en máquina",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000006",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina de press inclinado con la espalda apoyada y las asas a la altura del pecho alto. Empuja hacia delante y arriba hasta extender los brazos y vuelve controlado. Trabaja el pectoral superior."
+  },
+  {
+    "code": "PEC-007",
+    "group": "Pecho",
+    "name": "Aperturas en máquina contractora",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000007",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado con la espalda apoyada y los antebrazos o asas a los lados. Con los codos algo flexionados, junta los brazos ante el pecho y vuelve abriendo con control. Trabaja el pectoral (aislamiento)."
+  },
+  {
+    "code": "PEC-008",
+    "group": "Pecho",
+    "name": "Fondos orientados al pecho",
+    "equipment": "peso corporal",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000008",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "En paralelas con los brazos extendidos y el tronco inclinado hacia delante. Baja flexionando los codos hasta sentir estiramiento en el pecho y empuja para subir. Trabaja la parte inferior del pectoral y el tríceps."
+  },
+  {
+    "code": "PEC-009",
+    "group": "Pecho",
+    "name": "Elevación unilateral para pecho superior",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000009",
+    "view": "3/4",
+    "frames": 2,
+    "technique": "De pie junto a una polea baja, asa en una mano. Con el brazo casi extendido, eleva el asa en diagonal hacia delante y arriba hasta la altura del hombro y baja controlado. Trabaja el pectoral superior."
+  },
+  {
+    "code": "PEC-010",
+    "group": "Pecho",
+    "name": "Pullover con mancuerna (pecho)",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000010",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado transversalmente en banco con una mancuerna sujeta con ambas manos sobre el pecho. Baja los brazos casi extendidos por detrás de la cabeza hasta notar estiramiento y vuelve al frente. Trabaja el pectoral y el dorsal."
+  },
+  {
+    "code": "PEC-011",
+    "group": "Pecho",
+    "name": "Press banca",
+    "equipment": "barra",
+    "existingId": "beed54e8-2a90-4857-9893-8f51ea5ebbcc",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco plano con la barra sobre el pecho. Baja hasta rozar el pecho y empuja hasta extender los codos. Trabaja el pectoral mayor."
+  },
+  {
+    "code": "PEC-012",
+    "group": "Pecho",
+    "name": "Press inclinado con barra",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco inclinado (30-45 grados), barra sobre la parte alta del pecho. Baja hasta rozar el pecho alto y empuja hasta extender los codos. Trabaja el pectoral superior y el deltoides anterior."
+  },
+  {
+    "code": "PEC-013",
+    "group": "Pecho",
+    "name": "Press declinado con barra",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco declinado con los pies sujetos y la barra sobre el pecho bajo. Baja hasta rozar el pecho y empuja hasta extender. Trabaja la parte inferior del pectoral."
+  },
+  {
+    "code": "PEC-014",
+    "group": "Pecho",
+    "name": "Press declinado con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco declinado con una mancuerna en cada mano a los lados del pecho. Empuja hasta extender los codos y baja controlado. Trabaja el pectoral inferior."
+  },
+  {
+    "code": "PEC-015",
+    "group": "Pecho",
+    "name": "Aperturas con mancuernas en banco plano",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Tumbado en banco plano con las mancuernas sobre el pecho, palmas enfrentadas y codos algo flexionados. Abre los brazos en arco hasta notar estiramiento del pecho y vuelve juntando las mancuernas. Trabaja el pectoral."
+  },
+  {
+    "code": "PEC-016",
+    "group": "Pecho",
+    "name": "Aperturas con mancuernas en banco inclinado",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Tumbado en banco inclinado con las mancuernas sobre el pecho alto y codos algo flexionados. Abre los brazos en arco con control y vuelve juntándolas. Trabaja el pectoral superior."
+  },
+  {
+    "code": "PEC-017",
+    "group": "Pecho",
+    "name": "Press de banca plano en multipower",
+    "equipment": "multipower",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco plano bajo la barra guiada del multipower. Desbloquea, baja hasta rozar el pecho y empuja hasta extender los codos. Trabaja el pectoral mayor con trayectoria guiada."
+  },
+  {
+    "code": "PEC-018",
+    "group": "Pecho",
+    "name": "Press inclinado en multipower",
+    "equipment": "multipower",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco inclinado bajo el multipower. Baja la barra hasta el pecho alto y empuja hasta extender. Trabaja el pectoral superior."
+  },
+  {
+    "code": "PEC-019",
+    "group": "Pecho",
+    "name": "Press de pecho declinado en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina de press declinado con la espalda apoyada. Empuja las asas hacia delante y abajo hasta extender los brazos y vuelve controlado. Trabaja el pectoral inferior."
+  },
+  {
+    "code": "PEC-020",
+    "group": "Pecho",
+    "name": "Cruces de poleas bajas a altas",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie entre dos poleas bajas, un asa en cada mano. Con los codos algo flexionados, eleva los brazos hacia delante y arriba hasta juntar las manos a la altura de la cara y baja controlado. Trabaja el pectoral superior."
+  },
+  {
+    "code": "PEC-021",
+    "group": "Pecho",
+    "name": "Cruce unilateral en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie junto a una polea a la altura del pecho, asa en una mano. Con el codo algo flexionado, lleva la mano en arco hacia el centro del pecho y vuelve controlado. Trabaja el pectoral de un lado."
+  },
+  {
+    "code": "PEC-022",
+    "group": "Pecho",
+    "name": "Press de pecho unilateral en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie de espaldas a una polea a la altura del pecho, asa en una mano. Empuja hacia delante hasta extender el brazo sin rotar el tronco y vuelve despacio. Trabaja el pectoral y el serrato."
+  },
+  {
+    "code": "PEC-023",
+    "group": "Pecho",
+    "name": "Flexiones",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "En el suelo con las manos algo más anchas que los hombros y el cuerpo en línea recta. Baja el pecho hasta casi tocar el suelo y empuja hasta extender los codos. Trabaja el pectoral, el tríceps y el core."
+  },
+  {
+    "code": "PEC-024",
+    "group": "Pecho",
+    "name": "Flexiones con pies elevados",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Manos en el suelo y pies sobre un banco, cuerpo en línea recta. Baja el pecho hacia el suelo y empuja hasta extender. Trabaja el pectoral superior y el deltoides anterior."
+  },
+  {
+    "code": "PEC-025",
+    "group": "Pecho",
+    "name": "Press de pecho con mancuernas y agarre neutro",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco plano con las mancuernas con las palmas enfrentadas. Empuja hasta extender los codos manteniéndolos cerca del cuerpo y baja controlado. Trabaja el pectoral y el tríceps con menos carga en hombros."
+  },
+  {
+    "code": "ESP-001",
+    "group": "Espalda",
+    "name": "Jalón al pecho en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000020",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado con los muslos fijados y agarre ancho en la barra. Tira de la barra hacia la parte alta del pecho llevando los codos abajo y atrás, y vuelve controlado. Trabaja el dorsal ancho."
+  },
+  {
+    "code": "ESP-002",
+    "group": "Espalda",
+    "name": "Remo sentado en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000021",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado frente a la polea baja con los pies apoyados y el agarre en V. Tira del asa hacia el abdomen juntando los omóplatos con la espalda recta y vuelve extendiendo los brazos. Trabaja el dorsal, romboides y trapecio medio."
+  },
+  {
+    "code": "ESP-003",
+    "group": "Espalda",
+    "name": "Dominadas asistidas",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000016",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "En la máquina de dominadas asistidas con las rodillas sobre la plataforma. Agarre ancho en las asas; tira hasta que la barbilla supere las asas y baja controlado. Trabaja el dorsal ancho y el bíceps."
+  },
+  {
+    "code": "ESP-004",
+    "group": "Espalda",
+    "name": "Remo con barra",
+    "equipment": "barra",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000017",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con el tronco inclinado (casi paralelo al suelo), rodillas flexionadas y barra con agarre pronado. Tira de la barra hacia el abdomen y baja controlado. Trabaja el dorsal, romboides y lumbares."
+  },
+  {
+    "code": "ESP-005",
+    "group": "Espalda",
+    "name": "Jalón con agarre neutro",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000018",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado con los muslos fijados y agarre neutro (asa en V o paralelo). Tira hacia el pecho llevando los codos junto al cuerpo y vuelve controlado. Trabaja el dorsal ancho."
+  },
+  {
+    "code": "ESP-006",
+    "group": "Espalda",
+    "name": "Pullover en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000019",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie frente a una polea alta con barra o cuerda, brazos casi extendidos e inclinado ligeramente. Baja los brazos en arco hasta los muslos y vuelve sin doblar los codos. Trabaja el dorsal ancho."
+  },
+  {
+    "code": "ESP-007",
+    "group": "Espalda",
+    "name": "Remo con mancuerna unilateral",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000022",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con una rodilla y una mano apoyadas en el banco y la espalda recta. Tira de la mancuerna hacia la cadera con el codo pegado y baja controlado. Trabaja el dorsal y el romboides."
+  },
+  {
+    "code": "ESP-008",
+    "group": "Espalda",
+    "name": "Remo unilateral con mancuerna",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000051",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Apoyado en un banco con una mano y una rodilla, mancuerna en la otra mano colgando. Tira hacia la cadera llevando el codo atrás y baja con control. Trabaja el dorsal ancho."
+  },
+  {
+    "code": "ESP-009",
+    "group": "Espalda",
+    "name": "Remo en máquina con pecho apoyado",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000023",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado con el pecho apoyado en el soporte y las asas agarradas. Tira de las asas hacia atrás juntando los omóplatos y vuelve controlado. Trabaja el dorsal y la zona media de la espalda."
+  },
+  {
+    "code": "ESP-010",
+    "group": "Espalda",
+    "name": "Press barra",
+    "equipment": "barra",
+    "existingId": "18c718e6-b80e-4fe2-a375-86fb7070e41d",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie, barra a la altura de los hombros. Empuja la barra sobre la cabeza hasta extender los codos y baja controlado. Trabaja el deltoides y el tríceps."
+  },
+  {
+    "code": "ESP-011",
+    "group": "Espalda",
+    "name": "Dominadas",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Colgado de la barra con agarre pronado ancho y brazos extendidos. Tira hasta que la barbilla supere la barra y baja con control. Trabaja el dorsal ancho, el bíceps y el core."
+  },
+  {
+    "code": "ESP-012",
+    "group": "Espalda",
+    "name": "Dominadas con agarre supino",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Colgado de la barra con agarre supino a la anchura de los hombros. Tira hasta superar la barra con la barbilla y baja controlado. Trabaja el dorsal y, sobre todo, el bíceps."
+  },
+  {
+    "code": "ESP-013",
+    "group": "Espalda",
+    "name": "Jalón al pecho con agarre estrecho supino",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado con los muslos fijados y agarre supino estrecho. Tira de la barra hacia la parte alta del pecho con los codos pegados y vuelve controlado. Trabaja el dorsal inferior y el bíceps."
+  },
+  {
+    "code": "ESP-014",
+    "group": "Espalda",
+    "name": "Jalón unilateral en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado frente a la polea alta con un asa en una mano. Tira del asa hacia el hombro llevando el codo abajo y vuelve controlado. Trabaja el dorsal ancho de un lado."
+  },
+  {
+    "code": "ESP-015",
+    "group": "Espalda",
+    "name": "Jalón al pecho en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado en la máquina de jalón con el pecho erguido y las asas altas. Tira hacia abajo hasta el pecho llevando los codos atrás y vuelve controlado. Trabaja el dorsal ancho."
+  },
+  {
+    "code": "ESP-016",
+    "group": "Espalda",
+    "name": "Remo en polea con agarre ancho",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado frente a la polea baja con barra recta y agarre ancho. Tira de la barra hacia la parte media del pecho abriendo los codos y vuelve controlado. Trabaja el trapecio medio y los romboides."
+  },
+  {
+    "code": "ESP-017",
+    "group": "Espalda",
+    "name": "Remo unilateral en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado o de pie frente a la polea baja con un asa en una mano. Tira del asa hacia la cadera con el codo pegado y vuelve extendiendo. Trabaja el dorsal de un lado."
+  },
+  {
+    "code": "ESP-018",
+    "group": "Espalda",
+    "name": "Remo en máquina unilateral",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina de remo con una mano en el asa y el pecho apoyado. Tira hacia atrás con el codo pegado al cuerpo y vuelve controlado. Trabaja el dorsal ancho."
+  },
+  {
+    "code": "ESP-019",
+    "group": "Espalda",
+    "name": "Remo en máquina alto",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina de remo alto con el pecho apoyado. Tira de las asas hacia el pecho abriendo los codos y vuelve controlado. Trabaja la parte alta de la espalda y el trapecio."
+  },
+  {
+    "code": "ESP-020",
+    "group": "Espalda",
+    "name": "Remo en barra T",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie sobre la barra T con el tronco inclinado y la espalda recta. Tira del asa hacia el pecho y baja controlado. Trabaja el dorsal y los romboides."
+  },
+  {
+    "code": "ESP-021",
+    "group": "Espalda",
+    "name": "Remo en máquina T con pecho apoyado",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con el pecho apoyado en el soporte de la máquina T. Tira de las asas hacia el abdomen juntando los omóplatos y vuelve controlado. Trabaja el dorsal y la zona media de la espalda."
+  },
+  {
+    "code": "ESP-022",
+    "group": "Espalda",
+    "name": "Remo Pendlay",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tronco paralelo al suelo y barra apoyada en el suelo. Tira de forma explosiva hacia el abdomen y vuelve a apoyarla en el suelo en cada repetición. Trabaja el dorsal y la espalda media."
+  },
+  {
+    "code": "ESP-023",
+    "group": "Espalda",
+    "name": "Remo con barra y agarre supino",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con el tronco inclinado y la barra con agarre supino. Tira de la barra hacia el abdomen con los codos pegados y baja controlado. Trabaja el dorsal inferior y el bíceps."
+  },
+  {
+    "code": "ESP-024",
+    "group": "Espalda",
+    "name": "Remo en multipower",
+    "equipment": "multipower",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con el tronco inclinado y la barra del multipower agarrada. Tira de la barra hacia el abdomen y baja controlado. Trabaja el dorsal con trayectoria guiada."
+  },
+  {
+    "code": "ESP-025",
+    "group": "Espalda",
+    "name": "Remo con mancuernas inclinado apoyado en banco",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado boca abajo sobre un banco inclinado con una mancuerna en cada mano. Tira de ambas mancuernas hacia las caderas juntando los omóplatos y baja controlado. Trabaja la espalda media y el dorsal."
+  },
+  {
+    "code": "ESP-026",
+    "group": "Espalda",
+    "name": "Peso muerto convencional",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con la barra sobre los pies, agarre a la anchura de los hombros y espalda recta. Empuja el suelo y extiende cadera y rodillas hasta quedar erguido; baja con la espalda neutra. Trabaja lumbares, glúteos, isquios y espalda."
+  },
+  {
+    "code": "ESP-027",
+    "group": "Espalda",
+    "name": "Hiperextensiones en banco romano",
+    "equipment": "banco/otros",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con las caderas apoyadas en el banco romano y el tronco colgando. Sube el tronco hasta alinearlo con las piernas y baja controlado. Trabaja los lumbares y los glúteos."
+  },
+  {
+    "code": "ESP-028",
+    "group": "Espalda",
+    "name": "Encogimientos con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con una mancuerna en cada mano y los brazos extendidos. Eleva los hombros hacia las orejas sin flexionar los codos y baja despacio. Trabaja el trapecio superior."
+  },
+  {
+    "code": "ESP-029",
+    "group": "Espalda",
+    "name": "Encogimientos con barra",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con la barra agarrada por delante de los muslos. Eleva los hombros hacia las orejas con los brazos extendidos y baja controlado. Trabaja el trapecio superior."
+  },
+  {
+    "code": "HOM-001",
+    "group": "Hombros",
+    "name": "Press de hombros con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000043",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado con respaldo y una mancuerna en cada mano a la altura de las orejas. Empuja hacia arriba hasta casi juntarlas y baja controlado. Trabaja el deltoides anterior y lateral y el tríceps."
+  },
+  {
+    "code": "HOM-002",
+    "group": "Hombros",
+    "name": "Elevaciones laterales con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000044",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con una mancuerna en cada mano a los lados y los codos ligeramente flexionados. Eleva los brazos lateralmente hasta la altura de los hombros y baja controlado. Trabaja el deltoides lateral."
+  },
+  {
+    "code": "HOM-003",
+    "group": "Hombros",
+    "name": "Press militar en máquina",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000045",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado con la espalda apoyada y las asas a la altura de los hombros. Empuja hacia arriba hasta extender los brazos y baja controlado. Trabaja el deltoides y el tríceps."
+  },
+  {
+    "code": "HOM-004",
+    "group": "Hombros",
+    "name": "Elevaciones laterales en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000046",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie junto a una polea baja, asa en la mano más alejada. Eleva el brazo lateralmente hasta la altura del hombro y baja controlado. Trabaja el deltoides lateral con tensión continua."
+  },
+  {
+    "code": "HOM-005",
+    "group": "Hombros",
+    "name": "Elevaciones laterales en máquina",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000047",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado en la máquina con los codos bajo los cojines. Eleva los brazos lateralmente hasta la altura de los hombros y baja controlado. Trabaja el deltoides lateral."
+  },
+  {
+    "code": "HOM-006",
+    "group": "Hombros",
+    "name": "Press militar con barra",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie, barra apoyada en la parte alta del pecho con agarre algo más ancho que los hombros. Empuja la barra sobre la cabeza hasta extender los codos y baja controlado. Trabaja el deltoides y el tríceps."
+  },
+  {
+    "code": "HOM-007",
+    "group": "Hombros",
+    "name": "Press militar en multipower",
+    "equipment": "multipower",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado bajo la barra guiada del multipower. Baja hasta la barbilla y empuja hasta extender los codos. Trabaja el deltoides con trayectoria guiada."
+  },
+  {
+    "code": "HOM-008",
+    "group": "Hombros",
+    "name": "Press Arnold",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado con las mancuernas frente al pecho y las palmas hacia ti. Empuja hacia arriba girando las palmas hacia delante hasta extender y vuelve invirtiendo el giro. Trabaja el deltoides en sus tres fascículos."
+  },
+  {
+    "code": "HOM-009",
+    "group": "Hombros",
+    "name": "Press de hombros unilateral con mancuerna",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado o de pie con una mancuerna a la altura del hombro. Empuja hasta extender el brazo sobre la cabeza sin inclinar el tronco y baja controlado. Trabaja el deltoides de un lado."
+  },
+  {
+    "code": "HOM-010",
+    "group": "Hombros",
+    "name": "Elevaciones frontales con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con una mancuerna en cada mano delante de los muslos. Eleva un brazo hacia delante hasta la altura del hombro y baja controlado, alternando. Trabaja el deltoides anterior."
+  },
+  {
+    "code": "HOM-011",
+    "group": "Hombros",
+    "name": "Elevaciones frontales con disco",
+    "equipment": "banco/otros",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie sujetando un disco con ambas manos delante de los muslos. Eleva el disco hasta la altura de los ojos con los brazos casi extendidos y baja controlado. Trabaja el deltoides anterior."
+  },
+  {
+    "code": "HOM-012",
+    "group": "Hombros",
+    "name": "Elevaciones frontales en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie de espaldas a una polea baja con una cuerda o asa entre las piernas. Eleva el brazo hacia delante hasta la altura del hombro y baja controlado. Trabaja el deltoides anterior."
+  },
+  {
+    "code": "HOM-013",
+    "group": "Hombros",
+    "name": "Elevaciones laterales sentado con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado en un banco con una mancuerna en cada mano. Eleva los brazos lateralmente hasta la altura de los hombros sin impulso y baja controlado. Trabaja el deltoides lateral."
+  },
+  {
+    "code": "HOM-014",
+    "group": "Hombros",
+    "name": "Remo al mentón con barra Z",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con la barra Z con agarre cerrado por delante de los muslos. Tira hacia el mentón llevando los codos por encima de las manos y baja controlado. Trabaja el deltoides lateral y el trapecio."
+  },
+  {
+    "code": "HOM-015",
+    "group": "Hombros",
+    "name": "Remo al mentón en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie ante una polea baja con barra recta. Tira hacia el pecho alto con los codos por encima de las manos y baja controlado. Trabaja el deltoides lateral y el trapecio."
+  },
+  {
+    "code": "HOM-016",
+    "group": "Hombros",
+    "name": "Press landmine unilateral",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con un extremo de la barra fijado en el suelo y el otro sujeto con una mano a la altura del hombro. Empuja en diagonal hacia delante y arriba hasta extender y vuelve controlado. Trabaja el deltoides anterior y el serrato."
+  },
+  {
+    "code": "HOM-017",
+    "group": "Hombros",
+    "name": "Push press con barra",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con la barra sobre los hombros. Flexiona ligeramente las rodillas y extiéndelas de forma explosiva para empujar la barra sobre la cabeza; baja controlado. Trabaja el deltoides, tríceps y piernas."
+  },
+  {
+    "code": "HOM-018",
+    "group": "Hombros",
+    "name": "Elevaciones laterales unilaterales inclinado con mancuerna",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie de lado a un soporte, apoyado con una mano y con el cuerpo inclinado. Eleva la mancuerna lateralmente hasta la altura del hombro y baja controlado. Trabaja el deltoides lateral con mayor recorrido."
+  },
+  {
+    "code": "BIC-001",
+    "group": "Bíceps",
+    "name": "Curl con barra Z",
+    "equipment": "barra",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000024",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con la barra Z con agarre supino y los codos pegados al cuerpo. Flexiona los codos hasta subir la barra a los hombros y baja controlado. Trabaja el bíceps."
+  },
+  {
+    "code": "BIC-002",
+    "group": "Bíceps",
+    "name": "Curl predicador",
+    "equipment": "barra",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000025",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado ante el banco Scott con los brazos apoyados en el cojín y la barra Z en agarre supino. Flexiona los codos hasta subir la barra y baja hasta casi extender. Trabaja el bíceps (cabeza corta)."
+  },
+  {
+    "code": "BIC-003",
+    "group": "Bíceps",
+    "name": "Curl alterno con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000026",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con una mancuerna en cada mano. Flexiona un codo girando la palma hacia arriba y baja controlado, alternando los brazos. Trabaja el bíceps."
+  },
+  {
+    "code": "BIC-004",
+    "group": "Bíceps",
+    "name": "Curl martillo",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000027",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con las mancuernas con las palmas enfrentadas. Flexiona los codos manteniendo el agarre neutro y baja controlado. Trabaja el braquial y el braquiorradial."
+  },
+  {
+    "code": "BIC-005",
+    "group": "Bíceps",
+    "name": "Curl de bíceps en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000028",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie frente a una polea baja con barra recta. Flexiona los codos subiendo la barra hasta los hombros y baja controlado. Trabaja el bíceps con tensión continua."
+  },
+  {
+    "code": "BIC-006",
+    "group": "Bíceps",
+    "name": "Curl de bíceps con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000052",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado o de pie con una mancuerna en cada mano y los brazos extendidos. Flexiona ambos codos con la palma hacia arriba y baja controlado. Trabaja el bíceps."
+  },
+  {
+    "code": "BIC-007",
+    "group": "Bíceps",
+    "name": "Curl martillo con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000053",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con las mancuernas en agarre neutro a los lados. Flexiona los codos subiendo las mancuernas a los hombros y baja con control. Trabaja el braquial y el bíceps."
+  },
+  {
+    "code": "BIC-008",
+    "group": "Bíceps",
+    "name": "Curl en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000054",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie frente a una polea baja, agarre supino. Flexiona los codos hasta subir el asa al hombro y baja controlado. Trabaja el bíceps."
+  },
+  {
+    "code": "BIC-009",
+    "group": "Bíceps",
+    "name": "Curl con barra recta",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con la barra recta en agarre supino y los codos pegados. Flexiona los codos hasta los hombros y baja controlado. Trabaja el bíceps."
+  },
+  {
+    "code": "BIC-010",
+    "group": "Bíceps",
+    "name": "Curl concentrado",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado con el codo apoyado en la cara interna del muslo y una mancuerna en la mano. Flexiona el codo hasta el hombro y baja controlado. Trabaja el bíceps con aislamiento."
+  },
+  {
+    "code": "BIC-011",
+    "group": "Bíceps",
+    "name": "Curl inclinado con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en banco inclinado (45-60 grados) con los brazos colgando hacia atrás. Flexiona los codos subiendo las mancuernas sin mover los hombros y baja controlado. Trabaja la cabeza larga del bíceps."
+  },
+  {
+    "code": "BIC-012",
+    "group": "Bíceps",
+    "name": "Curl predicador con mancuerna",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con un brazo apoyado en el banco Scott y una mancuerna en la mano. Flexiona el codo hasta subir la mancuerna y baja casi hasta extender. Trabaja el bíceps de un lado."
+  },
+  {
+    "code": "BIC-013",
+    "group": "Bíceps",
+    "name": "Curl predicador en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado con los brazos apoyados en el cojín de la máquina. Flexiona los codos acercando las asas y vuelve controlado. Trabaja el bíceps."
+  },
+  {
+    "code": "BIC-014",
+    "group": "Bíceps",
+    "name": "Curl de bíceps en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina con los brazos apoyados. Flexiona los codos hasta subir las asas y baja controlado. Trabaja el bíceps."
+  },
+  {
+    "code": "BIC-015",
+    "group": "Bíceps",
+    "name": "Curl martillo con cuerda en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie ante una polea baja con la cuerda en agarre neutro. Flexiona los codos subiendo las manos a los hombros y baja controlado. Trabaja el braquial y el braquiorradial."
+  },
+  {
+    "code": "BIC-016",
+    "group": "Bíceps",
+    "name": "Curl unilateral en polea baja",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie junto a una polea baja con el asa en una mano. Flexiona el codo subiendo el asa al hombro y baja controlado. Trabaja el bíceps de un lado."
+  },
+  {
+    "code": "BIC-017",
+    "group": "Bíceps",
+    "name": "Curl en polea alta (doble bíceps)",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie entre dos poleas altas con un asa en cada mano y los brazos a la altura de los hombros. Flexiona los codos llevando las manos hacia las sienes y vuelve controlado. Trabaja el bíceps (pico)."
+  },
+  {
+    "code": "BIC-018",
+    "group": "Bíceps",
+    "name": "Curl inverso con barra Z",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con la barra Z en agarre pronado. Flexiona los codos subiendo la barra y baja controlado. Trabaja el braquiorradial y los antebrazos."
+  },
+  {
+    "code": "BIC-019",
+    "group": "Bíceps",
+    "name": "Curl Zottman",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con las mancuernas. Sube con la palma hacia arriba, gira las muñecas arriba y baja con las palmas hacia abajo. Trabaja el bíceps y el antebrazo."
+  },
+  {
+    "code": "BIC-020",
+    "group": "Bíceps",
+    "name": "Curl martillo cruzado",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con las mancuernas en agarre neutro. Flexiona un codo llevando la mancuerna hacia el hombro contrario y baja controlado. Trabaja el braquial."
+  },
+  {
+    "code": "TRI-001",
+    "group": "Tríceps",
+    "name": "Extensión de tríceps con cuerda",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000011",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie ante una polea alta con la cuerda, codos pegados a los costados. Extiende los codos hacia abajo separando los extremos de la cuerda y vuelve controlado. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-002",
+    "group": "Tríceps",
+    "name": "Extensión de tríceps por encima de la cabeza",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000012",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De espaldas a la polea con la cuerda sujeta por detrás de la cabeza. Extiende los codos hacia delante y arriba y vuelve controlado. Trabaja la cabeza larga del tríceps."
+  },
+  {
+    "code": "TRI-003",
+    "group": "Tríceps",
+    "name": "Extensión de tríceps con barra en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000013",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie ante una polea alta con barra recta, codos pegados. Extiende los codos hasta bajar la barra a los muslos y vuelve controlado. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-004",
+    "group": "Tríceps",
+    "name": "Press francés",
+    "equipment": "barra",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000014",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco plano con la barra Z sobre el pecho. Flexiona los codos bajando la barra hacia la frente y extiende de nuevo. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-005",
+    "group": "Tríceps",
+    "name": "Extensión unilateral en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000015",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie ante una polea alta con un asa en una mano y el codo pegado. Extiende el codo hacia abajo y vuelve controlado. Trabaja el tríceps de un lado."
+  },
+  {
+    "code": "TRI-006",
+    "group": "Tríceps",
+    "name": "Extensión de tríceps con cuerda en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000048",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie ante la polea con la cuerda. Extiende los codos hacia abajo separando la cuerda al final y vuelve controlado. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-007",
+    "group": "Tríceps",
+    "name": "Extensión con barra en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000049",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie ante la polea con barra, codos pegados. Empuja la barra hacia abajo hasta extender los codos y vuelve controlado. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-008",
+    "group": "Tríceps",
+    "name": "Extensión unilateral",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000050",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con un asa en una mano. Extiende el codo manteniendo el brazo pegado al cuerpo y vuelve controlado. Trabaja el tríceps de un lado."
+  },
+  {
+    "code": "TRI-009",
+    "group": "Tríceps",
+    "name": "Fondos en paralelas para tríceps",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "En paralelas con el tronco vertical y los codos pegados al cuerpo. Baja flexionando los codos hasta unos 90 grados y empuja hasta extender. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-010",
+    "group": "Tríceps",
+    "name": "Fondos en banco",
+    "equipment": "banco/otros",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con las manos apoyadas en un banco detrás de ti y las piernas extendidas. Baja flexionando los codos hasta unos 90 grados y empuja para subir. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-011",
+    "group": "Tríceps",
+    "name": "Fondos en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina de fondos con el tronco erguido. Empuja las asas hacia abajo hasta extender los codos y vuelve controlado. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-012",
+    "group": "Tríceps",
+    "name": "Press de banca con agarre cerrado",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco plano con la barra y agarre a la anchura de los hombros. Baja la barra al pecho con los codos pegados y empuja hasta extender. Trabaja el tríceps y el pectoral."
+  },
+  {
+    "code": "TRI-013",
+    "group": "Tríceps",
+    "name": "Press de banca con agarre cerrado en multipower",
+    "equipment": "multipower",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco plano bajo el multipower con agarre cerrado. Baja al pecho con los codos pegados y empuja hasta extender. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-014",
+    "group": "Tríceps",
+    "name": "Press francés con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco plano con una mancuerna en cada mano sobre el pecho. Flexiona los codos bajando las mancuernas junto a la cabeza y extiende. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-015",
+    "group": "Tríceps",
+    "name": "Extensión de tríceps por encima de la cabeza con mancuerna",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado con una mancuerna sujeta con ambas manos detrás de la cabeza. Extiende los codos hacia arriba y baja controlado. Trabaja la cabeza larga del tríceps."
+  },
+  {
+    "code": "TRI-016",
+    "group": "Tríceps",
+    "name": "Patada de tríceps con mancuerna",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con el tronco inclinado y el codo pegado al cuerpo, mancuerna en la mano. Extiende el codo hacia atrás hasta alinear el brazo con el tronco y vuelve. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-017",
+    "group": "Tríceps",
+    "name": "Patada de tríceps en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con el tronco inclinado ante una polea baja, asa en una mano. Extiende el codo hacia atrás y vuelve controlado. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-018",
+    "group": "Tríceps",
+    "name": "Extensión de tríceps en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina con los brazos apoyados. Empuja las asas extendiendo los codos y vuelve controlado. Trabaja el tríceps."
+  },
+  {
+    "code": "TRI-019",
+    "group": "Tríceps",
+    "name": "Flexiones diamante",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "En el suelo con las manos juntas formando un rombo bajo el pecho. Baja el pecho hacia las manos y empuja hasta extender. Trabaja el tríceps y el pectoral."
+  },
+  {
+    "code": "TRI-020",
+    "group": "Tríceps",
+    "name": "Extensión unilateral inversa en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie ante una polea alta con un asa en agarre supino. Extiende el codo hacia abajo con el codo pegado y vuelve. Trabaja el tríceps."
+  },
+  {
+    "code": "ABD-001",
+    "group": "Abdomen",
+    "name": "Crunch abdominal en máquina",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000038",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina con las asas o el cojín sobre el pecho. Flexiona el tronco hacia delante contrayendo el abdomen y vuelve controlado. Trabaja el recto abdominal."
+  },
+  {
+    "code": "ABD-002",
+    "group": "Abdomen",
+    "name": "Plancha abdominal",
+    "equipment": "peso corporal",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000039",
+    "view": "lateral",
+    "frames": 1,
+    "technique": "Apoyado sobre antebrazos y puntas de los pies con el cuerpo en línea recta. Mantén la posición con el abdomen contraído. Trabaja el core y el transverso."
+  },
+  {
+    "code": "ABD-003",
+    "group": "Abdomen",
+    "name": "Crunch en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000040",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De rodillas ante una polea alta con la cuerda junto a la cabeza. Flexiona el tronco hacia abajo acercando el codo a las rodillas y vuelve controlado. Trabaja el recto abdominal."
+  },
+  {
+    "code": "ABD-004",
+    "group": "Abdomen",
+    "name": "Elevaciones de rodillas",
+    "equipment": "peso corporal",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000041",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Colgado de una barra o apoyado en una silla romana. Sube las rodillas hacia el pecho curvando la pelvis y baja controlado. Trabaja la parte inferior del abdomen."
+  },
+  {
+    "code": "ABD-005",
+    "group": "Abdomen",
+    "name": "Crunch inverso",
+    "equipment": "banco/otros",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000042",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado boca arriba con las rodillas flexionadas. Eleva las caderas llevando las rodillas hacia el pecho y baja controlado. Trabaja la parte inferior del abdomen."
+  },
+  {
+    "code": "ABD-006",
+    "group": "Abdomen",
+    "name": "Crunch en suelo",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado boca arriba con las rodillas flexionadas y las manos tras la cabeza. Eleva los hombros del suelo contrayendo el abdomen y baja controlado. Trabaja el recto abdominal."
+  },
+  {
+    "code": "ABD-007",
+    "group": "Abdomen",
+    "name": "Crunch en banco declinado",
+    "equipment": "banco/otros",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado en banco declinado con los pies sujetos. Eleva el tronco curvando la espalda y baja controlado. Trabaja el recto abdominal."
+  },
+  {
+    "code": "ABD-008",
+    "group": "Abdomen",
+    "name": "Elevación de piernas colgado",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Colgado de una barra con los brazos extendidos. Eleva las piernas rectas hasta la horizontal y baja controlado. Trabaja el abdomen inferior y los flexores de cadera."
+  },
+  {
+    "code": "ABD-009",
+    "group": "Abdomen",
+    "name": "Elevación de piernas en silla romana",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Apoyado en los antebrazos de la silla romana con el tronco pegado al respaldo. Eleva las piernas hacia delante y baja controlado. Trabaja el abdomen inferior."
+  },
+  {
+    "code": "ABD-010",
+    "group": "Abdomen",
+    "name": "Rueda abdominal",
+    "equipment": "banco/otros",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De rodillas con las manos en la rueda. Rueda hacia delante extendiendo el cuerpo con el abdomen contraído y vuelve. Trabaja el recto abdominal y el core."
+  },
+  {
+    "code": "ABD-011",
+    "group": "Abdomen",
+    "name": "Plancha lateral",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 1,
+    "technique": "Apoyado sobre un antebrazo y el borde del pie con el cuerpo en línea recta. Mantén la posición con las caderas elevadas. Trabaja los oblicuos."
+  },
+  {
+    "code": "ABD-012",
+    "group": "Abdomen",
+    "name": "Giros rusos con disco",
+    "equipment": "banco/otros",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado con el tronco inclinado hacia atrás y los pies elevados, sujetando un disco. Gira el tronco de lado a lado llevando el disco junto a la cadera. Trabaja los oblicuos."
+  },
+  {
+    "code": "ABD-013",
+    "group": "Abdomen",
+    "name": "Bicicleta abdominal",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Tumbado boca arriba con las manos tras la cabeza. Lleva el codo hacia la rodilla contraria alternando mientras estiras la otra pierna. Trabaja los oblicuos y el recto abdominal."
+  },
+  {
+    "code": "ABD-014",
+    "group": "Abdomen",
+    "name": "Leñador en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie de lado a una polea alta con el asa agarrada con ambas manos. Tira en diagonal hacia abajo y hacia la cadera contraria girando el tronco y vuelve controlado. Trabaja los oblicuos."
+  },
+  {
+    "code": "ABD-015",
+    "group": "Abdomen",
+    "name": "Pallof press",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie de lado a una polea a la altura del pecho con el asa junto al pecho. Extiende los brazos hacia delante sin que el tronco gire y vuelve. Trabaja el core antirrotación y los oblicuos."
+  },
+  {
+    "code": "ABD-016",
+    "group": "Abdomen",
+    "name": "Rotación de tronco en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "3/4",
+    "frames": 2,
+    "technique": "Sentado en la máquina de rotación de tronco. Gira el tronco hacia un lado contrayendo los oblicuos y vuelve controlado. Trabaja los oblicuos."
+  },
+  {
+    "code": "ABD-017",
+    "group": "Abdomen",
+    "name": "Flexión lateral con mancuerna",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con una mancuerna en una mano. Inclina el tronco hacia el lado de la mancuerna y vuelve a la vertical. Trabaja los oblicuos."
+  },
+  {
+    "code": "ABD-018",
+    "group": "Abdomen",
+    "name": "Dead bug",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado boca arriba con brazos y rodillas elevados a 90 grados. Extiende un brazo y la pierna contraria sin despegar la zona lumbar y alterna. Trabaja el transverso del abdomen."
+  },
+  {
+    "code": "ABD-019",
+    "group": "Abdomen",
+    "name": "Mountain climbers",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "En posición de plancha con las manos en el suelo. Lleva alternativamente las rodillas hacia el pecho de forma rápida. Trabaja el abdomen y el core."
+  },
+  {
+    "code": "ABD-020",
+    "group": "Abdomen",
+    "name": "Abdominales en V",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado boca arriba con brazos y piernas extendidos. Eleva a la vez tronco y piernas formando una V y baja controlado. Trabaja el recto abdominal."
+  },
+  {
+    "code": "PIE-001",
+    "group": "Pierna",
+    "name": "Prensa de piernas",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000029",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la prensa con la espalda apoyada y los pies a la anchura de los hombros. Baja la plataforma hasta unos 90 grados de rodilla y empuja hasta casi extender. Trabaja cuádriceps y glúteos."
+  },
+  {
+    "code": "PIE-002",
+    "group": "Pierna",
+    "name": "Peso muerto rumano",
+    "equipment": "barra",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000030",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con la barra por delante de los muslos y las rodillas ligeramente flexionadas. Baja la barra pegada a las piernas empujando la cadera atrás y sube extendiendo la cadera. Trabaja isquiosurales y glúteos."
+  },
+  {
+    "code": "PIE-003",
+    "group": "Pierna",
+    "name": "Curl femoral sentado",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000031",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina con el rodillo sobre los tobillos y los muslos fijados. Flexiona las rodillas llevando los talones hacia abajo y atrás y vuelve controlado. Trabaja los isquiosurales."
+  },
+  {
+    "code": "PIE-004",
+    "group": "Pierna",
+    "name": "Elevación de gemelos",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000032",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con la punta de los pies sobre un escalón o la máquina. Sube sobre las puntas al máximo y baja estirando el talón. Trabaja los gemelos."
+  },
+  {
+    "code": "PIE-005",
+    "group": "Pierna",
+    "name": "Sentadilla en multipower",
+    "equipment": "multipower",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000033",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con la barra del multipower sobre los hombros y los pies algo adelantados. Baja flexionando rodillas y cadera y sube. Trabaja cuádriceps y glúteos."
+  },
+  {
+    "code": "PIE-006",
+    "group": "Pierna",
+    "name": "Sentadilla goblet",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000034",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie sujetando una mancuerna o pesa contra el pecho. Baja flexionando rodillas y cadera con el tronco erguido y sube. Trabaja cuádriceps y glúteos."
+  },
+  {
+    "code": "PIE-007",
+    "group": "Pierna",
+    "name": "Extensión de cuádriceps",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000035",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina con el rodillo sobre los tobillos. Extiende las rodillas hasta alinear las piernas y baja controlado. Trabaja el cuádriceps."
+  },
+  {
+    "code": "PIE-008",
+    "group": "Pierna",
+    "name": "Curl femoral tumbado",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000036",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado boca abajo en la máquina con el rodillo sobre los tobillos. Flexiona las rodillas llevando los talones hacia los glúteos y vuelve controlado. Trabaja los isquiosurales."
+  },
+  {
+    "code": "PIE-009",
+    "group": "Pierna",
+    "name": "Hip thrust",
+    "equipment": "barra",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000037",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con la espalda alta apoyada en un banco y la barra sobre la cadera. Empuja la cadera hacia arriba hasta alinear tronco y muslos y baja controlado. Trabaja los glúteos."
+  },
+  {
+    "code": "PIE-010",
+    "group": "Pierna",
+    "name": "Sentadilla con barra",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con la barra sobre la espalda alta y los pies a la anchura de los hombros. Baja con la espalda recta hasta que los muslos queden paralelos al suelo y sube. Trabaja cuádriceps, glúteos y core."
+  },
+  {
+    "code": "PIE-011",
+    "group": "Pierna",
+    "name": "Sentadilla frontal con barra",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con la barra apoyada en la parte anterior de los hombros y los codos altos. Baja con el tronco erguido y sube. Trabaja el cuádriceps y el core."
+  },
+  {
+    "code": "PIE-012",
+    "group": "Pierna",
+    "name": "Sentadilla hack en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con la espalda apoyada en la máquina y los hombros bajo los cojines. Baja flexionando las rodillas hasta unos 90 grados y sube. Trabaja el cuádriceps."
+  },
+  {
+    "code": "PIE-013",
+    "group": "Pierna",
+    "name": "Sentadilla búlgara con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con un pie atrasado apoyado en un banco y una mancuerna en cada mano. Baja flexionando la rodilla delantera hasta casi tocar el suelo con la trasera y sube. Trabaja cuádriceps y glúteos."
+  },
+  {
+    "code": "PIE-014",
+    "group": "Pierna",
+    "name": "Zancadas con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con una mancuerna en cada mano. Da un paso largo adelante, baja hasta que ambas rodillas formen 90 grados y vuelve al inicio. Trabaja cuádriceps y glúteos."
+  },
+  {
+    "code": "PIE-015",
+    "group": "Pierna",
+    "name": "Zancadas caminando con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con una mancuerna en cada mano, da un paso largo y baja la rodilla trasera; sube avanzando directamente al siguiente paso. Trabaja cuádriceps y glúteos."
+  },
+  {
+    "code": "PIE-016",
+    "group": "Pierna",
+    "name": "Zancadas atrás con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con las mancuernas. Da un paso largo hacia atrás bajando la rodilla trasera y vuelve al inicio. Trabaja glúteos y cuádriceps."
+  },
+  {
+    "code": "PIE-017",
+    "group": "Pierna",
+    "name": "Zancada en multipower",
+    "equipment": "multipower",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con la barra del multipower sobre los hombros y un pie adelantado. Baja flexionando ambas rodillas y sube. Trabaja cuádriceps y glúteos."
+  },
+  {
+    "code": "PIE-018",
+    "group": "Pierna",
+    "name": "Prensa de piernas horizontal",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la prensa horizontal con los pies en la plataforma. Empuja hasta extender las rodillas sin bloquearlas y baja controlado. Trabaja cuádriceps y glúteos."
+  },
+  {
+    "code": "PIE-019",
+    "group": "Pierna",
+    "name": "Prensa de piernas unilateral",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la prensa con un solo pie en la plataforma. Baja y empuja con una sola pierna. Trabaja cuádriceps y glúteos de un lado."
+  },
+  {
+    "code": "PIE-020",
+    "group": "Pierna",
+    "name": "Sentadilla sumo con mancuerna",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con los pies muy abiertos y las puntas hacia fuera, sujetando una mancuerna entre las piernas. Baja flexionando las rodillas y sube. Trabaja aductores, glúteos y cuádriceps."
+  },
+  {
+    "code": "PIE-021",
+    "group": "Pierna",
+    "name": "Peso muerto rumano con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con una mancuerna en cada mano delante de los muslos. Baja empujando la cadera atrás con las rodillas ligeramente flexionadas y sube. Trabaja isquiosurales y glúteos."
+  },
+  {
+    "code": "PIE-022",
+    "group": "Pierna",
+    "name": "Peso muerto rumano en multipower",
+    "equipment": "multipower",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie ante la barra del multipower con las rodillas ligeramente flexionadas. Baja la barra pegada a las piernas empujando la cadera atrás y sube. Trabaja isquiosurales y glúteos."
+  },
+  {
+    "code": "PIE-023",
+    "group": "Pierna",
+    "name": "Peso muerto a una pierna con mancuerna",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie sobre una pierna con una mancuerna en la mano contraria. Inclina el tronco llevando la pierna libre atrás y sube. Trabaja isquiosurales, glúteos y equilibrio."
+  },
+  {
+    "code": "PIE-024",
+    "group": "Pierna",
+    "name": "Peso muerto sumo",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con los pies muy abiertos y la barra entre las piernas. Extiende cadera y rodillas hasta quedar erguido y baja controlado. Trabaja glúteos, aductores y piernas."
+  },
+  {
+    "code": "PIE-025",
+    "group": "Pierna",
+    "name": "Buenos días con barra",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con la barra sobre la espalda alta. Inclina el tronco hacia delante empujando la cadera atrás con la espalda recta y sube. Trabaja isquiosurales, glúteos y lumbares."
+  },
+  {
+    "code": "PIE-026",
+    "group": "Pierna",
+    "name": "Curl femoral de pie en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con una pierna apoyada y el rodillo tras el tobillo de la otra. Flexiona la rodilla llevando el talón al glúteo y vuelve controlado. Trabaja los isquiosurales."
+  },
+  {
+    "code": "PIE-027",
+    "group": "Pierna",
+    "name": "Curl femoral nórdico",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De rodillas con los tobillos sujetos y el cuerpo recto. Desciende hacia delante controlando con los isquios y vuelve a subir. Trabaja los isquiosurales."
+  },
+  {
+    "code": "PIE-028",
+    "group": "Pierna",
+    "name": "Extensión de cuádriceps unilateral",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina de extensión con una sola pierna activa. Extiende la rodilla hasta alinear la pierna y baja controlado. Trabaja el cuádriceps de un lado."
+  },
+  {
+    "code": "PIE-029",
+    "group": "Pierna",
+    "name": "Hip thrust en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado con la espalda alta apoyada y el cinturón sobre la cadera. Empuja la cadera hacia arriba y baja controlado. Trabaja los glúteos."
+  },
+  {
+    "code": "PIE-030",
+    "group": "Pierna",
+    "name": "Puente de glúteo",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Tumbado boca arriba con las rodillas flexionadas y los pies en el suelo. Eleva la cadera hasta alinear tronco y muslos y baja controlado. Trabaja los glúteos."
+  },
+  {
+    "code": "PIE-031",
+    "group": "Pierna",
+    "name": "Patada de glúteo en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie ante la polea baja con una tobillera en un pie y apoyado en la máquina. Lleva la pierna hacia atrás extendiendo la cadera y vuelve controlado. Trabaja los glúteos."
+  },
+  {
+    "code": "PIE-032",
+    "group": "Pierna",
+    "name": "Patada de glúteo en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Apoyado en la máquina de patada de glúteo con el pie sobre la plataforma. Empuja hacia atrás y arriba hasta extender la cadera y vuelve. Trabaja los glúteos."
+  },
+  {
+    "code": "PIE-033",
+    "group": "Pierna",
+    "name": "Abducción de cadera en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado en la máquina con las piernas juntas y las rodillas contra los cojines. Abre las piernas hacia fuera y vuelve controlado. Trabaja el glúteo medio y menor."
+  },
+  {
+    "code": "PIE-034",
+    "group": "Pierna",
+    "name": "Aducción de cadera en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Sentado en la máquina con las piernas abiertas y los cojines en la cara interna de las rodillas. Junta las piernas y vuelve controlado. Trabaja los aductores."
+  },
+  {
+    "code": "PIE-035",
+    "group": "Pierna",
+    "name": "Elevación de gemelos sentado",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina con las rodillas bajo el cojín y la punta de los pies en la plataforma. Sube sobre las puntas y baja estirando el talón. Trabaja el sóleo."
+  },
+  {
+    "code": "PIE-036",
+    "group": "Pierna",
+    "name": "Elevación de gemelos en prensa",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la prensa con las puntas de los pies en el borde de la plataforma. Empuja con los dedos extendiendo los tobillos y vuelve. Trabaja los gemelos."
+  },
+  {
+    "code": "PIE-037",
+    "group": "Pierna",
+    "name": "Elevación de gemelos en multipower",
+    "equipment": "multipower",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con la barra del multipower sobre los hombros y la punta de los pies sobre un escalón. Sube sobre las puntas y baja estirando. Trabaja los gemelos."
+  },
+  {
+    "code": "PIE-038",
+    "group": "Pierna",
+    "name": "Elevación de gemelos a una pierna con mancuerna",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie sobre un escalón con una pierna y una mancuerna en la mano del mismo lado. Sube sobre la punta y baja estirando el talón. Trabaja los gemelos."
+  },
+  {
+    "code": "PIE-039",
+    "group": "Pierna",
+    "name": "Subida al banco con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie ante un banco con una mancuerna en cada mano. Sube un pie y extiende la pierna hasta subir al banco; baja controlado. Trabaja cuádriceps y glúteos."
+  },
+  {
+    "code": "PIE-040",
+    "group": "Pierna",
+    "name": "Sentadilla sissy",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie, inclina el cuerpo hacia atrás doblando las rodillas hacia delante con los talones elevados. Baja y sube sin flexionar la cadera. Trabaja el cuádriceps."
+  },
+  {
+    "code": "PIE-041",
+    "group": "Pierna",
+    "name": "Sentadilla con salto",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con los pies a la anchura de los hombros. Baja en sentadilla y salta de forma explosiva al subir; amortigua al caer. Trabaja cuádriceps y glúteos."
+  },
+  {
+    "code": "PIE-042",
+    "group": "Pierna",
+    "name": "Sentadilla a caja",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie ante un banco con la barra sobre la espalda. Baja hasta sentarte brevemente en el banco y sube. Trabaja cuádriceps y glúteos."
+  },
+  {
+    "code": "PIE-043",
+    "group": "Pierna",
+    "name": "Peso muerto con barra hexagonal",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie dentro de la barra hexagonal con las manos en las asas laterales. Extiende cadera y rodillas hasta quedar erguido y baja controlado. Trabaja piernas, glúteos y espalda."
+  },
+  {
+    "code": "PIE-044",
+    "group": "Pierna",
+    "name": "Glute ham raise",
+    "equipment": "banco/otros",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Con los pies sujetos y las caderas sobre el cojín. Baja el tronco hacia delante y sube contrayendo isquios y glúteos. Trabaja isquiosurales y glúteos."
+  },
+  {
+    "code": "PIE-045",
+    "group": "Pierna",
+    "name": "Sentadilla isométrica en pared",
+    "equipment": "peso corporal",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 1,
+    "technique": "Con la espalda apoyada en la pared y las rodillas a 90 grados. Mantén la posición. Trabaja el cuádriceps."
+  },
+  {
+    "code": "PIE-046",
+    "group": "Pierna",
+    "name": "Elevación de punta de pies sentado",
+    "equipment": "banco/otros",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado con los talones en el suelo y las puntas elevadas. Sube las puntas hacia las espinillas y baja controlado. Trabaja el tibial anterior."
+  },
+  {
+    "code": "DEL-001",
+    "group": "Deltoides posterior",
+    "name": "Aperturas inversas en máquina",
+    "equipment": "máquina",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000055",
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado de cara al respaldo de la máquina con las asas agarradas. Abre los brazos hacia atrás hasta la altura de los hombros y vuelve controlado. Trabaja el deltoides posterior."
+  },
+  {
+    "code": "DEL-002",
+    "group": "Deltoides posterior",
+    "name": "Face pull en polea",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000056",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie ante una polea alta con la cuerda. Tira de la cuerda hacia la cara abriendo los codos y vuelve controlado. Trabaja el deltoides posterior y los rotadores."
+  },
+  {
+    "code": "DEL-003",
+    "group": "Deltoides posterior",
+    "name": "Pájaros con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000057",
+    "view": "trasera",
+    "frames": 2,
+    "technique": "De pie con el tronco inclinado y una mancuerna en cada mano. Eleva los brazos lateralmente con los codos algo flexionados y baja controlado. Trabaja el deltoides posterior."
+  },
+  {
+    "code": "DEL-004",
+    "group": "Deltoides posterior",
+    "name": "Aperturas inversas en poleas",
+    "equipment": "polea",
+    "existingId": "5f0c2a9e-7d41-4b8e-a3c6-000000000058",
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie entre dos poleas altas con las asas cruzadas. Abre los brazos hacia los lados y atrás y vuelve controlado. Trabaja el deltoides posterior."
+  },
+  {
+    "code": "DEL-005",
+    "group": "Deltoides posterior",
+    "name": "Pájaros en banco inclinado",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "trasera",
+    "frames": 2,
+    "technique": "Tumbado boca abajo en un banco inclinado con una mancuerna en cada mano. Eleva los brazos lateralmente hasta la altura de los hombros y baja controlado. Trabaja el deltoides posterior."
+  },
+  {
+    "code": "DEL-006",
+    "group": "Deltoides posterior",
+    "name": "Pájaros sentado inclinado",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "trasera",
+    "frames": 2,
+    "technique": "Sentado con el pecho sobre los muslos y las mancuernas bajo las rodillas. Eleva los brazos lateralmente hasta la altura de los hombros y baja controlado. Trabaja el deltoides posterior."
+  },
+  {
+    "code": "DEL-007",
+    "group": "Deltoides posterior",
+    "name": "Apertura inversa unilateral en polea",
+    "equipment": "polea",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie ante una polea alta con una mano. Lleva el brazo hacia atrás y afuera a la altura del hombro y vuelve controlado. Trabaja el deltoides posterior de un lado."
+  },
+  {
+    "code": "DEL-008",
+    "group": "Deltoides posterior",
+    "name": "Apertura inversa unilateral en máquina",
+    "equipment": "máquina",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "Sentado en la máquina con un asa en una mano. Abre el brazo hacia atrás y vuelve controlado. Trabaja el deltoides posterior."
+  },
+  {
+    "code": "DEL-009",
+    "group": "Deltoides posterior",
+    "name": "Remo a la cara con mancuernas",
+    "equipment": "mancuernas",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "Tumbado boca abajo en un banco, mancuernas colgando. Tira de ellas hacia el pecho con los codos abiertos y baja controlado. Trabaja el deltoides posterior y el trapecio."
+  },
+  {
+    "code": "DEL-010",
+    "group": "Deltoides posterior",
+    "name": "Face pull con banda elástica",
+    "equipment": "banco/otros",
+    "existingId": null,
+    "view": "frontal",
+    "frames": 2,
+    "technique": "De pie con una banda elástica anclada a la altura de la cara. Tira de la banda hacia la cara abriendo los codos y vuelve controlado. Trabaja el deltoides posterior."
+  },
+  {
+    "code": "DEL-011",
+    "group": "Deltoides posterior",
+    "name": "Remo horizontal con agarre ancho",
+    "equipment": "barra",
+    "existingId": null,
+    "view": "lateral",
+    "frames": 2,
+    "technique": "De pie con el tronco inclinado y la barra con agarre ancho. Tira de la barra hacia el pecho alto con los codos abiertos y baja controlado. Trabaja el deltoides posterior y la espalda alta."
+  }
+]
