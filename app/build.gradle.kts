@@ -1,3 +1,5 @@
+import com.android.build.api.variant.HasHostTestsBuilder
+import com.android.build.api.variant.HostTestBuilder
 import java.util.Properties
 
 plugins {
@@ -138,4 +140,12 @@ dependencies {
     testImplementation(libs.androidx.room.testing)
     testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.compose.ui.test.junit4)
+}
+
+// Los tests JVM/Robolectric se ejecutan solo contra debug: ui-test-manifest y los esquemas de Room
+// (assets) solo existen en esa variante. Así `./gradlew test` no lanza un testReleaseUnitTest roto.
+androidComponents {
+    beforeVariants(selector().withBuildType("release")) { variantBuilder ->
+        (variantBuilder as HasHostTestsBuilder).hostTests[HostTestBuilder.UNIT_TEST_TYPE]?.enable = false
+    }
 }

@@ -57,3 +57,20 @@ Formato: contexto / decisión / consecuencias. Las decisiones del stack de `docs
 ## ADR-012 — Robolectric con SDK 35
 - **Contexto**: Robolectric 4.16 falla con el SDK 36 en esta máquina (JDK 17).
 - **Decisión**: los tests Robolectric fijan `@Config(sdk = [35], application = Application::class)` (sin Hilt en tests).
+
+## ADR-013 — Escrituras de la sesión en un scope de aplicación
+- **Contexto**: la revisión detectó que las escrituras de series en cola (cola FIFO del `WorkoutViewModel`) se cancelaban al salir de la pantalla porque corrían en `viewModelScope`.
+- **Decisión**: `@ApplicationScope CoroutineScope` (SupervisorJob + IO) en `core/di`; el consumidor de la cola corre ahí y `onCleared()` cierra el canal para que se vacíe y termine. Importar backup (BD + copia de fotos) corre en `NonCancellable` y bloquea el back mientras trabaja.
+- **Consecuencias**: ninguna pulsación registrada en la UI se pierde al salir de la sesión.
+
+## ADR-014 — Navegación robusta ante doble toque
+- **Decisión**: navegaciones disparadas por el usuario envueltas en `dropUnlessResumed`; cierres por evento del ViewModel con `popBackStack<Ruta>(inclusive = true)`, idempotente.
+- **Consecuencias**: un doble toque en "atrás" ya no vacía el `NavHost` (pantalla en blanco).
+
+## ADR-015 — Tests unitarios solo en la variante debug
+- **Contexto**: `./gradlew test` también lanzaba `testReleaseUnitTest`, donde no existen `ui-test-manifest` ni los esquemas de Room como assets (solo debug): 15 fallos espurios.
+- **Decisión**: `androidComponents.beforeVariants` desactiva los host tests de release.
+- **Consecuencias**: `./gradlew assembleRelease test detekt` verde desde cero (5,2 min sin caché, 242 tests).
+
+## ADR-016 — Release v0.1.0
+- **Decisión**: APK release sin R8, firmado (esquema v2, suficiente para minSdk 26) con `gym-release.jks` (RSA 4096, PKCS12, fuera del repo; copia en `Z:\IA\02_Proyectos\_secrets\Registro-Pesos-GYM-App\`). Entregable versionado en `dist/registro-pesos-gym-v0.1.0.apk` (excepción explícita en `.gitignore`).

@@ -26,7 +26,9 @@ fun NavGraphBuilder.exercisesGraph(navController: NavHostController) {
     }
     // Los argumentos de ExerciseEditRoute los lee el ViewModel con savedStateHandle.toRoute().
     composable<ExerciseEditRoute> {
-        ExerciseEditorRoute(onClose = dropUnlessResumed { navController.popBackStack() })
+        // Cierre por evento (tras guardar/archivar): sin dropUnlessResumed para no perderlo en STARTED;
+        // popBackStack<Ruta>(inclusive) es idempotente, un segundo cierre no saca otra pantalla.
+        ExerciseEditorRoute(onClose = { navController.popBackStack<ExerciseEditRoute>(inclusive = true) })
     }
     composable<MuscleGroupsRoute> {
         MuscleGroupsListRoute(onBack = dropUnlessResumed { navController.popBackStack() })
