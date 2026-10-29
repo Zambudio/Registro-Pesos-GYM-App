@@ -3,6 +3,7 @@ package com.zambudio.registropesos.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zambudio.registropesos.domain.model.AppSettings
+import com.zambudio.registropesos.domain.model.ThemeMode
 import com.zambudio.registropesos.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,6 +38,10 @@ class MoreViewModel @Inject constructor(
     fun setDefaultSets(sets: Int) {
         if (sets !in DEFAULT_SETS_RANGE) return
         viewModelScope.launch { settingsRepository.update { it.copy(defaultSets = sets) } }
+    }
+
+    fun setThemeMode(mode: ThemeMode) {
+        viewModelScope.launch { settingsRepository.update { it.copy(themeMode = mode) } }
     }
 
     companion object {

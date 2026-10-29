@@ -65,6 +65,10 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            // Galería de capturas (ScreenshotGallery*): solo con -Pgym.screenshots=true; deja los PNG en
+            // app/build/screenshots para revisar el diseño en claro y oscuro sin dispositivo.
+            val screenshots = providers.gradleProperty("gym.screenshots").orElse("false")
+            all { it.systemProperty("gym.screenshots", screenshots.get()) }
         }
     }
 

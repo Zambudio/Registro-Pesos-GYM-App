@@ -196,7 +196,11 @@ data class PersonalRecord(
     val bestE1rmAt: Long,
 )
 
+/** Aspecto de la app: seguir al sistema o forzar claro/oscuro. */
+enum class ThemeMode { SYSTEM, LIGHT, DARK }
+
 data class AppSettings(
     val weightStepKg: Double = 2.5,
     val defaultSets: Int = 4,
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
 )
