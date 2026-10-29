@@ -175,7 +175,11 @@ private fun ExerciseSetsCard(exercise: HistoryExerciseUi) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(exercise.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Text(
-                text = "${exercise.muscleGroupName} · ${formatKgWithUnit(exercise.volumeKg)}",
+                text = stringResource(
+                    R.string.history_exercise_group_volume,
+                    exercise.muscleGroupName,
+                    formatKgWithUnit(exercise.volumeKg),
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
