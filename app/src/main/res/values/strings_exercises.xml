@@ -41,6 +41,10 @@
     <string name="exercises_archive_confirm_message">Dejará de aparecer en el listado y al crear rutinas. Su historial se conserva.</string>
     <string name="exercises_unarchive_confirm_title">¿Desarchivar ejercicio?</string>
     <string name="exercises_unarchive_confirm_message">Volverá a aparecer en el listado y al crear rutinas.</string>
+    <string name="exercises_discard_title">¿Descartar cambios?</string>
+    <string name="exercises_discard_message">Tienes cambios sin guardar en este ejercicio. Si sales, se perderán.</string>
+    <string name="exercises_discard_confirm">Descartar</string>
+    <string name="exercises_discard_keep_editing">Seguir editando</string>
     <string name="exercises_archived_done">Ejercicio archivado</string>
     <string name="exercises_unarchived_done">Ejercicio desarchivado</string>
     <string name="exercises_archived_notice">Este ejercicio está archivado.</string>

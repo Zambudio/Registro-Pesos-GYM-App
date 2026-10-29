@@ -46,6 +46,8 @@ data class ExerciseEditUiState(
     val isImageBusy: Boolean = false,
     val isArchived: Boolean = false,
     val isSaving: Boolean = false,
+    /** Se intentó salir con cambios sin guardar: se pide confirmación. */
+    val showDiscardDialog: Boolean = false,
 ) {
     val selectedGroupName: String? get() = groups.firstOrNull { it.id == muscleGroupId }?.name
     val isBusy: Boolean get() = isSaving || isImageBusy
@@ -209,14 +211,24 @@ class ExerciseEditViewModel @Suppress("LongParameterList") @Inject constructor(
         }
     }
 
-    /** Salida sin guardar: descarta la imagen nueva que no llegó a guardarse. */
+    /** Back del sistema o de la barra superior: con cambios sin guardar pide confirmación. */
     fun onBack() {
         if (isClosing || _uiState.value.isSaving) return
-        viewModelScope.launch {
-            deletePendingImage()
-            imagePath = saved?.imagePath
-            close()
+        if (hasUnsavedChanges()) {
+            _uiState.update { it.copy(showDiscardDialog = true) }
+        } else {
+            discardAndClose()
         }
+    }
+
+    fun onDiscardConfirm() {
+        _uiState.update { it.copy(showDiscardDialog = false) }
+        if (isClosing || _uiState.value.isSaving) return
+        discardAndClose()
+    }
+
+    fun onDiscardDismiss() {
+        _uiState.update { it.copy(showDiscardDialog = false) }
     }
 
     fun onToggleArchived() {
@@ -258,6 +270,29 @@ class ExerciseEditViewModel @Suppress("LongParameterList") @Inject constructor(
                 cameraTempPath?.let { deleteTempFile(it) }
                 _uiState.update { it.copy(isImageBusy = false) }
             }
+        }
+    }
+
+    /** Salida sin guardar: descarta la imagen nueva que no llegó a guardarse. */
+    private fun discardAndClose() {
+        viewModelScope.launch {
+            deletePendingImage()
+            imagePath = saved?.imagePath
+            close()
+        }
+    }
+
+    /** Algo difiere de lo guardado (o, si es nuevo, del formulario vacío con el grupo de la ruta). */
+    private fun hasUnsavedChanges(): Boolean {
+        val state = _uiState.value
+        if (state.isLoading || state.isNotFound) return false
+        val baseline = saved
+        return if (baseline == null) {
+            state.name.isNotBlank() || state.notes.isNotBlank() || imagePath != null ||
+                state.muscleGroupId != route.muscleGroupId
+        } else {
+            state.name.trim() != baseline.name || state.notes.trim() != baseline.notes.orEmpty() ||
+                state.muscleGroupId != baseline.muscleGroupId || imagePath != baseline.imagePath
         }
     }
 

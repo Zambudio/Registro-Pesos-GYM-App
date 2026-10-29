@@ -138,6 +138,8 @@ fun ExerciseEditorRoute(
         onRemoveImage = viewModel::onRemoveImage,
         onToggleArchived = viewModel::onToggleArchived,
         onSave = viewModel::onSave,
+        onDiscardConfirm = viewModel::onDiscardConfirm,
+        onDiscardDismiss = viewModel::onDiscardDismiss,
     )
 }
 
@@ -154,6 +156,8 @@ fun ExerciseEditScreen(
     onRemoveImage: () -> Unit,
     onToggleArchived: () -> Unit,
     onSave: () -> Unit,
+    onDiscardConfirm: () -> Unit,
+    onDiscardDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
@@ -227,6 +231,17 @@ fun ExerciseEditScreen(
                 onToggleArchived()
             },
             onDismiss = { showArchiveConfirm = false },
+        )
+    }
+
+    if (state.showDiscardDialog) {
+        ConfirmDialog(
+            title = stringResource(R.string.exercises_discard_title),
+            message = stringResource(R.string.exercises_discard_message),
+            confirmLabel = stringResource(R.string.exercises_discard_confirm),
+            dismissLabel = stringResource(R.string.exercises_discard_keep_editing),
+            onConfirm = onDiscardConfirm,
+            onDismiss = onDiscardDismiss,
         )
     }
 }
@@ -433,6 +448,8 @@ private fun ExerciseEditScreenPreview() {
             onRemoveImage = {},
             onToggleArchived = {},
             onSave = {},
+            onDiscardConfirm = {},
+            onDiscardDismiss = {},
         )
     }
 }

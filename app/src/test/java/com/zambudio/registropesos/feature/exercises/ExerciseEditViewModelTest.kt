@@ -194,15 +194,62 @@ class ExerciseEditViewModelTest {
     }
 
     @Test
-    fun leavingWithoutSavingDeletesOnlyTheNewImage() = runTest {
+    fun leavingWithoutSavingAsksFirstAndThenDeletesOnlyTheNewImage() = runTest {
         val viewModel = newViewModel(exerciseId = "e1")
         viewModel.onImagePicked("content://media/1")
 
         viewModel.onBack()
 
+        assertTrue(viewModel.uiState.value.showDiscardDialog)
+        assertTrue("aún no se descarta nada", images.deleted.isEmpty())
+        assertTrue(events.isEmpty())
+
+        viewModel.onDiscardConfirm()
+
+        assertFalse(viewModel.uiState.value.showDiscardDialog)
         assertEquals(listOf("exercise_new1.jpg"), images.deleted)
         assertTrue(exercises.upserts.isEmpty())
         assertEquals(listOf<ExerciseEditEvent>(ExerciseEditEvent.Close), events)
+    }
+
+    @Test
+    fun keepEditingDismissesDialogAndKeepsChanges() = runTest {
+        val viewModel = newViewModel(exerciseId = "e1")
+        viewModel.onNameChange("Press banca inclinado")
+
+        viewModel.onBack()
+        viewModel.onDiscardDismiss()
+
+        assertFalse(viewModel.uiState.value.showDiscardDialog)
+        assertEquals("Press banca inclinado", viewModel.uiState.value.name)
+        assertTrue(events.isEmpty())
+
+        // Volver al valor guardado ya no cuenta como cambio: sale sin preguntar.
+        viewModel.onNameChange("Press banca ")
+        viewModel.onBack()
+        assertFalse(viewModel.uiState.value.showDiscardDialog)
+        assertEquals(listOf<ExerciseEditEvent>(ExerciseEditEvent.Close), events)
+    }
+
+    @Test
+    fun backWithoutChangesClosesWithoutAsking() = runTest {
+        val viewModel = newViewModel(muscleGroupId = "g1")
+
+        viewModel.onBack()
+
+        assertFalse(viewModel.uiState.value.showDiscardDialog)
+        assertEquals(listOf<ExerciseEditEvent>(ExerciseEditEvent.Close), events)
+    }
+
+    @Test
+    fun newExerciseWithDataAsksBeforeLeaving() = runTest {
+        val viewModel = newViewModel(muscleGroupId = "g1")
+        viewModel.onGroupSelected("g2")
+
+        viewModel.onBack()
+
+        assertTrue(viewModel.uiState.value.showDiscardDialog)
+        assertTrue(events.isEmpty())
     }
 
     @Test
