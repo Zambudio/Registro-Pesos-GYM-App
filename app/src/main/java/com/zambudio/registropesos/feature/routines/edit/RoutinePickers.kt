@@ -1,11 +1,10 @@
 package com.zambudio.registropesos.feature.routines.edit
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,15 +12,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.zambudio.registropesos.R
+import com.zambudio.registropesos.core.ui.DialogOption
 import com.zambudio.registropesos.domain.model.MuscleGroup
 
 // Selector del editor: grupo muscular que se añade a la rutina (solo los que aún no están).
 
 private val PickerListMaxHeight = 400.dp
-private val RowMinHeight = 48.dp
 
 @Composable
 internal fun MuscleGroupPickerDialog(
@@ -41,15 +39,7 @@ internal fun MuscleGroupPickerDialog(
             } else {
                 LazyColumn(modifier = Modifier.heightIn(max = PickerListMaxHeight)) {
                     items(groups, key = { it.id }) { group ->
-                        Text(
-                            group.name,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = RowMinHeight)
-                                .clickable(role = Role.Button) { onSelect(group) }
-                                .padding(horizontal = 8.dp, vertical = 12.dp),
-                        )
+                        DialogOption(text = group.name, icon = Icons.Filled.Category, onClick = { onSelect(group) })
                     }
                 }
             }
