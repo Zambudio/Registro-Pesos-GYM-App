@@ -84,6 +84,18 @@ class AndroidRestTimerTest {
     }
 
     @Test
+    fun restThatEndedLongAgoWithoutAlarmIsNotShown() = runTest {
+        // Alarma perdida (reinicio del móvil) o ajustes restaurados de una copia antigua.
+        newTimer().start(60_000L)
+        clock.now += 60_000L + 30_000L
+        assertEquals("recién terminado: aún se ve", 1_060_000L, newTimer().state.first()?.endsAt)
+
+        clock.now += 60_000L
+
+        assertNull(newTimer().state.first())
+    }
+
+    @Test
     fun restSurvivesTheDeathOfTheProcess() = runTest {
         newTimer().start(120_000L)
 

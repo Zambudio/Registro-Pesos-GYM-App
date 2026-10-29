@@ -21,12 +21,15 @@ Pulsa **Instalar**. Si Google Play Protect avisa de que la app no es conocida, e
 
 ## 4. Primeros pasos
 
-> Esta guía describe la versión de `main` (APK de prueba `registro-pesos-gym-v0.1.0+grupos-catalogo.apk`). En la v0.1.0 las rutinas llevaban ejercicios y series, y cada serie se marcaba como "Hecha".
+> Esta guía describe la versión de `main` (APK de prueba `registro-pesos-gym-v0.1.0+diseno-descanso.apk`). En la v0.1.0 las rutinas llevaban ejercicios y series, y cada serie se marcaba como "Hecha".
 
 1. **Ejercicios**: la app ya trae 58 ejercicios con foto. En la pestaña Ejercicios puedes añadir los tuyos, eligiendo el grupo muscular y, si quieres, una foto de la máquina (galería o cámara).
 2. **Rutinas**: en la pestaña Rutinas, crea una rutina (por ejemplo "Día 1") con un comentario opcional y añade sus grupos musculares en orden. Los ejercicios no se eligen aquí.
 3. **Entrenar**: en la pestaña Entrenar, elige la rutina y pulsa **Comenzar entrenamiento**. En cada grupo, pulsa **+** y elige el ejercicio por su foto. Anota peso y repeticiones. Lo que hiciste la vez anterior aparece tenue y en cursiva como referencia; "Copiar anterior" lo convierte en los datos de hoy. El comentario de la rutina queda fijo arriba.
-4. Si se cierra la app a mitad, al volver te ofrecerá **reanudar** la sesión. Al acabar pulsa **Terminar entrenamiento**.
+4. **Descanso**: al completar el peso y las repeticiones de una serie empieza solo la cuenta atrás, que aparece abajo, junto a **Terminar entrenamiento**. Puedes sumar o restar 15 s, o saltarla. Si no hay ninguna en marcha, el botón del reloj la arranca a mano. Al terminar, el móvil vibra y avisa aunque esté bloqueado. La primera vez, acepta el permiso de notificaciones. La duración y el arranque automático se cambian en **Más > Descanso entre series**.
+5. Si se cierra la app a mitad, al volver te ofrecerá **reanudar** la sesión. Al acabar pulsa **Terminar entrenamiento**.
+6. **Tema**: en **Más > Apariencia** eliges Sistema, Claro u Oscuro.
+7. **Biblioteca de ejercicios**: importa `biblioteca-ejercicios.zip` desde **Más > Exportar / importar > Importar desde ZIP** para añadir más ejercicios. Puedes importarlo otra vez cuando tenga ilustraciones; no se duplica nada.
 
 ## 5. Actualizar a una versión nueva
 

@@ -15,7 +15,9 @@ import com.zambudio.registropesos.core.theme.GymTheme
 import com.zambudio.registropesos.domain.model.ThemeMode
 import com.zambudio.registropesos.domain.repository.SettingsRepository
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -28,9 +30,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val themeModes = settingsRepository.settings.map { it.themeMode }
+        // Lectura síncrona (un fichero pequeño, milisegundos): con un modo forzado distinto del del
+        // sistema, la primera composición ya sale con el tema correcto y no parpadea al arrancar.
+        val initialThemeMode = runBlocking { themeModes.first() }
         setContent {
-            // Hasta leer el ajuste (milisegundos) se sigue al sistema, que es el valor por defecto.
-            val themeMode by themeModes.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
+            val themeMode by themeModes.collectAsStateWithLifecycle(initialValue = initialThemeMode)
             val darkTheme = when (themeMode) {
                 ThemeMode.SYSTEM -> isSystemInDarkTheme()
                 ThemeMode.LIGHT -> false
