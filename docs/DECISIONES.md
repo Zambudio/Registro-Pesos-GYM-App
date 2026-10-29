@@ -74,3 +74,8 @@ Formato: contexto / decisión / consecuencias. Las decisiones del stack de `docs
 
 ## ADR-016 — Release v0.1.0
 - **Decisión**: APK release sin R8, firmado (esquema v2, suficiente para minSdk 26) con `gym-release.jks` (RSA 4096, PKCS12, fuera del repo; copia en `Z:\IA\02_Proyectos\_secrets\Registro-Pesos-GYM-App\`). Entregable versionado en `dist/registro-pesos-gym-v0.1.0.apk` (excepción explícita en `.gitignore`).
+
+## ADR-017 — Build portable entre PCs
+- **Contexto**: el desarrollo puede seguir en otro PC. El `buildDirectory` tenía por defecto `C:/build/gym`, una ruta propia de este PC (ADR-002).
+- **Decisión**: la redirección del build pasa a ser opcional (`-Pgym.buildRoot` / `GYM_BUILD_ROOT`); sin ella se usa el `build/` estándar. `storeFile` de `keystore.properties` admite rutas relativas a la raíz del repo. Sin `keystore.properties` el release compila sin firmar.
+- **Consecuencias**: un clon nuevo de GitHub compila con solo JDK 17 y el SDK. Los pasos están en el README, sección "Continuar en otro PC". En el clon `C:\dev` de este PC el build pasa a `C:\dev\Registro-Pesos-GYM-App\**\build` (misma unidad, sin problema con KSP). `C:\build\gym` queda obsoleto y se puede borrar.

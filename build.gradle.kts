@@ -9,14 +9,15 @@ plugins {
     alias(libs.plugins.detekt) apply false
 }
 
-// El repo vive en una unidad SMB (Z:). Las salidas de build van a disco local NTFS
-// para evitar bloqueos de fichero y lentitud. Ver docs/DECISIONES.md (ADR-002).
-// Se puede cambiar con -Pgym.buildRoot=... o la variable GYM_BUILD_ROOT.
-val buildRoot: String = (findProperty("gym.buildRoot") as String?)
+// Opcional: sacar las salidas de build a otra carpeta con -Pgym.buildRoot=... o la variable
+// GYM_BUILD_ROOT. Sin ninguna de las dos se usa el build/ estándar de cada proyecto.
+// Ojo: KSP exige que el proyecto y el build estén en la misma unidad. Ver ADR-002 y ADR-017.
+val buildRoot: String? = (findProperty("gym.buildRoot") as String?)
     ?: System.getenv("GYM_BUILD_ROOT")
-    ?: "C:/build/gym"
 
-allprojects {
-    val dirName = if (this == rootProject) "_root" else name
-    layout.buildDirectory.set(file("$buildRoot/$dirName"))
+if (buildRoot != null) {
+    allprojects {
+        val dirName = if (this == rootProject) "_root" else name
+        layout.buildDirectory.set(file("$buildRoot/$dirName"))
+    }
 }

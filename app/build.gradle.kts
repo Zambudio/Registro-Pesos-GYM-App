@@ -35,7 +35,8 @@ android {
     signingConfigs {
         if (keystoreProperties.isNotEmpty()) {
             create("release") {
-                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                // Ruta absoluta o relativa a la raíz del repo.
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")

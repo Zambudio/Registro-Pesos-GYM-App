@@ -5,7 +5,9 @@ App Android nativa (Kotlin + Jetpack Compose) para registrar los pesos levantado
 - Versión actual: `0.1.0` (`versionCode 1`), `applicationId` `com.zambudio.registropesos`.
 - `minSdk 26`, `targetSdk`/`compileSdk 36`.
 - Instalación en el móvil: ver [dist/INSTALAR.md](dist/INSTALAR.md).
-- Decisiones técnicas (ADR-001 a 012): [docs/DECISIONES.md](docs/DECISIONES.md).
+- Decisiones técnicas (ADR-001 a 017): [docs/DECISIONES.md](docs/DECISIONES.md).
+- Convenciones de código para seguir desarrollando: [docs/CONVENCIONES.md](docs/CONVENCIONES.md).
+- Pendientes y siguiente versión: [docs/PENDIENTE.md](docs/PENDIENTE.md).
 
 ## Funcionalidades
 
@@ -33,30 +35,54 @@ Un solo módulo Gradle `:app`, package-by-feature dentro de capas, en `app/src/m
 
 MVVM + flujo unidireccional: `UiState` inmutable en `StateFlow`, eventos one-shot por `Channel`, sin lógica de negocio en los Composables.
 
-## Preparar el entorno (Windows)
+## Continuar en otro PC
 
-1. **JDK 17** (no el 21 del PATH): usar `C:\Progra~1\Java\jdk-17`.
-2. **Android SDK** en `C:\Android\sdk` con las cmdline-tools actuales (16111833). Traen la nueva "Android CLI"; `sdkmanager` está deprecado y `--list` no devuelve nada útil:
+El repo de GitHub (`https://github.com/Zambudio/Registro-Pesos-GYM-App`) es la fuente de verdad: contiene todo lo necesario salvo el SDK, el JDK y la clave de firma. Nada del build depende de rutas de este PC.
+
+1. **Clonar en un disco local** (no en una unidad de red, ver ADR-002):
 
    ```powershell
-   C:\Android\sdk\cmdline-tools\latest\bin\android.exe --sdk=C:\Android\sdk sdk install platform-tools platforms/android-36 build-tools/36.0.0
+   git clone https://github.com/Zambudio/Registro-Pesos-GYM-App.git C:\dev\Registro-Pesos-GYM-App
    ```
 
-   Las licencias se aceptan automáticamente. Fijar `ANDROID_HOME` a nivel usuario: `setx ANDROID_HOME C:\Android\sdk`.
-3. **Mitigación SMB**: el repo de referencia está en `Z:\IA\02_Proyectos\Registro-Pesos-GYM-App` (unidad de red). Con el código en `Z:` y el directorio de build en `C:`, KSP2 falla (`this and base files have different roots`) y el primer build tarda ~7 min. Por eso se trabaja en un clon local:
-   - Clon de trabajo: `C:\dev\Registro-Pesos-GYM-App`; build dir en `C:\build\gym` (se cambia con `-Pgym.buildRoot=...` o la variable `GYM_BUILD_ROOT`).
-   - Gradle siempre con `--project-cache-dir C:\build\gym\.gradle`.
-   - Sincronización con `Z:` por git: el repo de `Z:` tiene `receive.denyCurrentBranch=updateInstead` y el clon de `C:` empuja allí; en sentido inverso, `git pull local main` (remote `local` en el repo de `Z:`). Un `git clone` directo desde `Z:` falla por `safe.directory` (propietario SMB distinto).
-   - En PowerShell, `-Pgym.buildRoot=...` debe ir entre comillas simples.
+2. **JDK 17.** Con Android Studio vale su JDK embebido (JBR). Desde terminal, apuntar `JAVA_HOME` a un JDK 17. Con un JDK 21 en el PATH ya hubo problemas, así que mejor fijarlo.
+3. **Android SDK** con `platform-tools`, `platforms/android-36` y `build-tools/36.0.0`. Hay dos formas:
+   - **Android Studio:** lo instala solo y crea `local.properties`.
+   - **Solo terminal:** usar las cmdline-tools actuales, que traen la nueva "Android CLI" (`sdkmanager` está deprecado):
+
+     ```powershell
+     <sdk>\cmdline-tools\latest\bin\android.exe --sdk=<sdk> sdk install platform-tools platforms/android-36 build-tools/36.0.0
+     ```
+
+     Después, fijar `ANDROID_HOME=<sdk>` o crear `local.properties` con `sdk.dir=C\:/ruta/al/sdk`. Usa barras `/`: con `\` sin escapar falla.
+4. **Clave de firma.** Solo hace falta para generar el APK que se instala encima del actual.
+   - Copia `gym-release.jks` y `keystore.properties` desde `Z:\IA\02_Proyectos\_secrets\Registro-Pesos-GYM-App\`, o desde tu copia de seguridad.
+   - `keystore.properties` va en la raíz del repo y está ignorado por git.
+   - Ajusta en él `storeFile=` a la ruta del `.jks` en ese PC. Admite una ruta absoluta o una relativa a la raíz del repo.
+   - Sin `keystore.properties` todo compila igual, pero el APK de release sale **sin firmar** y no se puede instalar.
+5. Compilar y probar (siguiente sección). La primera vez Gradle y Robolectric descargan dependencias (varios minutos).
+
+Opcional: para sacar las salidas de build a otra carpeta, usa `-Pgym.buildRoot=C:/build/gym` o la variable `GYM_BUILD_ROOT` (en PowerShell, el `-P…` entre comillas simples). Debe estar en la **misma unidad** que el código, porque KSP falla con unidades distintas. Por defecto se usa el `build/` estándar.
+
+### Particularidades del PC original
+
+Nada de esto hace falta en otro PC:
+
+- **Repo en red:** el repo de referencia está en `Z:\IA\02_Proyectos\Registro-Pesos-GYM-App`, una unidad SMB. Allí se compilaba lento y KSP fallaba, así que se trabajó en un clon `C:\dev\Registro-Pesos-GYM-App`.
+- **Sincronización Z: ↔ C:\dev:**
+  - Desde `Z:`: `git pull local main`. El remote `local` es configuración local, no está en el repo.
+  - Desde `C:\dev`: se empuja a `Z:`, que tiene `receive.denyCurrentBranch=updateInstead`.
+- **Si se sigue en otro PC:** al volver a este, basta un `git pull` en `C:\dev` y otro en `Z:`.
+- **SDK y JDK:** el SDK está en `C:\Android\sdk` y el JDK 17 en `C:\Progra~1\Java\jdk-17`.
 
 ## Compilar y probar
 
 ```powershell
-$env:JAVA_HOME='C:\Progra~1\Java\jdk-17'; $env:ANDROID_HOME='C:\Android\sdk'
-.\gradlew.bat assembleRelease test detekt --project-cache-dir C:\build\gym\.gradle
+$env:JAVA_HOME='<ruta al JDK 17>'
+.\gradlew.bat assembleRelease test detekt
 ```
 
-- Los builds incrementales rondan 1,5 min.
+- La primera compilación completa ronda los 5 min; los builds incrementales, ~1,5 min.
 - ~240 tests JVM/Robolectric. Los de Robolectric fijan `@Config(sdk = [35], application = Application::class)` (4.16 falla con SDK 36 en JDK 17).
 - detekt se ejecuta con Kotlin 2.0.21 forzado en su classpath: no usar sintaxis exclusiva de Kotlin 2.2 (context parameters, guard en `when`, `$$`).
 - `allWarningsAsErrors = true` en todo `:app`.
@@ -69,7 +95,8 @@ $env:JAVA_HOME='C:\Progra~1\Java\jdk-17'; $env:ANDROID_HOME='C:\Android\sdk'
 - Copia de ambos ficheros fuera del repo: `Z:\IA\02_Proyectos\_secrets\Registro-Pesos-GYM-App\`.
 - Huella SHA-256 del certificado: `a6438d2bb7177f904040395cef156ff8a973f92b56d8923cf21d52766de5f86e` (comprobar con `apksigner verify --print-certs`).
 - **Si se pierde el keystore no se podrán actualizar las instalaciones existentes ni restaurar Auto Backup**: Android exige el mismo firmante.
-- APK release: `C:\build\gym\app\outputs\apk\release\app-release.apk`; se copia a `dist\registro-pesos-gym-v0.1.0.apk`. R8 desactivado en v0.1.
+- APK release: `app\build\outputs\apk\release\app-release.apk` (o `<gym.buildRoot>\app\outputs\...` si se redirige el build); se copia a `dist\registro-pesos-gym-vX.Y.Z.apk`. R8 desactivado en v0.1.
+- Nueva versión: subir `versionCode` (siempre +1) y `versionName` en `app/build.gradle.kts`, compilar, copiar el APK a `dist/`, actualizar `dist/INSTALAR.md` y crear el tag `vX.Y.Z`.
 
 ## Copias de seguridad
 
