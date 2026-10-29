@@ -4,27 +4,36 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -32,8 +41,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -42,7 +54,14 @@ import com.zambudio.registropesos.R
 import com.zambudio.registropesos.core.theme.GymTheme
 import com.zambudio.registropesos.core.ui.EmptyState
 import com.zambudio.registropesos.core.ui.ErrorState
+import com.zambudio.registropesos.core.ui.GymCard
+import com.zambudio.registropesos.core.ui.GymExtendedFab
 import com.zambudio.registropesos.core.ui.LoadingState
+import com.zambudio.registropesos.core.ui.Pill
+import com.zambudio.registropesos.core.ui.ScreenPadding
+
+private val ThumbnailSize = 64.dp
+private val RowPadding = 12.dp
 
 @Composable
 fun ExercisesListRoute(
@@ -82,13 +101,16 @@ fun ExercisesScreen(
 
     Scaffold(
         modifier = modifier,
+        // El Scaffold raíz ya aplica el inset inferior (barra de navegación).
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
+            .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.exercises_title)) },
                 actions = {
                     IconButton(onClick = onManageGroups) {
                         Icon(
-                            Icons.Filled.Category,
+                            Icons.Outlined.Category,
                             contentDescription = stringResource(R.string.exercises_manage_groups),
                         )
                     }
@@ -97,10 +119,10 @@ fun ExercisesScreen(
         },
         floatingActionButton = {
             if (!state.isLoading && !state.isError) {
-                ExtendedFloatingActionButton(
+                GymExtendedFab(
+                    text = stringResource(R.string.exercises_add),
+                    icon = Icons.Filled.Add,
                     onClick = { showGroupPicker = true },
-                    icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                    text = { Text(stringResource(R.string.exercises_add)) },
                 )
             }
         },
@@ -143,6 +165,7 @@ fun ExercisesScreen(
     }
 }
 
+/** Buscador en forma de píldora y filtro de archivados. */
 @Composable
 private fun SearchRow(
     query: String,
@@ -150,10 +173,11 @@ private fun SearchRow(
     onQueryChange: (String) -> Unit,
     onShowArchivedChange: (Boolean) -> Unit,
 ) {
+    val colors = MaterialTheme.colorScheme
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = ScreenPadding),
     ) {
         OutlinedTextField(
             value = query,
@@ -169,14 +193,32 @@ private fun SearchRow(
                 }
             },
             singleLine = true,
+            shape = RoundedCornerShape(percent = 50),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = colors.surfaceContainerLow,
+                unfocusedContainerColor = colors.surfaceContainerLow,
+                unfocusedBorderColor = colors.outlineVariant,
+            ),
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
-                selected = showArchived,
-                onClick = { onShowArchivedChange(!showArchived) },
-                label = { Text(stringResource(R.string.exercises_show_archived)) },
-            )
-        }
+        FilterChip(
+            selected = showArchived,
+            onClick = { onShowArchivedChange(!showArchived) },
+            label = { Text(stringResource(R.string.exercises_show_archived)) },
+            leadingIcon = {
+                Icon(
+                    Icons.Filled.Archive,
+                    contentDescription = null,
+                    modifier = Modifier.size(FilterChipDefaults.IconSize),
+                )
+            },
+            colors = FilterChipDefaults.filterChipColors(
+                containerColor = colors.surfaceContainerLow,
+                selectedContainerColor = colors.primaryContainer,
+                selectedLabelColor = colors.onPrimaryContainer,
+                selectedLeadingIconColor = colors.onPrimaryContainer,
+            ),
+            modifier = Modifier.padding(top = 4.dp),
+        )
     }
 }
 
@@ -204,37 +246,89 @@ private fun ExercisesContent(
         else -> LazyColumn(
             modifier = Modifier.fillMaxSize(),
             // Espacio para que el FAB no tape el último elemento.
-            contentPadding = PaddingValues(bottom = 88.dp),
+            contentPadding = PaddingValues(start = ScreenPadding, end = ScreenPadding, top = 4.dp, bottom = 96.dp),
         ) {
             state.sections.forEach { section ->
                 item(key = "group-${section.groupId}", contentType = "header") {
-                    Text(
-                        text = section.groupName,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
-                    )
+                    SectionTitle(name = section.groupName, count = section.exercises.size)
                 }
-                items(section.exercises, key = { it.id }, contentType = { "exercise" }) { exercise ->
-                    ExerciseRow(exercise = exercise, onClick = { onExerciseClick(exercise.id) })
+                item(key = "card-${section.groupId}", contentType = "section") {
+                    SectionCard(exercises = section.exercises, onExerciseClick = onExerciseClick)
                 }
             }
         }
     }
 }
 
+/** Cabecera de grupo muscular: nombre en grande y recuento en una píldora. */
+@Composable
+private fun SectionTitle(name: String, count: Int) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 4.dp, top = 16.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text(
+            name,
+            style = MaterialTheme.typography.titleLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f, fill = false),
+        )
+        Pill(
+            text = pluralStringResource(R.plurals.exercises_groups_count, count, count),
+        )
+    }
+}
+
+/** Ejercicios de un grupo en una sola tarjeta, separados por líneas finas. */
+@Composable
+private fun SectionCard(exercises: List<ExerciseListItem>, onExerciseClick: (String) -> Unit) {
+    GymCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(0.dp)) {
+        exercises.forEachIndexed { index, exercise ->
+            if (index > 0) {
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = RowPadding * 2 + ThumbnailSize),
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                )
+            }
+            ExerciseRow(exercise = exercise, onClick = { onExerciseClick(exercise.id) })
+        }
+    }
+}
+
 @Composable
 private fun ExerciseRow(exercise: ExerciseListItem, onClick: () -> Unit) {
-    ListItem(
-        headlineContent = { Text(exercise.name) },
-        supportingContent = if (exercise.isArchived) {
-            { Text(stringResource(R.string.exercises_archived_badge)) }
-        } else {
-            null
-        },
-        leadingContent = { ExerciseThumbnail(imageFile = exercise.imageFile) },
-        modifier = Modifier.clickableRow(onClick),
-    )
+    Surface(onClick = onClick, color = MaterialTheme.colorScheme.surfaceContainerLow) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp)
+                .padding(RowPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(RowPadding),
+        ) {
+            ExerciseThumbnail(imageFile = exercise.imageFile, size = ThumbnailSize)
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    exercise.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (exercise.isArchived) {
+                    Pill(text = stringResource(R.string.exercises_archived_badge), icon = Icons.Filled.Archive)
+                }
+            }
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)
