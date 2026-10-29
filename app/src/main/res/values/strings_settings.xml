@@ -18,7 +18,7 @@
     <string name="settings_weight_step_summary">Cuánto suman o restan los botones de peso al entrenar</string>
     <string name="settings_weight_step_option">%1$s kg</string>
     <string name="settings_default_sets">Series por defecto</string>
-    <string name="settings_default_sets_summary">Series de cada ejercicio nuevo en una rutina</string>
+    <string name="settings_default_sets_summary">Filas con las que entra cada ejercicio que eliges al entrenar</string>
     <string name="settings_default_sets_decrease">Menos series</string>
     <string name="settings_default_sets_increase">Más series</string>
     <string name="settings_error">No se pudieron cargar los ajustes.</string>

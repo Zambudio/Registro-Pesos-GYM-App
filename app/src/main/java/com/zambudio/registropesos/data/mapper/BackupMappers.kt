@@ -7,6 +7,7 @@ import com.zambudio.registropesos.data.local.entity.RoutineBlockEntity
 import com.zambudio.registropesos.data.local.entity.RoutineEntity
 import com.zambudio.registropesos.data.local.entity.RoutineExerciseEntity
 import com.zambudio.registropesos.data.local.entity.WorkoutSessionEntity
+import com.zambudio.registropesos.data.local.entity.WorkoutSessionGroupEntity
 import com.zambudio.registropesos.data.local.entity.WorkoutSetEntity
 import com.zambudio.registropesos.domain.backup.ExerciseDto
 import com.zambudio.registropesos.domain.backup.MuscleGroupDto
@@ -14,6 +15,7 @@ import com.zambudio.registropesos.domain.backup.RoutineBlockDto
 import com.zambudio.registropesos.domain.backup.RoutineDto
 import com.zambudio.registropesos.domain.backup.RoutineExerciseDto
 import com.zambudio.registropesos.domain.backup.SessionDto
+import com.zambudio.registropesos.domain.backup.SessionGroupDto
 import com.zambudio.registropesos.domain.backup.SetDto
 import com.zambudio.registropesos.domain.backup.TombstoneDto
 import com.zambudio.registropesos.domain.model.SessionStatus
@@ -70,6 +72,7 @@ fun WorkoutSessionEntity.toDto() = SessionDto(
     notes = notes,
     createdAt = createdAt,
     updatedAt = updatedAt,
+    routineCommentSnapshot = routineCommentSnapshot,
 )
 
 fun SessionDto.toEntity(status: SessionStatus, routineId: String?) = WorkoutSessionEntity(
@@ -82,7 +85,15 @@ fun SessionDto.toEntity(status: SessionStatus, routineId: String?) = WorkoutSess
     notes = notes,
     createdAt = createdAt,
     updatedAt = updatedAt,
+    routineCommentSnapshot = routineCommentSnapshot,
 )
+
+fun WorkoutSessionGroupEntity.toDto() =
+    SessionGroupDto(id, sessionId, muscleGroupId, muscleGroupNameSnapshot, sortOrder, createdAt, updatedAt)
+
+/** [muscleGroupId] ya remapeado al id local (o null si el grupo no existe aquí). */
+fun SessionGroupDto.toEntity(muscleGroupId: String?) =
+    WorkoutSessionGroupEntity(id, sessionId, muscleGroupId, muscleGroupNameSnapshot, sortOrder, createdAt, updatedAt)
 
 fun WorkoutSetEntity.toDto() = SetDto(
     id = id,

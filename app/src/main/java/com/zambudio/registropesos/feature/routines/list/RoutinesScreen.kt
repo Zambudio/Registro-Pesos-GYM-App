@@ -37,7 +37,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -225,15 +224,11 @@ private fun RoutineCard(
                     )
                 }
                 Text(
-                    stringResource(
-                        R.string.routines_counts,
-                        pluralStringResource(R.plurals.routines_block_count, routine.blockCount, routine.blockCount),
-                        pluralStringResource(
-                            R.plurals.routines_exercise_count,
-                            routine.exerciseCount,
-                            routine.exerciseCount,
-                        ),
-                    ),
+                    if (routine.groupNames.isEmpty()) {
+                        stringResource(R.string.routines_no_groups)
+                    } else {
+                        routine.groupNames.joinToString(stringResource(R.string.routines_groups_separator))
+                    },
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -261,9 +256,9 @@ private fun RoutineCard(
 }
 
 private val previewRoutines = listOf(
-    RoutineSummary("r1", "Día 1", "4 ejer pecho, 2 tríceps", blockCount = 2, exerciseCount = 6),
-    RoutineSummary("r2", "Día 2", null, blockCount = 1, exerciseCount = 1),
-    RoutineSummary("r3", "Pierna", "Cuádriceps e isquios", blockCount = 3, exerciseCount = 7),
+    RoutineSummary("r1", "Día 1", "Pecho: 4 ejercicios · Tríceps: 2", listOf("Pecho", "Tríceps")),
+    RoutineSummary("r2", "Día 2", null, listOf("Espalda")),
+    RoutineSummary("r3", "Día 3", "Pierna: 4 · Abdomen: 2", listOf("Pierna", "Abdomen")),
 )
 
 @Preview(showBackground = true)

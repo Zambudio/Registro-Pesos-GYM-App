@@ -1,9 +1,13 @@
 # Pendiente
 
 ## Cambios tras probar la v0.1.0 en el móvil
-_(por concretar: anotar aquí lo detectado en la prueba real)_
+- Hechos (pendientes de versión): rutinas solo con grupos y comentario, ejercicios elegidos durante la sesión con foto, catálogo del Excel, sin "Hecha" y referencias de la última vez más tenues (ADR-018, ADR-019). Detalle en `CHANGELOG.md`.
+- Siguiente paso: probar `dist/registro-pesos-gym-v0.1.0+grupos-catalogo.apk` encima de la v0.1.0 instalada (exportar antes un ZIP) y, si va bien, publicarlo como 0.2.0 (`versionCode` 2, APK en `dist/`, `INSTALAR.md`, tag).
+- El Excel origen del catálogo (`docs/261013 Registro Pesos - Rutina 5 Dias.xlsx`) no se sube al repo porque es público y el Excel contiene el historial de pesos; solo hace falta para regenerar el catálogo.
 
 ## Sin verificar en dispositivo real
+- Flujo nuevo de la sesión (selector con fotos a pantalla completa, recordatorio fijo arriba con el teclado abierto) y legibilidad de las referencias tenues con luz del gimnasio.
+- Actualización real desde la v0.1.0 instalada (migración 1→2 y carga del catálogo en el primer arranque); probado solo con Robolectric.
 - Cámara y galería, incluida la rotación EXIF de las fotos.
 - Renderizado de las gráficas (Vico).
 - Guardar el ZIP en Drive con el selector de documentos y compartirlo.
@@ -20,7 +24,8 @@ _(por concretar: anotar aquí lo detectado en la prueba real)_
 
 ## Ideas v0.2
 - Temporizador de descanso.
-- Ejercicios fuera de rutina dentro de una sesión.
+- Añadir un grupo muscular no previsto durante la sesión.
+- Ofrecer como sugerencia los ejercicios preseleccionados de las rutinas de la v1 (hoy se conservan sin uso).
 - Widget de "entrenamiento en curso".
 - Sync con Supabase: el modelo ya tiene UUID, `updatedAt` y tombstones.
 - Migrar a AGP 9 / Kotlin 2.3.

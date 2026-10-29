@@ -2,18 +2,20 @@
 
 App Android nativa (Kotlin + Jetpack Compose) para registrar los pesos levantados en el gimnasio y ver la evolución. Funciona 100 % sin conexión: sin login, sin backend, sin Play Store. Idioma de la interfaz: español. Unidad: kg.
 
-- Versión actual: `0.1.0` (`versionCode 1`), `applicationId` `com.zambudio.registropesos`.
+- Versión publicada: `0.1.0` (`versionCode 1`), `applicationId` `com.zambudio.registropesos`.
+- Estado actual: `main` lleva los cambios de la siguiente versión (rutinas por grupos, ejercicios elegidos en la sesión, catálogo con fotos, sin "Hecha"), todavía sin número de versión. APK de prueba en `dist/registro-pesos-gym-v0.1.0+grupos-catalogo.apk`. Detalle en [CHANGELOG.md](CHANGELOG.md).
 - `minSdk 26`, `targetSdk`/`compileSdk 36`.
 - Instalación en el móvil: ver [dist/INSTALAR.md](dist/INSTALAR.md).
-- Decisiones técnicas (ADR-001 a 017): [docs/DECISIONES.md](docs/DECISIONES.md).
+- Decisiones técnicas (ADR-001 a 019): [docs/DECISIONES.md](docs/DECISIONES.md).
 - Convenciones de código para seguir desarrollando: [docs/CONVENCIONES.md](docs/CONVENCIONES.md).
 - Pendientes y siguiente versión: [docs/PENDIENTE.md](docs/PENDIENTE.md).
 
 ## Funcionalidades
 
 - **Ejercicios y grupos musculares**: grupos precargados (Pecho, Espalda, Hombros, Bíceps, Tríceps, Cuádriceps, Isquios, Glúteos, Gemelos, Abdomen, Cardio), editables. Ficha de ejercicio con notas e imagen (galería o cámara), redimensionada a 1280 px y JPEG 80. Archivado en lugar de borrado físico.
-- **Rutinas**: nombre, subtítulo y bloques ordenados (grupo muscular + ejercicios + series por defecto).
-- **Entrenar**: series con peso (paso 0,5, atajos +/-2,5 kg), repeticiones y check de hecha; "sesión anterior" en gris y botón "Copiar anterior"; guardado inmediato en cada cambio y reanudación tras cierre del proceso; resumen final con volumen y récords.
+- **Catálogo incluido**: 58 ejercicios con foto del Excel de la rutina de 5 días, con los grupos "Pierna" y "Deltoides posterior". Se carga al arrancar sin duplicar ni pisar ejercicios o fotos existentes (ADR-019).
+- **Rutinas**: nombre, comentario opcional y grupos musculares ordenados. Los ejercicios no se eligen aquí.
+- **Entrenar**: antes de empezar se ven los grupos y el comentario de la rutina. En la sesión, el comentario queda fijo arriba como recordatorio y cada grupo tiene un botón + para elegir ejercicios con foto; se pueden quitar con "Deshacer". Series con peso (paso 0,5, atajos +/-2,5 kg) y repeticiones; la sesión anterior se ve como referencia tenue y en cursiva, y "Copiar anterior" la convierte en datos de hoy. Guardado inmediato en cada cambio y reanudación tras cierre del proceso; resumen final con volumen y récords (ADR-018).
 - **Historial**: sesiones por fecha, detalle y borrado.
 - **Progreso**: gráficas Vico por ejercicio (peso máximo, volumen, 1RM estimado Epley) y por grupo (volumen semanal, sesiones), filtros 1M/3M/6M/1A/Todo y tarjetas de récord personal.
 - **Copias de seguridad**: Auto Backup de Android y exportación/importación ZIP (ver más abajo).
@@ -83,7 +85,7 @@ $env:JAVA_HOME='<ruta al JDK 17>'
 ```
 
 - La primera compilación completa ronda los 5 min; los builds incrementales, ~1,5 min.
-- ~240 tests JVM/Robolectric. Los de Robolectric fijan `@Config(sdk = [35], application = Application::class)` (4.16 falla con SDK 36 en JDK 17).
+- ~270 tests JVM/Robolectric. Los de Robolectric fijan `@Config(sdk = [35], application = Application::class)` (4.16 falla con SDK 36 en JDK 17).
 - detekt se ejecuta con Kotlin 2.0.21 forzado en su classpath: no usar sintaxis exclusiva de Kotlin 2.2 (context parameters, guard en `when`, `$$`).
 - `allWarningsAsErrors = true` en todo `:app`.
 - Lint de release (`lintVitalRelease`): las rutas `<exclude>` de las reglas de backup deben estar dentro de un `<include>`; no se excluye `exports/` porque vive en caché y ya queda fuera.
@@ -101,14 +103,25 @@ $env:JAVA_HOME='<ruta al JDK 17>'
 ## Copias de seguridad
 
 - **Auto Backup** (`allowBackup=true`, reglas en `res/xml/backup_rules.xml` y `data_extraction_rules.xml`): respalda BD Room, `images/` y `datastore/`, nunca la caché. **La restauración solo funciona si el APK instalado está firmado con la misma clave** que el original.
-- **Exportar** (pestaña Más): ZIP `gym-backup-YYYYMMDD-HHmm.zip` con `backup.json` (con `schemaVersion`), `sets.csv` y `images/`. Se guarda con el selector de documentos (SAF) y se puede compartir.
+- **Exportar** (pestaña Más): ZIP `gym-backup-YYYYMMDD-HHmm.zip` con `backup.json` (con `schemaVersion`, hoy 2; los ZIP v1 de la 0.1.0 se siguen importando), `sets.csv` y `images/`. Se guarda con el selector de documentos (SAF) y se puede compartir.
 - **Importar**: merge por UUID; gana el `updatedAt` más reciente; respeta borrados (tombstones); no pisa una sesión en curso; muestra un informe. Rechaza ZIP con rutas peligrosas o entradas desmesuradas.
 
 ## Política de migraciones de base de datos
 
 - `exportSchema = true`; los esquemas se versionan en `app/schemas/` (hay que commitear cada `N.json`).
-- Prohibido `fallbackToDestructiveMigration`. Las migraciones son explícitas en `Migrations.ALL_MIGRATIONS` (vacío en la v1).
-- Para pasar a la versión 2: subir `VERSION` de la base de datos, añadir `Migration(1, 2)` y commitear `2.json`. `MigrationTest` (Robolectric + `MigrationTestHelper`) valida el salto sin cambios. Los esquemas se exponen como assets solo de la variante debug; en Windows `createDatabase` necesita rutas absolutas.
+- Prohibido `fallbackToDestructiveMigration`. Las migraciones son explícitas en `Migrations.ALL_MIGRATIONS`. La BD va por la versión 2 (`MIGRATION_1_2`, ADR-018).
+- Para la versión siguiente: subir `VERSION`, añadir `Migration(n, n+1)` y commitear `<n+1>.json`. `MigrationTest` (Robolectric + `MigrationTestHelper`) valida cada salto contra el esquema exportado y prueba la 1→2 con datos de la v1. Los esquemas se exponen como assets solo de la variante debug; en Windows `createDatabase` necesita rutas absolutas.
+
+## Catálogo de ejercicios
+
+`app/src/main/assets/catalog/` (`catalog.json` + `images/`) se genera desde el Excel con `tools/catalog/` (ADR-019). Hace falta Node 18+ y Windows PowerShell:
+
+```powershell
+node tools/catalog/extract-catalog.mjs "docs\261013 Registro Pesos - Rutina 5 Dias.xlsx"
+powershell -File tools/catalog/convert-images.ps1
+```
+
+No reordenes ni renumeres los ids ya publicados: las instalaciones existentes se basan en ellos para no duplicar ejercicios.
 
 ## Notas de desarrollo
 

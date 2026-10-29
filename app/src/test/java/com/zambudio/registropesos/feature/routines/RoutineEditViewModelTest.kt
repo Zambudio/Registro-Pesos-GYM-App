@@ -38,8 +38,6 @@ class RoutineEditViewModelTest {
         listOf(storedRoutine("r1", sortOrder = 0), storedRoutine("r2", sortOrder = 3)),
     )
     private val groups = FakeMuscleGroupRepository(listOf(pecho, triceps, cardio))
-    private val exercises = FakeExerciseRepository(listOf(pressBanca, aperturas, fondos, pressArchivado, extensiones))
-    private val settings = FakeSettingsRepository(defaultSets = 5)
     private val ids = SequentialIdGenerator()
 
     @Before
@@ -50,19 +48,17 @@ class RoutineEditViewModelTest {
 
     private fun TestScope.viewModel(routineId: String? = null): RoutineEditViewModel {
         val handle = if (routineId == null) SavedStateHandle() else SavedStateHandle(mapOf("routineId" to routineId))
-        val viewModel = RoutineEditViewModel(handle, routines, groups, exercises, settings, ids, TimeProvider { now })
+        val viewModel = RoutineEditViewModel(handle, routines, groups, ids, TimeProvider { now })
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
         return viewModel
     }
 
     private val RoutineEditViewModel.state get() = uiState.value
 
-    /** Nueva rutina con un bloque de Pecho y los ejercicios indicados ya añadidos. */
-    private fun RoutineEditViewModel.addPechoBlock(vararg exerciseIds: String): String {
+    /** Añade el grupo como lo hace el usuario: botón y selector. */
+    private fun RoutineEditViewModel.addGroup(group: com.zambudio.registropesos.domain.model.MuscleGroup): String {
         onAddBlockClick()
-        onGroupSelected(pecho)
-        exerciseIds.forEach(::onPickerToggle)
-        onPickerConfirm()
+        onGroupSelected(group)
         return state.draft.blocks.last().id
     }
 
@@ -76,11 +72,11 @@ class RoutineEditViewModelTest {
         assertFalse(vm.state.isLoading)
         assertFalse(vm.state.isDirty)
         assertTrue(vm.state.draft.blocks.isEmpty())
-        assertEquals(listOf(pecho, triceps, cardio), vm.state.muscleGroups)
+        assertEquals(listOf(pecho, triceps, cardio), vm.state.availableGroups)
     }
 
     @Test
-    fun `editar carga la rutina con ejercicios archivados incluidos`() = runTest {
+    fun `editar carga la rutina y conserva sus ejercicios heredados`() = runTest {
         val vm = viewModel("r1")
 
         assertFalse(vm.state.isNew)
@@ -100,91 +96,42 @@ class RoutineEditViewModelTest {
         assertTrue(routines.saved.isEmpty())
     }
 
-    // --- Bloques y selector ---
+    // --- Grupos ---
 
     @Test
-    fun `anadir bloque abre el selector del grupo sin archivados`() = runTest {
+    fun `anadir grupo lo pone al final y el selector solo ofrece los que faltan`() = runTest {
         val vm = viewModel()
 
         vm.onAddBlockClick()
         assertTrue(vm.state.showGroupPicker)
+        vm.onGroupSelected(triceps)
+        assertFalse(vm.state.showGroupPicker)
+        vm.addGroup(pecho)
+
+        assertEquals(listOf("Tríceps", "Pecho"), vm.state.draft.blocks.map { it.muscleGroup.name })
+        assertTrue(vm.state.draft.blocks.all { it.exercises.isEmpty() })
+        assertEquals(listOf(cardio), vm.state.availableGroups)
+    }
+
+    @Test
+    fun `un grupo ya presente no se repite`() = runTest {
+        val vm = viewModel()
+        vm.addGroup(pecho)
+
         vm.onGroupSelected(pecho)
+
+        assertEquals(1, vm.state.draft.blocks.size)
+    }
+
+    @Test
+    fun `cancelar el selector no anade nada`() = runTest {
+        val vm = viewModel()
+
+        vm.onAddBlockClick()
+        vm.onGroupPickerDismiss()
 
         assertFalse(vm.state.showGroupPicker)
-        val block = vm.state.draft.blocks.single()
-        val picker = vm.state.exercisePicker!!
-        assertEquals(block.id, picker.blockId)
-        assertFalse(picker.isLoading)
-        assertTrue(picker.groupHasExercises)
-        assertEquals(listOf("Aperturas", "Fondos", "Press banca"), picker.available.map { it.name })
-    }
-
-    @Test
-    fun `seleccion multiple anade en orden del selector con las series de ajustes`() = runTest {
-        val vm = viewModel()
-
-        val blockId = vm.addPechoBlock(pressBanca.id, aperturas.id)
-
-        assertNull(vm.state.exercisePicker)
-        val block = vm.state.draft.blocks.single { it.id == blockId }
-        assertEquals(listOf("Aperturas", "Press banca"), block.exercises.map { it.exercise.name })
-        assertEquals(listOf(5, 5), block.exercises.map { it.defaultSets })
-    }
-
-    @Test
-    fun `el selector no ofrece ni duplica ejercicios ya presentes`() = runTest {
-        val vm = viewModel()
-        val blockId = vm.addPechoBlock(pressBanca.id)
-
-        vm.onAddExercisesClick(blockId)
-        assertEquals(listOf("Aperturas", "Fondos"), vm.state.exercisePicker!!.available.map { it.name })
-
-        // Aunque llegue un id ya presente (p. ej. selección obsoleta), no se duplica.
-        vm.onPickerToggle(pressBanca.id)
-        vm.onPickerToggle(fondos.id)
-        vm.onPickerConfirm()
-
-        val names = vm.state.draft.blocks.single().exercises.map { it.exercise.name }
-        assertEquals(listOf("Press banca", "Fondos"), names)
-    }
-
-    @Test
-    fun `desmarcar quita de la seleccion y cancelar no anade nada`() = runTest {
-        val vm = viewModel()
-        vm.onAddBlockClick()
-        vm.onGroupSelected(pecho)
-
-        vm.onPickerToggle(fondos.id)
-        vm.onPickerToggle(aperturas.id)
-        vm.onPickerToggle(fondos.id)
-        assertEquals(setOf(aperturas.id), vm.state.exercisePicker!!.selectedIds)
-
-        vm.onPickerDismiss()
-        assertNull(vm.state.exercisePicker)
-        assertTrue(vm.state.draft.blocks.single().exercises.isEmpty())
-    }
-
-    @Test
-    fun `grupo sin ejercicios lo indica en el selector`() = runTest {
-        val vm = viewModel()
-        vm.onAddBlockClick()
-        vm.onGroupSelected(cardio)
-
-        val picker = vm.state.exercisePicker!!
-        assertFalse(picker.isLoading)
-        assertFalse(picker.groupHasExercises)
-        assertTrue(picker.available.isEmpty())
-    }
-
-    @Test
-    fun `el selector refleja ejercicios creados mientras esta abierto`() = runTest {
-        val vm = viewModel()
-        vm.onAddBlockClick()
-        vm.onGroupSelected(cardio)
-
-        exercises.exercises.value += exercise("e-cinta", cardio, "Cinta")
-
-        assertEquals(listOf("Cinta"), vm.state.exercisePicker!!.available.map { it.name })
+        assertTrue(vm.state.draft.blocks.isEmpty())
     }
 
     @Test
@@ -203,62 +150,29 @@ class RoutineEditViewModelTest {
         assertEquals(listOf(b2), vm.state.draft.blocks.map { it.id })
     }
 
-    @Test
-    fun `reordenar y quitar ejercicios dentro de un bloque`() = runTest {
-        val vm = viewModel("r1")
-        val block = vm.state.draft.blocks.first()
-        val (i1, i2) = block.exercises.map { it.id }
-
-        vm.onMoveExerciseUp(block.id, i2)
-        assertEquals(listOf(i2, i1), vm.state.draft.blocks.first().exercises.map { it.id })
-        vm.onMoveExerciseUp(block.id, i2) // ya es el primero
-        assertEquals(listOf(i2, i1), vm.state.draft.blocks.first().exercises.map { it.id })
-
-        vm.onRemoveExercise(block.id, i2)
-        assertEquals(listOf(i1), vm.state.draft.blocks.first().exercises.map { it.id })
-        // El otro bloque no se toca.
-        assertEquals(1, vm.state.draft.blocks[1].exercises.size)
-    }
-
-    @Test
-    fun `las series por defecto se limitan a 1 y 20`() = runTest {
-        val vm = viewModel("r1")
-        val block = vm.state.draft.blocks.first()
-        val item = block.exercises.first() // 4 series
-
-        repeat(10) { vm.onDecrementSets(block.id, item.id) }
-        assertEquals(1, vm.state.draft.blocks.first().exercises.first().defaultSets)
-        repeat(30) { vm.onIncrementSets(block.id, item.id) }
-        assertEquals(20, vm.state.draft.blocks.first().exercises.first().defaultSets)
-    }
-
     // --- Validación ---
 
     @Test
-    fun `guardar sin nombre ni ejercicios muestra errores y no guarda`() = runTest {
+    fun `guardar sin nombre ni grupos muestra errores y no guarda`() = runTest {
         val vm = viewModel()
         assertTrue(vm.state.errors.isEmpty())
 
         vm.onSave()
 
-        assertEquals(setOf(RoutineError.NAME_EMPTY, RoutineError.NO_EXERCISES), vm.state.errors)
+        assertEquals(setOf(RoutineError.NAME_EMPTY, RoutineError.NO_GROUPS), vm.state.errors)
         assertTrue(routines.saved.isEmpty())
 
         // Tras el primer intento, los errores se recalculan en vivo.
         vm.onNameChange("Día 3")
-        assertEquals(setOf(RoutineError.NO_EXERCISES), vm.state.errors)
-        vm.onAddBlockClick()
-        vm.onGroupSelected(pecho)
-        assertEquals(setOf(RoutineError.NO_EXERCISES), vm.state.errors) // bloque vacío no basta
-        vm.onPickerToggle(fondos.id)
-        vm.onPickerConfirm()
-        assertTrue(vm.state.errors.isEmpty())
+        assertEquals(setOf(RoutineError.NO_GROUPS), vm.state.errors)
+        vm.addGroup(pecho)
+        assertTrue(vm.state.errors.isEmpty()) // un grupo sin ejercicios basta
     }
 
     @Test
     fun `nombre solo con espacios no es valido`() = runTest {
         val vm = viewModel()
-        vm.addPechoBlock(fondos.id)
+        vm.addGroup(pecho)
         vm.onNameChange("   ")
 
         vm.onSave()
@@ -270,11 +184,12 @@ class RoutineEditViewModelTest {
     // --- Guardado ---
 
     @Test
-    fun `guardar nueva genera ids, fechas y la coloca al final`() = runTest {
+    fun `guardar nueva solo con grupos y comentario genera ids, fechas y la coloca al final`() = runTest {
         val vm = viewModel()
         vm.onNameChange("  Día 3 ")
         vm.onSubtitleChange("   ")
-        vm.addPechoBlock(pressBanca.id, aperturas.id)
+        vm.addGroup(pecho)
+        vm.addGroup(triceps)
 
         vm.onSave()
 
@@ -285,14 +200,11 @@ class RoutineEditViewModelTest {
         assertEquals(4, saved.routine.sortOrder) // la última existente tiene sortOrder 3
         assertEquals(now, saved.routine.createdAt)
         assertEquals(now, saved.routine.updatedAt)
-        val block = saved.blocks.single()
-        assertEquals("id-1", block.block.routineId)
-        assertEquals(0, block.block.sortOrder)
-        assertEquals(now, block.block.createdAt)
-        assertEquals(listOf(0, 1), block.exercises.map { it.routineExercise.sortOrder })
-        assertTrue(block.exercises.all { it.routineExercise.blockId == block.block.id })
-        assertTrue(block.exercises.all { it.routineExercise.createdAt == now })
-        val allIds = listOf(saved.routine.id, block.block.id) + block.exercises.map { it.routineExercise.id }
+        assertEquals(listOf(pecho.id, triceps.id), saved.blocks.map { it.block.muscleGroupId })
+        assertEquals(listOf(0, 1), saved.blocks.map { it.block.sortOrder })
+        assertTrue(saved.blocks.all { it.block.routineId == "id-1" && it.block.createdAt == now })
+        assertTrue(saved.blocks.all { it.exercises.isEmpty() })
+        val allIds = listOf(saved.routine.id) + saved.blocks.map { it.block.id }
         assertEquals(allIds.size, allIds.toSet().size) // ids nuevos y distintos
         assertEquals(RoutineEditEvent.Close, vm.eventFlow.first())
         assertFalse(vm.state.isDirty)
@@ -304,28 +216,26 @@ class RoutineEditViewModelTest {
         val original = storedRoutine("r1")
         val pechoBlock = vm.state.draft.blocks.first()
         vm.onNameChange("Día 1 bis")
+        vm.onSubtitleChange("Pecho: 4 · Tríceps: 2")
         vm.onMoveBlockDown(pechoBlock.id)
-        vm.onAddExercisesClick(pechoBlock.id)
-        vm.onPickerToggle(fondos.id)
-        vm.onPickerConfirm()
 
         vm.onSave()
 
         val saved = routines.saved.single()
         assertEquals("r1", saved.routine.id)
         assertEquals("Día 1 bis", saved.routine.name)
+        assertEquals("Pecho: 4 · Tríceps: 2", saved.routine.subtitle)
         assertEquals(original.routine.sortOrder, saved.routine.sortOrder)
         assertEquals(original.routine.createdAt, saved.routine.createdAt)
         assertEquals(now, saved.routine.updatedAt)
         assertEquals(listOf("r1-b2", "r1-b1"), saved.blocks.map { it.block.id })
         assertEquals(listOf(0, 1), saved.blocks.map { it.block.sortOrder })
         assertTrue(saved.blocks.all { it.block.createdAt == 100L && it.block.updatedAt == now })
+        // Los ejercicios preseleccionados de la v1 se guardan tal cual aunque el editor no los muestre.
         val pechoItems = saved.blocks[1].exercises.map { it.routineExercise }
-        assertEquals(listOf("r1-i1", "r1-i2"), pechoItems.take(2).map { it.id })
-        assertEquals(listOf(100L, 100L, now), pechoItems.map { it.createdAt })
-        assertEquals(fondos.id, pechoItems[2].exerciseId)
-        assertEquals(5, pechoItems[2].defaultSets)
-        assertEquals(listOf(4, 3, 5), pechoItems.map { it.defaultSets })
+        assertEquals(listOf("r1-i1", "r1-i2"), pechoItems.map { it.id })
+        assertEquals(listOf(100L, 100L), pechoItems.map { it.createdAt })
+        assertEquals(listOf(4, 3), pechoItems.map { it.defaultSets })
     }
 
     @Test
@@ -347,16 +257,15 @@ class RoutineEditViewModelTest {
     fun `detecta cambios y deja de haberlos al deshacerlos`() = runTest {
         val vm = viewModel("r1")
         val block = vm.state.draft.blocks.first()
-        val item = block.exercises.first()
 
         vm.onNameChange("Día 1!")
         assertTrue(vm.state.isDirty)
         vm.onNameChange("Día 1")
         assertFalse(vm.state.isDirty)
 
-        vm.onIncrementSets(block.id, item.id)
+        vm.onSubtitleChange("otro")
         assertTrue(vm.state.isDirty)
-        vm.onDecrementSets(block.id, item.id)
+        vm.onSubtitleChange("Pecho y tríceps")
         assertFalse(vm.state.isDirty)
 
         vm.onMoveBlockDown(block.id)

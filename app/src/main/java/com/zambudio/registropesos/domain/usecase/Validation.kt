@@ -18,20 +18,15 @@ object ValidateExerciseName {
     }
 }
 
-enum class RoutineError { NAME_EMPTY, NO_EXERCISES, INVALID_DEFAULT_SETS }
+enum class RoutineError { NAME_EMPTY, NO_GROUPS }
 
 /**
- * Rutina: nombre no vacío, al menos un bloque con algún ejercicio y series por defecto en
- * [MIN_DEFAULT_SETS]..[MAX_DEFAULT_SETS]. Devuelve todos los errores; vacío = válida.
+ * Rutina: nombre no vacío y al menos un grupo muscular. Los ejercicios se eligen al entrenar,
+ * así que una rutina sin ejercicios es válida (ADR-018). Devuelve todos los errores; vacío = válida.
  */
 object ValidateRoutine {
-    const val MIN_DEFAULT_SETS = 1
-    const val MAX_DEFAULT_SETS = 20
-
     operator fun invoke(detail: RoutineDetail): Set<RoutineError> = buildSet {
         if (detail.routine.name.isBlank()) add(RoutineError.NAME_EMPTY)
-        if (detail.blocks.none { it.exercises.isNotEmpty() }) add(RoutineError.NO_EXERCISES)
-        val sets = detail.blocks.flatMap { block -> block.exercises.map { it.routineExercise.defaultSets } }
-        if (sets.any { it !in MIN_DEFAULT_SETS..MAX_DEFAULT_SETS }) add(RoutineError.INVALID_DEFAULT_SETS)
+        if (detail.blocks.isEmpty()) add(RoutineError.NO_GROUPS)
     }
 }

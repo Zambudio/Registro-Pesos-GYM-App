@@ -39,7 +39,12 @@ class TrainAndRoutineDetailViewModelTest {
         "Tríceps" to listOf(Triple("pushdown", "Polea", 2)),
     )
     private val emptyRoutine = routineDetail("r2", "Vacía")
-    private val routines = InMemoryRoutineRepository(pushDay, emptyRoutine)
+
+    /** Rutina de la v2: solo grupos y comentario, sin ejercicios preseleccionados. */
+    private val legDay = routineDetail("r3", "Día 3", "Pierna" to emptyList(), "Abdomen" to emptyList()).let {
+        it.copy(routine = it.routine.copy(subtitle = "Pierna: 4 ejercicios · Abdomen: 2"))
+    }
+    private val routines = InMemoryRoutineRepository(pushDay, emptyRoutine, legDay)
 
     private fun TestScope.trainViewModel(): TrainViewModel {
         val vm = TrainViewModel(workouts, routines, DiscardSession(workouts))
@@ -66,8 +71,8 @@ class TrainAndRoutineDetailViewModelTest {
         val vm = trainViewModel()
         var content = vm.uiState.value as TrainUiState.Content
         assertNull(content.inProgress)
-        assertEquals(listOf("Pecho - Tríceps", "Vacía"), content.routines.map { it.name })
-        assertEquals(3, content.routines[0].exerciseCount)
+        assertEquals(listOf("Pecho - Tríceps", "Vacía", "Día 3"), content.routines.map { it.name })
+        assertEquals(listOf("Pecho", "Tríceps"), content.routines[0].groupNames)
 
         workouts.addSession("s1", routineName = "Pecho - Tríceps", startedAt = 1_000L)
 
@@ -100,7 +105,7 @@ class TrainAndRoutineDetailViewModelTest {
         val events = mutableListOf<RoutineDetailEvent>()
         val vm = detailViewModel("r1", events)
         val content = vm.uiState.value as RoutineDetailUiState.Content
-        assertEquals(3, content.exerciseCount)
+        assertEquals(listOf("Pecho", "Tríceps"), content.groups.map { it.name })
         assertTrue(content.canStart)
 
         vm.startWorkout()
@@ -109,8 +114,26 @@ class TrainAndRoutineDetailViewModelTest {
         val session = workouts.sessions.value.getValue(sessionId)
         assertEquals(SessionStatus.IN_PROGRESS, session.status)
         assertEquals(9_000L, session.startedAt)
-        assertEquals(7, workouts.setsOf(sessionId).size)
+        // Empieza sin ejercicios: con los grupos de la rutina, que se rellenan durante la sesión.
+        assertTrue(workouts.setsOf(sessionId).isEmpty())
+        assertEquals(listOf("Pecho", "Tríceps"), workouts.groups.value.map { it.muscleGroupName })
         assertFalse((vm.uiState.value as RoutineDetailUiState.Content).isStarting)
+    }
+
+    @Test
+    fun routineWithOnlyGroupsAndCommentShowsThemAndStarts() = runTest {
+        val events = mutableListOf<RoutineDetailEvent>()
+        val vm = detailViewModel("r3", events)
+        val content = vm.uiState.value as RoutineDetailUiState.Content
+        assertEquals(listOf("Pierna", "Abdomen"), content.groups.map { it.name })
+        assertEquals("Pierna: 4 ejercicios · Abdomen: 2", content.detail.routine.subtitle)
+        assertTrue(content.canStart)
+
+        vm.startWorkout()
+
+        val sessionId = (events.single() as RoutineDetailEvent.OpenWorkout).sessionId
+        val session = workouts.sessions.value.getValue(sessionId)
+        assertEquals("Pierna: 4 ejercicios · Abdomen: 2", session.routineCommentSnapshot)
     }
 
     @Test
@@ -130,7 +153,7 @@ class TrainAndRoutineDetailViewModelTest {
     }
 
     @Test
-    fun routineWithoutExercisesCannotStartAndDeletedRoutineIsNotFound() = runTest {
+    fun routineWithoutGroupsCannotStartAndDeletedRoutineIsNotFound() = runTest {
         val events = mutableListOf<RoutineDetailEvent>()
         val empty = detailViewModel("r2", events)
         assertFalse((empty.uiState.value as RoutineDetailUiState.Content).canStart)

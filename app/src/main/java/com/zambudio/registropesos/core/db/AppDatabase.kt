@@ -18,6 +18,7 @@ import com.zambudio.registropesos.data.local.entity.RoutineBlockEntity
 import com.zambudio.registropesos.data.local.entity.RoutineEntity
 import com.zambudio.registropesos.data.local.entity.RoutineExerciseEntity
 import com.zambudio.registropesos.data.local.entity.WorkoutSessionEntity
+import com.zambudio.registropesos.data.local.entity.WorkoutSessionGroupEntity
 import com.zambudio.registropesos.data.local.entity.WorkoutSetEntity
 
 /**
@@ -33,6 +34,7 @@ import com.zambudio.registropesos.data.local.entity.WorkoutSetEntity
         RoutineExerciseEntity::class,
         WorkoutSessionEntity::class,
         WorkoutSetEntity::class,
+        WorkoutSessionGroupEntity::class,
         DeletedEntityEntity::class,
     ],
     version = AppDatabase.VERSION,
@@ -48,7 +50,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun tombstoneDao(): TombstoneDao
 
     companion object {
-        const val VERSION = 1
+        const val VERSION = 2
         const val FILE_NAME = "gym.db"
 
         // addMigrations es vararg; la copia del array (pequeño, una vez por proceso) es irrelevante.

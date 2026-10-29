@@ -12,22 +12,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -60,17 +54,14 @@ import com.zambudio.registropesos.core.ui.ConfirmDialog
 import com.zambudio.registropesos.core.ui.ErrorState
 import com.zambudio.registropesos.core.ui.LoadingState
 import com.zambudio.registropesos.core.ui.ObserveAsEvents
-import com.zambudio.registropesos.domain.model.Exercise
 import com.zambudio.registropesos.domain.model.MuscleGroup
 import com.zambudio.registropesos.domain.usecase.RoutineError
-import com.zambudio.registropesos.domain.usecase.ValidateRoutine
 import kotlinx.coroutines.launch
 
 @Composable
 fun RoutineEditRoute(
     onClose: () -> Unit,
     onDeleted: () -> Unit,
-    onCreateExercise: (muscleGroupId: String) -> Unit,
     viewModel: RoutineEditViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -108,16 +99,6 @@ fun RoutineEditRoute(
             onMoveBlockUp = viewModel::onMoveBlockUp,
             onMoveBlockDown = viewModel::onMoveBlockDown,
             onRemoveBlock = viewModel::onRemoveBlock,
-            onAddExercisesClick = viewModel::onAddExercisesClick,
-            onPickerToggle = viewModel::onPickerToggle,
-            onPickerConfirm = viewModel::onPickerConfirm,
-            onPickerDismiss = viewModel::onPickerDismiss,
-            onCreateExercise = onCreateExercise,
-            onMoveExerciseUp = viewModel::onMoveExerciseUp,
-            onMoveExerciseDown = viewModel::onMoveExerciseDown,
-            onRemoveExercise = viewModel::onRemoveExercise,
-            onIncrementSets = viewModel::onIncrementSets,
-            onDecrementSets = viewModel::onDecrementSets,
             onDiscardConfirm = viewModel::onDiscardConfirm,
             onDeleteConfirm = viewModel::onDeleteConfirm,
             onDialogDismiss = viewModel::onDialogDismiss,
@@ -139,16 +120,6 @@ data class RoutineEditActions(
     val onMoveBlockUp: (blockId: String) -> Unit = {},
     val onMoveBlockDown: (blockId: String) -> Unit = {},
     val onRemoveBlock: (blockId: String) -> Unit = {},
-    val onAddExercisesClick: (blockId: String) -> Unit = {},
-    val onPickerToggle: (exerciseId: String) -> Unit = {},
-    val onPickerConfirm: () -> Unit = {},
-    val onPickerDismiss: () -> Unit = {},
-    val onCreateExercise: (muscleGroupId: String) -> Unit = {},
-    val onMoveExerciseUp: (blockId: String, itemId: String) -> Unit = { _, _ -> },
-    val onMoveExerciseDown: (blockId: String, itemId: String) -> Unit = { _, _ -> },
-    val onRemoveExercise: (blockId: String, itemId: String) -> Unit = { _, _ -> },
-    val onIncrementSets: (blockId: String, itemId: String) -> Unit = { _, _ -> },
-    val onDecrementSets: (blockId: String, itemId: String) -> Unit = { _, _ -> },
     val onDiscardConfirm: () -> Unit = {},
     val onDeleteConfirm: () -> Unit = {},
     val onDialogDismiss: () -> Unit = {},
@@ -233,18 +204,9 @@ fun RoutineEditScreen(
 private fun RoutineEditDialogs(state: RoutineEditUiState, actions: RoutineEditActions) {
     if (state.showGroupPicker) {
         MuscleGroupPickerDialog(
-            groups = state.muscleGroups,
+            groups = state.availableGroups,
             onSelect = actions.onGroupSelected,
             onDismiss = actions.onGroupPickerDismiss,
-        )
-    }
-    state.exercisePicker?.let { picker ->
-        ExercisePickerDialog(
-            picker = picker,
-            onToggle = actions.onPickerToggle,
-            onConfirm = actions.onPickerConfirm,
-            onDismiss = actions.onPickerDismiss,
-            onCreateExercise = { actions.onCreateExercise(picker.muscleGroup.id) },
         )
     }
     when (state.dialog) {
@@ -299,6 +261,7 @@ private fun EditorContent(state: RoutineEditUiState, actions: RoutineEditActions
                 onValueChange = actions.onSubtitleChange,
                 label = { Text(stringResource(R.string.routines_edit_subtitle)) },
                 placeholder = { Text(stringResource(R.string.routines_edit_subtitle_hint)) },
+                supportingText = { Text(stringResource(R.string.routines_edit_subtitle_help)) },
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 maxLines = 3,
                 modifier = Modifier.fillMaxWidth(),
@@ -324,6 +287,7 @@ private fun EditorContent(state: RoutineEditUiState, actions: RoutineEditActions
             val index = draft.blocks.indexOf(block)
             BlockCard(
                 block = block,
+                position = index + 1,
                 canMoveUp = index > 0,
                 canMoveDown = index < draft.blocks.lastIndex,
                 actions = actions,
@@ -346,8 +310,7 @@ private fun ValidationErrors(errors: Set<RoutineError>) {
         errors.forEach { error ->
             val message = when (error) {
                 RoutineError.NAME_EMPTY -> R.string.routines_error_name_empty
-                RoutineError.NO_EXERCISES -> R.string.routines_error_no_exercises
-                RoutineError.INVALID_DEFAULT_SETS -> R.string.routines_error_invalid_sets
+                RoutineError.NO_GROUPS -> R.string.routines_error_no_groups
             }
             Text(
                 stringResource(message),
@@ -361,6 +324,7 @@ private fun ValidationErrors(errors: Set<RoutineError>) {
 @Composable
 private fun BlockCard(
     block: DraftBlock,
+    position: Int,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     actions: RoutineEditActions,
@@ -368,138 +332,38 @@ private fun BlockCard(
 ) {
     val groupName = block.muscleGroup.name
     Card(modifier = modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(start = 16.dp, end = 4.dp, top = 4.dp, bottom = 8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    groupName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.weight(1f),
-                )
-                IconButton(onClick = { actions.onMoveBlockUp(block.id) }, enabled = canMoveUp) {
-                    Icon(
-                        Icons.Filled.KeyboardArrowUp,
-                        contentDescription = stringResource(R.string.routines_edit_move_block_up, groupName),
-                    )
-                }
-                IconButton(onClick = { actions.onMoveBlockDown(block.id) }, enabled = canMoveDown) {
-                    Icon(
-                        Icons.Filled.KeyboardArrowDown,
-                        contentDescription = stringResource(R.string.routines_edit_move_block_down, groupName),
-                    )
-                }
-                IconButton(onClick = { actions.onRemoveBlock(block.id) }) {
-                    Icon(
-                        Icons.Filled.Delete,
-                        contentDescription = stringResource(R.string.routines_edit_remove_block, groupName),
-                    )
-                }
-            }
-            if (block.exercises.isEmpty()) {
-                Text(
-                    stringResource(R.string.routines_edit_block_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 8.dp),
-                )
-            }
-            block.exercises.forEachIndexed { index, item ->
-                if (index > 0) HorizontalDivider(modifier = Modifier.padding(end = 12.dp))
-                ExerciseRow(
-                    item = item,
-                    canMoveUp = index > 0,
-                    canMoveDown = index < block.exercises.lastIndex,
-                    onMoveUp = { actions.onMoveExerciseUp(block.id, item.id) },
-                    onMoveDown = { actions.onMoveExerciseDown(block.id, item.id) },
-                    onRemove = { actions.onRemoveExercise(block.id, item.id) },
-                    onIncrement = { actions.onIncrementSets(block.id, item.id) },
-                    onDecrement = { actions.onDecrementSets(block.id, item.id) },
-                )
-            }
-            TextButton(onClick = { actions.onAddExercisesClick(block.id) }) {
-                Icon(Icons.Filled.Add, contentDescription = null)
-                Spacer(Modifier.size(8.dp))
-                Text(stringResource(R.string.routines_edit_add_exercises))
-            }
-        }
-    }
-}
-
-@Composable
-private fun ExerciseRow(
-    item: DraftExercise,
-    canMoveUp: Boolean,
-    canMoveDown: Boolean,
-    onMoveUp: () -> Unit,
-    onMoveDown: () -> Unit,
-    onRemove: () -> Unit,
-    onIncrement: () -> Unit,
-    onDecrement: () -> Unit,
-) {
-    val name = item.exercise.name
-    Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(name, style = MaterialTheme.typography.bodyLarge)
-                if (item.exercise.isArchived) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Filled.Archive,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = MaterialTheme.colorScheme.outline,
-                        )
-                        Spacer(Modifier.size(4.dp))
-                        Text(
-                            stringResource(R.string.routines_edit_archived),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.outline,
-                        )
-                    }
-                }
-            }
-            IconButton(onClick = onRemove) {
-                Icon(
-                    Icons.Filled.Close,
-                    contentDescription = stringResource(R.string.routines_edit_remove_exercise, name),
-                )
-            }
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 16.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+        ) {
             Text(
-                stringResource(R.string.routines_edit_sets_label),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            IconButton(onClick = onDecrement, enabled = item.defaultSets > ValidateRoutine.MIN_DEFAULT_SETS) {
-                Icon(
-                    Icons.Filled.Remove,
-                    contentDescription = stringResource(R.string.routines_edit_sets_decrease, name),
-                )
-            }
-            Text(
-                item.defaultSets.toString(),
+                "$position.",
                 style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.widthIn(min = 24.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 8.dp),
             )
-            IconButton(onClick = onIncrement, enabled = item.defaultSets < ValidateRoutine.MAX_DEFAULT_SETS) {
-                Icon(
-                    Icons.Filled.Add,
-                    contentDescription = stringResource(R.string.routines_edit_sets_increase, name),
-                )
-            }
-            Spacer(Modifier.weight(1f))
-            IconButton(onClick = onMoveUp, enabled = canMoveUp) {
+            Text(
+                groupName,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f),
+            )
+            IconButton(onClick = { actions.onMoveBlockUp(block.id) }, enabled = canMoveUp) {
                 Icon(
                     Icons.Filled.KeyboardArrowUp,
-                    contentDescription = stringResource(R.string.routines_edit_move_exercise_up, name),
+                    contentDescription = stringResource(R.string.routines_edit_move_block_up, groupName),
                 )
             }
-            IconButton(onClick = onMoveDown, enabled = canMoveDown) {
+            IconButton(onClick = { actions.onMoveBlockDown(block.id) }, enabled = canMoveDown) {
                 Icon(
                     Icons.Filled.KeyboardArrowDown,
-                    contentDescription = stringResource(R.string.routines_edit_move_exercise_down, name),
+                    contentDescription = stringResource(R.string.routines_edit_move_block_down, groupName),
+                )
+            }
+            IconButton(onClick = { actions.onRemoveBlock(block.id) }) {
+                Icon(
+                    Icons.Filled.Delete,
+                    contentDescription = stringResource(R.string.routines_edit_remove_block, groupName),
                 )
             }
         }
@@ -510,30 +374,19 @@ private fun ExerciseRow(
 
 private fun previewGroup(id: String, name: String) = MuscleGroup(id, name, 0, true, 0L, 0L)
 
-private fun previewExercise(id: String, groupId: String, name: String, archived: Boolean = false) =
-    Exercise(id, groupId, name, null, null, archived, 0L, 0L)
-
 private val previewState = RoutineEditUiState(
     isNew = false,
     draft = RoutineDraft(
         name = "Día 1",
-        subtitle = "4 ejer pecho, 2 tríceps",
+        subtitle = "Pecho: 4 ejercicios · Tríceps: 2 ejercicios",
         blocks = listOf(
-            DraftBlock(
-                id = "b1",
-                muscleGroup = previewGroup("g1", "Pecho"),
-                exercises = listOf(
-                    DraftExercise("i1", previewExercise("e1", "g1", "Press banca"), 4),
-                    DraftExercise("i2", previewExercise("e2", "g1", "Aperturas"), 3),
-                    DraftExercise("i3", previewExercise("e3", "g1", "Press inclinado máquina", archived = true), 4),
-                ),
-            ),
+            DraftBlock(id = "b1", muscleGroup = previewGroup("g1", "Pecho")),
             DraftBlock(id = "b2", muscleGroup = previewGroup("g2", "Tríceps")),
         ),
     ),
 )
 
-@Preview(showBackground = true, heightDp = 900)
+@Preview(showBackground = true, heightDp = 700)
 @Composable
 private fun RoutineEditScreenPreview() {
     GymTheme {

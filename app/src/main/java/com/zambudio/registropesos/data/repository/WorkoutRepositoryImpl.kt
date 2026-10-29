@@ -5,7 +5,7 @@ import com.zambudio.registropesos.core.db.AppDatabase
 import com.zambudio.registropesos.data.local.entity.DeletedEntityEntity
 import com.zambudio.registropesos.data.local.entity.TombstoneType
 import com.zambudio.registropesos.data.local.entity.WorkoutSessionEntity
-import com.zambudio.registropesos.data.local.entity.WorkoutSetEntity
+import com.zambudio.registropesos.data.local.entity.WorkoutSessionGroupEntity
 import com.zambudio.registropesos.data.mapper.toDomain
 import com.zambudio.registropesos.data.mapper.toEntity
 import com.zambudio.registropesos.domain.model.RoutineDetail
@@ -37,7 +37,13 @@ class WorkoutRepositoryImpl @Inject constructor(
 
     override fun observeSessionDetail(id: String): Flow<SessionDetail?> =
         db.invalidationTracker
-            .createFlow("workout_sessions", "workout_sets", emitInitialState = true)
+            .createFlow(
+                "workout_sessions",
+                "workout_sets",
+                "workout_session_groups",
+                "exercises",
+                emitInitialState = true,
+            )
             .map { loadSessionDetail(id) }
             .distinctUntilChanged()
 
@@ -45,7 +51,8 @@ class WorkoutRepositoryImpl @Inject constructor(
 
     /**
      * Comprobación y alta en la misma transacción: garantiza una sola sesión IN_PROGRESS (ADR-005).
-     * Un ejercicio repetido en la rutina solo se añade la primera vez (índice único por serie).
+     * La sesión empieza sin ejercicios: se copian los grupos de la rutina (un grupo repetido solo
+     * cuenta una vez) y su comentario. Los ejercicios se eligen durante la sesión (ADR-018).
      */
     override suspend fun start(routine: RoutineDetail, startedAt: Long): String = db.withTransaction {
         dao.getInProgress()?.let { throw SessionAlreadyInProgressException(it.id) }
@@ -63,48 +70,42 @@ class WorkoutRepositoryImpl @Inject constructor(
                 notes = null,
                 createdAt = now,
                 updatedAt = now,
+                routineCommentSnapshot = routine.routine.subtitle?.trim()?.ifEmpty { null },
             ),
         )
-        val seen = mutableSetOf<String>()
-        val sets = mutableListOf<WorkoutSetEntity>()
-        routine.blocks.forEach { block ->
-            block.exercises.forEach { item ->
-                if (seen.add(item.exercise.id)) {
-                    val exerciseOrder = seen.size - 1
-                    repeat(item.routineExercise.defaultSets.coerceAtLeast(1)) { setIndex ->
-                        sets += WorkoutSetEntity(
-                            id = ids.newId(),
-                            sessionId = sessionId,
-                            exerciseId = item.exercise.id,
-                            exerciseNameSnapshot = item.exercise.name,
-                            muscleGroupNameSnapshot = block.muscleGroup.name,
-                            exerciseOrder = exerciseOrder,
-                            setIndex = setIndex,
-                            weightKg = null,
-                            reps = null,
-                            isDone = false,
-                            completedAt = null,
-                            createdAt = now,
-                            updatedAt = now,
-                        )
-                    }
-                }
-            }
-        }
-        dao.insertSets(sets)
+        val groups = routine.blocks.map { it.muscleGroup }.distinctBy { it.id }
+        dao.insertSessionGroups(
+            groups.mapIndexed { index, group ->
+                WorkoutSessionGroupEntity(
+                    id = ids.newId(),
+                    sessionId = sessionId,
+                    muscleGroupId = group.id,
+                    muscleGroupNameSnapshot = group.name,
+                    sortOrder = index,
+                    createdAt = now,
+                    updatedAt = now,
+                )
+            },
+        )
         sessionId
     }
 
     override suspend fun upsertSet(set: WorkoutSet) = upsertSets(listOf(set))
 
-    /** Cada cambio de serie toca el updatedAt de su sesión (agregado, ADR-004). */
+    /**
+     * Cada cambio de serie toca el updatedAt de su sesión (agregado, ADR-004). Las columnas
+     * heredadas is_done/completed_at de una fila existente se conservan tal cual (ADR-018).
+     */
     override suspend fun upsertSets(sets: List<WorkoutSet>) {
         if (sets.isEmpty()) return
         val now = time.now()
         db.withTransaction {
             sets.forEach { set ->
-                val createdAt = dao.getSet(set.id)?.createdAt ?: set.createdAt.orNow(now)
-                dao.saveSet(set.copy(createdAt = createdAt, updatedAt = now).toEntity())
+                val existing = dao.getSet(set.id)
+                val createdAt = existing?.createdAt ?: set.createdAt.orNow(now)
+                val entity = set.copy(createdAt = createdAt, updatedAt = now).toEntity()
+                    .copy(isDone = existing?.isDone ?: false, completedAt = existing?.completedAt)
+                dao.saveSet(entity)
             }
             sets.map { it.sessionId }.distinct().forEach { dao.touchSession(it, now) }
         }
@@ -115,6 +116,12 @@ class WorkoutRepositoryImpl @Inject constructor(
             val set = dao.getSet(setId) ?: return@withTransaction
             dao.deleteSet(setId)
             dao.touchSession(set.sessionId, time.now())
+        }
+    }
+
+    override suspend fun removeExercise(sessionId: String, exerciseId: String) {
+        db.withTransaction {
+            if (dao.deleteSetsOfExercise(sessionId, exerciseId) > 0) dao.touchSession(sessionId, time.now())
         }
     }
 
@@ -146,20 +153,22 @@ class WorkoutRepositoryImpl @Inject constructor(
     private suspend fun loadSessionDetail(id: String): SessionDetail? = db.withTransaction {
         val session = dao.getSession(id) ?: return@withTransaction null
         // getSets ya viene ordenado por exercise_order y set_index; groupBy conserva ese orden.
-        val exercises = dao.getSets(id)
-            .map { it.toDomain() }
-            .groupBy { it.exerciseId }
+        val setsByExercise = dao.getSets(id).map { it.toDomain() }.groupBy { it.exerciseId }
+        val library = db.exerciseDao().getByIds(setsByExercise.keys.toList()).associateBy { it.id }
+        val exercises = setsByExercise
             .map { (exerciseId, sets) ->
                 val first = sets.first()
                 SessionExercise(
                     exerciseId = exerciseId,
                     exerciseName = first.exerciseNameSnapshot,
                     muscleGroupName = first.muscleGroupNameSnapshot,
+                    muscleGroupId = library[exerciseId]?.muscleGroupId,
+                    imagePath = library[exerciseId]?.imagePath,
                     order = sets.minOf { it.exerciseOrder },
                     sets = sets.sortedBy { it.setIndex },
                 )
             }
             .sortedBy { it.order }
-        SessionDetail(session.toDomain(), exercises)
+        SessionDetail(session.toDomain(), exercises, dao.getSessionGroups(id).map { it.toDomain() })
     }
 }

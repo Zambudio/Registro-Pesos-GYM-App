@@ -83,6 +83,7 @@ class FakeWorkoutRepository : WorkoutRepository {
     override suspend fun upsertSet(set: WorkoutSet) { unused() }
     override suspend fun upsertSets(sets: List<WorkoutSet>) { unused() }
     override suspend fun deleteSet(setId: String) { unused() }
+    override suspend fun removeExercise(sessionId: String, exerciseId: String) { unused() }
     override fun observeFinishedSessions(): Flow<List<SessionSummary>> = unused()
     override suspend fun deleteSession(id: String) { unused() }
 }

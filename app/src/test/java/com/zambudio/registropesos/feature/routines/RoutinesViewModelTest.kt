@@ -51,8 +51,7 @@ class RoutinesViewModelTest {
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
         assertEquals(listOf("r1", "r2", "r3"), viewModel.ids())
-        assertEquals(2, state.routines.first().blockCount)
-        assertEquals(3, state.routines.first().exerciseCount)
+        assertEquals(listOf("Pecho", "Tríceps"), state.routines.first().groupNames)
     }
 
     @Test

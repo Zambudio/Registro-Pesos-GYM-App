@@ -2,6 +2,7 @@ package com.zambudio.registropesos.feature.workout.session
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,11 +15,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -40,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -67,6 +71,7 @@ fun WorkoutRoute(
     onBack: () -> Unit,
     onFinished: (String) -> Unit,
     onDiscarded: () -> Unit,
+    onCreateExercise: (muscleGroupId: String) -> Unit,
     viewModel: WorkoutViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -76,6 +81,7 @@ fun WorkoutRoute(
     val finishFailed = stringResource(R.string.workout_error_finish)
     val discardFailed = stringResource(R.string.workout_error_discard)
     val setRemoved = stringResource(R.string.workout_set_removed)
+    val exerciseRemoved = stringResource(R.string.workout_exercise_removed)
     val undo = stringResource(R.string.workout_undo)
 
     // La pantalla no se apaga mientras se entrena.
@@ -98,6 +104,11 @@ fun WorkoutRoute(
                 val result = snackbarHostState.showSnackbar(setRemoved, undo, duration = SnackbarDuration.Long)
                 if (result == SnackbarResult.ActionPerformed) viewModel.onUndoRemoveSet(event.setId)
             }
+            is WorkoutEvent.ExerciseRemoved -> scope.launch {
+                snackbarHostState.currentSnackbarData?.dismiss()
+                val result = snackbarHostState.showSnackbar(exerciseRemoved, undo, duration = SnackbarDuration.Long)
+                if (result == SnackbarResult.ActionPerformed) viewModel.onUndoRemoveExercise(event.exerciseId)
+            }
         }
     }
 
@@ -106,11 +117,18 @@ fun WorkoutRoute(
             onToggleExercise = viewModel::onToggleExercise,
             onWeightChange = viewModel::onWeightChange,
             onRepsChange = viewModel::onRepsChange,
-            onToggleDone = viewModel::onToggleDone,
             onStepWeight = viewModel::onStepWeight,
             onAddSet = viewModel::onAddSet,
             onRemoveSet = { exerciseId -> viewModel.onRemoveSet(exerciseId) },
             onCopyPrevious = viewModel::onCopyPrevious,
+            onOpenPicker = viewModel::onOpenPicker,
+            onDismissPicker = viewModel::onDismissPicker,
+            onPickExercise = viewModel::onPickExercise,
+            onCreateExercise = { groupId ->
+                viewModel.onDismissPicker()
+                onCreateExercise(groupId)
+            },
+            onRemoveExercise = viewModel::onRemoveExercise,
         )
     }
     WorkoutScreen(
@@ -124,16 +142,20 @@ fun WorkoutRoute(
     )
 }
 
-/** Callbacks de edición de series (agrupados para no arrastrar diez parámetros por cada composable). */
+/** Callbacks de la sesión (agrupados para no arrastrar diez parámetros por cada composable). */
 class WorkoutActions(
     val onToggleExercise: (exerciseId: String) -> Unit = {},
     val onWeightChange: (setId: String, text: String) -> Unit = { _, _ -> },
     val onRepsChange: (setId: String, text: String) -> Unit = { _, _ -> },
-    val onToggleDone: (setId: String) -> Unit = {},
     val onStepWeight: (setId: String, increase: Boolean) -> Unit = { _, _ -> },
     val onAddSet: (exerciseId: String) -> Unit = {},
     val onRemoveSet: (exerciseId: String) -> Unit = {},
     val onCopyPrevious: (exerciseId: String) -> Unit = {},
+    val onOpenPicker: (muscleGroupId: String) -> Unit = {},
+    val onDismissPicker: () -> Unit = {},
+    val onPickExercise: (exerciseId: String) -> Unit = {},
+    val onCreateExercise: (muscleGroupId: String) -> Unit = {},
+    val onRemoveExercise: (exerciseId: String) -> Unit = {},
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -151,6 +173,11 @@ fun WorkoutScreen(
     val content = state as? WorkoutUiState.Content
     var confirmFinish by rememberSaveable { mutableStateOf(false) }
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
+    var confirmRemoveId by rememberSaveable { mutableStateOf<String?>(null) }
+    // Quitar un ejercicio sin datos es inmediato (con "Deshacer"); con datos se confirma antes.
+    val requestRemove: (WorkoutExerciseUi) -> Unit = { exercise ->
+        if (exercise.hasData) confirmRemoveId = exercise.exerciseId else actions.onRemoveExercise(exercise.exerciseId)
+    }
 
     Scaffold(
         modifier = modifier,
@@ -178,7 +205,7 @@ fun WorkoutScreen(
                 onAction = onBack,
                 modifier = contentModifier,
             )
-            is WorkoutUiState.Content -> WorkoutContent(state, actions, padding)
+            is WorkoutUiState.Content -> WorkoutContent(state, actions, padding, requestRemove)
         }
     }
 
@@ -207,6 +234,29 @@ fun WorkoutScreen(
                 onDismiss = { confirmFinish = false },
             )
         }
+    }
+    val removing = confirmRemoveId?.let { id ->
+        content?.blocks?.flatMap { it.exercises }?.firstOrNull { it.exerciseId == id }
+    }
+    if (removing != null) {
+        ConfirmDialog(
+            title = stringResource(R.string.workout_remove_exercise_title, removing.name),
+            message = stringResource(R.string.workout_remove_exercise_message),
+            confirmLabel = stringResource(R.string.workout_remove_exercise_confirm),
+            onConfirm = {
+                confirmRemoveId = null
+                actions.onRemoveExercise(removing.exerciseId)
+            },
+            onDismiss = { confirmRemoveId = null },
+        )
+    }
+    content?.picker?.let { picker ->
+        ExercisePickerDialog(
+            picker = picker,
+            onPick = actions.onPickExercise,
+            onCreateExercise = { actions.onCreateExercise(picker.muscleGroupId) },
+            onDismiss = actions.onDismissPicker,
+        )
     }
     if (content != null && confirmDiscard) {
         ConfirmDialog(
@@ -300,37 +350,110 @@ private fun FinishBar(enabled: Boolean, onFinish: () -> Unit) {
 }
 
 @Composable
-private fun WorkoutContent(state: WorkoutUiState.Content, actions: WorkoutActions, padding: PaddingValues) {
-    LazyColumn(
+private fun WorkoutContent(
+    state: WorkoutUiState.Content,
+    actions: WorkoutActions,
+    padding: PaddingValues,
+    onRequestRemove: (WorkoutExerciseUi) -> Unit,
+) {
+    Column(
         // El teclado tapa la barra inferior; la lista se encoge para que el campo activo siga visible.
         modifier = Modifier
             .fillMaxSize()
+            .padding(top = padding.calculateTopPadding())
             .consumeWindowInsets(padding)
             .imePadding(),
-        contentPadding = PaddingValues(
-            top = padding.calculateTopPadding() + 8.dp,
-            bottom = padding.calculateBottomPadding() + 16.dp,
-            start = 12.dp,
-            end = 12.dp,
-        ),
     ) {
-        state.blocks.forEachIndexed { blockIndex, block ->
-            item(key = "block-$blockIndex") {
+        // Fijo encima de la lista: el recordatorio se ve siempre, también al reanudar.
+        state.reminder?.let { ReminderBanner(it) }
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(
+                top = 4.dp,
+                bottom = padding.calculateBottomPadding() + 16.dp,
+                start = 12.dp,
+                end = 12.dp,
+            ),
+        ) {
+            state.blocks.forEach { block ->
+                item(key = block.key) {
+                    GroupHeader(block, enabled = !state.isClosing, onAdd = actions.onOpenPicker)
+                }
+                if (block.exercises.isEmpty() && block.canAddExercise) {
+                    item(key = "${block.key}-empty") {
+                        Text(
+                            text = stringResource(R.string.workout_group_empty, block.muscleGroupName),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp),
+                        )
+                    }
+                }
+                items(block.exercises, key = { it.exerciseId }) { exercise ->
+                    ExerciseCard(
+                        exercise = exercise,
+                        expanded = exercise.exerciseId == state.expandedExerciseId,
+                        weightStepKg = state.weightStepKg,
+                        enabled = !state.isClosing,
+                        actions = actions,
+                        onRequestRemove = { onRequestRemove(exercise) },
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReminderBanner(text: String) {
+    Surface(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            Text(stringResource(R.string.workout_reminder_label), style = MaterialTheme.typography.labelMedium)
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = REMINDER_MAX_LINES,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+private const val REMINDER_MAX_LINES = 3
+
+@Composable
+private fun GroupHeader(block: WorkoutBlockUi, enabled: Boolean, onAdd: (String) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 4.dp, top = 8.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = block.muscleGroupName,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            if (!block.canAddExercise && block.exercises.isEmpty()) {
                 Text(
-                    text = block.muscleGroupName,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 4.dp, top = 12.dp, bottom = 6.dp),
+                    text = stringResource(R.string.workout_group_unavailable),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            items(block.exercises, key = { it.exerciseId }) { exercise ->
-                ExerciseCard(
-                    exercise = exercise,
-                    expanded = exercise.exerciseId == state.expandedExerciseId,
-                    weightStepKg = state.weightStepKg,
-                    enabled = !state.isClosing,
-                    actions = actions,
-                    modifier = Modifier.padding(bottom = 8.dp),
+        }
+        val groupId = block.muscleGroupId
+        if (groupId != null) {
+            FilledTonalIconButton(onClick = { onAdd(groupId) }, enabled = enabled) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.workout_group_add, block.muscleGroupName),
                 )
             }
         }
@@ -341,19 +464,22 @@ private fun WorkoutContent(state: WorkoutUiState.Content, actions: WorkoutAction
 @Composable
 private fun WorkoutScreenPreview() {
     val sets = listOf(
-        WorkoutSetUi("s1", 1, 80.0, 8, true, 77.5, 8),
-        WorkoutSetUi("s2", 2, 82.5, null, false, 77.5, 8),
-        WorkoutSetUi("s3", 3, null, null, false, 75.0, 6),
+        WorkoutSetUi("s1", 1, 80.0, 8, 77.5, 8),
+        WorkoutSetUi("s2", 2, 82.5, null, 77.5, 8),
+        WorkoutSetUi("s3", 3, null, null, 75.0, 6),
     )
     GymTheme {
         WorkoutScreen(
             state = WorkoutUiState.Content(
                 sessionId = "s",
-                routineName = "Pecho - Tríceps",
+                routineName = "Día 1",
                 startedAt = 0L,
+                reminder = "Pecho: 4 ejercicios · Tríceps: 2 ejercicios",
                 blocks = listOf(
                     WorkoutBlockUi(
+                        "g1",
                         "Pecho",
+                        "pecho",
                         listOf(
                             WorkoutExerciseUi(
                                 "e1",
@@ -364,6 +490,7 @@ private fun WorkoutScreenPreview() {
                             WorkoutExerciseUi("e2", "Aperturas", sets.take(2), emptyList()),
                         ),
                     ),
+                    WorkoutBlockUi("g2", "Tríceps", "triceps", emptyList()),
                 ),
                 expandedExerciseId = "e1",
                 weightStepKg = 2.5,

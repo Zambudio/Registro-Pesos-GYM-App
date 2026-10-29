@@ -4,8 +4,10 @@ import kotlinx.serialization.Serializable
 
 // Formato de backup.json. Espejo plano de la BD. Cambios incompatibles => subir SCHEMA_VERSION
 // y mantener la lectura de versiones anteriores.
+// v2 (BD v2, ADR-018): SessionDto.routineCommentSnapshot y la lista sessionGroups. Un backup v1
+// se sigue importando: sus campos nuevos toman el valor por defecto.
 
-const val BACKUP_SCHEMA_VERSION = 1
+const val BACKUP_SCHEMA_VERSION = 2
 
 @Serializable
 data class BackupSnapshot(
@@ -21,6 +23,8 @@ data class BackupSnapshot(
     val sessions: List<SessionDto> = emptyList(),
     val sets: List<SetDto> = emptyList(),
     val tombstones: List<TombstoneDto> = emptyList(),
+    /** Grupos previstos de cada sesión (desde v2). */
+    val sessionGroups: List<SessionGroupDto> = emptyList(),
 )
 
 @Serializable
@@ -88,6 +92,19 @@ data class SessionDto(
     val notes: String? = null,
     val createdAt: Long,
     val updatedAt: Long,
+    /** Desde v2. */
+    val routineCommentSnapshot: String? = null,
+)
+
+@Serializable
+data class SessionGroupDto(
+    val id: String,
+    val sessionId: String,
+    val muscleGroupId: String? = null,
+    val muscleGroupNameSnapshot: String,
+    val sortOrder: Int,
+    val createdAt: Long,
+    val updatedAt: Long,
 )
 
 @Serializable
@@ -101,7 +118,8 @@ data class SetDto(
     val setIndex: Int,
     val weightKg: Double? = null,
     val reps: Int? = null,
-    val isDone: Boolean,
+    /** Heredado de la v1 ("Hecha"): se exporta e importa tal cual, la app ya no lo usa. */
+    val isDone: Boolean = false,
     val completedAt: Long? = null,
     val createdAt: Long,
     val updatedAt: Long,

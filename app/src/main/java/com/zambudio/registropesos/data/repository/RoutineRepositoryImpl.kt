@@ -24,7 +24,10 @@ class RoutineRepositoryImpl @Inject constructor(
     private val dao = db.routineDao()
 
     override fun observeSummaries(): Flow<List<RoutineSummary>> =
-        dao.observeSummaries().map { rows -> rows.map { it.toDomain() } }
+        db.invalidationTracker
+            .createFlow("routines", "routine_blocks", "muscle_groups", emitInitialState = true)
+            .map { loadSummaries() }
+            .distinctUntilChanged()
 
     override fun observeDetail(id: String): Flow<RoutineDetail?> =
         db.invalidationTracker
@@ -92,6 +95,22 @@ class RoutineRepositoryImpl @Inject constructor(
             if (dao.deleteById(id) > 0) {
                 db.tombstoneDao().upsert(DeletedEntityEntity(TombstoneType.ROUTINE, id, time.now()))
             }
+        }
+    }
+
+    /** Resumen de cada rutina con los nombres de sus grupos en orden (group_concat no garantiza orden). */
+    private suspend fun loadSummaries(): List<RoutineSummary> = db.withTransaction {
+        val groupNames = db.muscleGroupDao().getAll().associate { it.id to it.name }
+        val blocksByRoutine = dao.getAllBlocks().groupBy { it.routineId }
+        dao.getAll().map { routine ->
+            RoutineSummary(
+                id = routine.id,
+                name = routine.name,
+                subtitle = routine.subtitle,
+                groupNames = blocksByRoutine[routine.id].orEmpty()
+                    .sortedBy { it.sortOrder }
+                    .mapNotNull { groupNames[it.muscleGroupId] },
+            )
         }
     }
 

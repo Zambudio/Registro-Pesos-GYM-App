@@ -37,7 +37,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -235,13 +234,17 @@ private fun RoutineRow(routine: RoutineSummary, onClick: () -> Unit) {
         modifier = Modifier.clickable(onClick = onClick),
         headlineContent = { Text(routine.name, fontWeight = FontWeight.Medium) },
         supportingContent = {
-            val count = pluralStringResource(
-                R.plurals.workout_exercise_count,
-                routine.exerciseCount,
-                routine.exerciseCount,
-            )
-            val subtitle = routine.subtitle?.takeIf { it.isNotBlank() }
-            Text(if (subtitle != null) "$subtitle · $count" else count)
+            Column {
+                Text(
+                    text = if (routine.groupNames.isEmpty()) {
+                        stringResource(R.string.workout_routine_no_groups)
+                    } else {
+                        routine.groupNames.joinToString(stringResource(R.string.workout_groups_separator))
+                    },
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                routine.subtitle?.takeIf { it.isNotBlank() }?.let { Text(it) }
+            }
         },
         trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
     )
@@ -255,8 +258,8 @@ private fun TrainScreenPreview() {
             state = TrainUiState.Content(
                 inProgress = InProgressSessionUi("s1", "Pecho - Tríceps", 1_700_000_000_000L),
                 routines = listOf(
-                    RoutineSummary("r1", "Pecho - Tríceps", "4 ejer pecho, 2 tríceps", 2, 6),
-                    RoutineSummary("r2", "Espalda - Bíceps", null, 2, 5),
+                    RoutineSummary("r1", "Día 1", "Pecho: 4 ejercicios · Tríceps: 2", listOf("Pecho", "Tríceps")),
+                    RoutineSummary("r2", "Día 2", null, listOf("Espalda", "Bíceps")),
                 ),
             ),
             onOpenRoutine = {},

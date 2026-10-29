@@ -35,8 +35,7 @@ class RoutineRepositoryTest : DataTestBase() {
         assertEquals(listOf("Press banca", "Press inclinado"), detail.blocks[0].exercises.map { it.exercise.name })
         assertEquals(listOf(4, 3), detail.blocks[0].exercises.map { it.routineExercise.defaultSets })
         val summary = env.routines.observeSummaries().first().single()
-        assertEquals(2, summary.blockCount)
-        assertEquals(3, summary.exerciseCount)
+        assertEquals(listOf("Pecho", "Tríceps"), summary.groupNames)
     }
 
     @Test

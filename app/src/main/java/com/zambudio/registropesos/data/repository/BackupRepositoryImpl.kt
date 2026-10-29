@@ -27,6 +27,7 @@ class BackupRepositoryImpl @Inject constructor(private val db: AppDatabase) : Ba
                 sessions = db.workoutDao().getSessionsExcludingInProgress().map { it.toDto() },
                 sets = db.workoutDao().getSetsExcludingInProgress().map { it.toDto() },
                 tombstones = db.tombstoneDao().getAll().map { it.toDto() },
+                sessionGroups = db.workoutDao().getSessionGroupsExcludingInProgress().map { it.toDto() },
             )
         }
 

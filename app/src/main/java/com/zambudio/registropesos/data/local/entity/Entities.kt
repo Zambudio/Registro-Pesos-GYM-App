@@ -135,6 +135,41 @@ data class WorkoutSessionEntity(
     @ColumnInfo(name = "notes") val notes: String?,
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    /** Comentario de la rutina al empezar (v2): se sigue viendo aunque luego se edite la rutina. */
+    @ColumnInfo(name = "routine_comment_snapshot") val routineCommentSnapshot: String? = null,
+)
+
+/**
+ * Grupos musculares previstos en una sesión (v2), copiados de la rutina al empezar. Los
+ * ejercicios se eligen durante la sesión dentro de cada grupo. El nombre queda en el snapshot;
+ * si el grupo se borra, [muscleGroupId] pasa a null (ADR-018).
+ */
+@Entity(
+    tableName = "workout_session_groups",
+    foreignKeys = [
+        ForeignKey(
+            entity = WorkoutSessionEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["session_id"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+        ForeignKey(
+            entity = MuscleGroupEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["muscle_group_id"],
+            onDelete = ForeignKey.SET_NULL,
+        ),
+    ],
+    indices = [Index(value = ["session_id"]), Index(value = ["muscle_group_id"])],
+)
+data class WorkoutSessionGroupEntity(
+    @PrimaryKey @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "session_id") val sessionId: String,
+    @ColumnInfo(name = "muscle_group_id") val muscleGroupId: String?,
+    @ColumnInfo(name = "muscle_group_name_snapshot") val muscleGroupNameSnapshot: String,
+    @ColumnInfo(name = "sort_order") val sortOrder: Int,
+    @ColumnInfo(name = "created_at") val createdAt: Long,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
 )
 
 @Entity(
@@ -168,8 +203,10 @@ data class WorkoutSetEntity(
     @ColumnInfo(name = "set_index") val setIndex: Int,
     @ColumnInfo(name = "weight_kg") val weightKg: Double?,
     @ColumnInfo(name = "reps") val reps: Int?,
-    @ColumnInfo(name = "is_done") val isDone: Boolean,
-    @ColumnInfo(name = "completed_at") val completedAt: Long?,
+    // Heredadas de la v1 (casilla "Hecha", retirada en la v2): se conservan sin uso para no
+    // reconstruir la tabla ni perder lo ya guardado. Las filas nuevas llevan false/null (ADR-018).
+    @ColumnInfo(name = "is_done") val isDone: Boolean = false,
+    @ColumnInfo(name = "completed_at") val completedAt: Long? = null,
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
 )

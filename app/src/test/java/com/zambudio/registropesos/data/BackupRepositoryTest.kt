@@ -2,6 +2,7 @@ package com.zambudio.registropesos.data
 
 import android.app.Application
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.zambudio.registropesos.core.db.AppDatabase
 import com.zambudio.registropesos.data.TestEnv.Companion.PECHO
 import com.zambudio.registropesos.data.TestEnv.Companion.TRICEPS
 import com.zambudio.registropesos.domain.backup.BACKUP_SCHEMA_VERSION
@@ -47,8 +48,10 @@ class BackupRepositoryTest {
         val pushdown = source.newExercise("Polea", TRICEPS)
         val routine = source.newRoutine("Día 1", PECHO to listOf(press to 2), TRICEPS to listOf(pushdown to 1))
         val sessionId = source.workouts.start(routine, 10_000L)
+        source.addToSession(sessionId, press, 2)
+        source.addToSession(sessionId, pushdown, 1)
         val sets = source.workouts.observeSessionDetail(sessionId).first()!!.exercises.flatMap { it.sets }
-        val filled = sets.map { it.copy(weightKg = 50.0, reps = 10, isDone = true) }
+        val filled = sets.map { it.copy(weightKg = 50.0, reps = 10) }
         source.workouts.upsertSets(filled)
         source.clock.advance()
         source.workouts.finish(sessionId, 20_000L, filled.map { it.id })
@@ -67,6 +70,7 @@ class BackupRepositoryTest {
         sessions = sessions.sortedBy { it.id },
         sets = sets.sortedBy { it.id },
         tombstones = tombstones.sortedBy { it.id },
+        sessionGroups = sessionGroups.sortedBy { it.id },
     )
 
     @Test
@@ -76,10 +80,13 @@ class BackupRepositoryTest {
         val snapshot = source.backup.exportSnapshot("0.1.0", 99L)
 
         assertEquals(BACKUP_SCHEMA_VERSION, snapshot.schemaVersion)
-        assertEquals(1, snapshot.dbVersion)
+        assertEquals(AppDatabase.VERSION, snapshot.dbVersion)
         assertEquals(listOf(finishedId), snapshot.sessions.map { it.id })
         assertTrue(snapshot.sets.all { it.sessionId == finishedId })
         assertEquals(3, snapshot.sets.size)
+        assertEquals(listOf("Pecho", "Tríceps"), snapshot.sessionGroups.map { it.muscleGroupNameSnapshot })
+        assertTrue(snapshot.sessionGroups.all { it.sessionId == finishedId })
+        assertEquals("subtítulo", snapshot.sessions.single().routineCommentSnapshot)
         assertEquals("images/exercise_press.jpg", snapshot.exercises.first { it.name == "Press banca" }.imageFile)
         assertEquals(11, snapshot.muscleGroups.size)
     }
@@ -203,6 +210,48 @@ class BackupRepositoryTest {
         assertEquals(1, report.sessions.skipped)
         assertNull(target.workouts.getInProgress())
         assertTrue(target.workouts.observeFinishedSessions().first().isEmpty())
+    }
+
+    @Test
+    fun v1BackupWithoutSessionGroupsImportsAndKeepsLegacyDoneFlag() = runTest {
+        val finishedId = seedSource()
+        val exported = source.backup.exportSnapshot("0.1.0", 99L)
+        // Lo que escribía la v0.1.0: schemaVersion 1, sin grupos de sesión ni comentario, isDone en series.
+        val v1 = exported.copy(
+            schemaVersion = 1,
+            dbVersion = 1,
+            sessionGroups = emptyList(),
+            sessions = exported.sessions.map { it.copy(routineCommentSnapshot = null) },
+            sets = exported.sets.map { it.copy(isDone = true, completedAt = 15_000L) },
+        )
+
+        val report = target.backup.importSnapshot(v1)
+
+        assertEquals(1, report.sessions.inserted)
+        assertTrue(report.warnings.isEmpty())
+        val detail = target.workouts.observeSessionDetail(finishedId).first()!!
+        assertEquals(3, detail.exercises.sumOf { it.sets.size })
+        assertTrue(detail.groups.isEmpty())
+        assertTrue(target.db.workoutDao().getSets(finishedId).all { it.isDone && it.completedAt == 15_000L })
+        assertEquals(1, target.progress.observeExercisePoints(detail.exercises.first().exerciseId, 0L).first().size)
+    }
+
+    @Test
+    fun newerV1SessionKeepsLocalCommentAndGroups() = runTest {
+        val finishedId = seedSource()
+        val exported = source.backup.exportSnapshot("0.1.0", 99L)
+        target.backup.importSnapshot(exported)
+        val v1 = exported.copy(
+            schemaVersion = 1,
+            sessionGroups = emptyList(),
+            sessions = exported.sessions.map { it.copy(routineCommentSnapshot = null, updatedAt = it.updatedAt + 1) },
+        )
+
+        val report = target.backup.importSnapshot(v1)
+
+        assertEquals(1, report.sessions.updated)
+        assertEquals("subtítulo", target.workouts.getSession(finishedId)!!.routineCommentSnapshot)
+        assertEquals(2, target.db.workoutDao().getSessionGroups(finishedId).size)
     }
 
     @Test(expected = IllegalArgumentException::class)

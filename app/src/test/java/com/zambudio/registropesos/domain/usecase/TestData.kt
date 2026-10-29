@@ -27,8 +27,6 @@ fun workoutSet(
     setIndex = setIndex,
     weightKg = weightKg,
     reps = reps,
-    isDone = weightKg != null,
-    completedAt = null,
     createdAt = 0L,
     updatedAt = 0L,
 )

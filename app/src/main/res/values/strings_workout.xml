@@ -6,7 +6,10 @@
     <string name="workout_open_history">Historial</string>
     <string name="workout_train_routines_header">Rutinas</string>
     <string name="workout_train_empty_title">Aún no tienes rutinas</string>
-    <string name="workout_train_empty_message">Crea una rutina con tus ejercicios para empezar a entrenar.</string>
+    <string name="workout_train_empty_message">Crea una rutina con los grupos musculares que vas a trabajar para empezar a entrenar.</string>
+    <!-- Grupos de una rutina separados por " · " -->
+    <string name="workout_groups_separator">" · "</string>
+    <string name="workout_routine_no_groups">Sin grupos musculares</string>
     <string name="workout_train_empty_action">Crear rutina</string>
     <string name="workout_in_progress_title">Entrenamiento en curso</string>
     <string name="workout_in_progress_started_at">Empezado a las %1$s</string>
@@ -16,10 +19,13 @@
     <!-- Detalle de rutina -->
     <string name="workout_routine_detail_title">Rutina</string>
     <string name="workout_edit_routine">Editar rutina</string>
-    <string name="workout_start">Empezar entrenamiento</string>
+    <string name="workout_start">Comenzar entrenamiento</string>
     <string name="workout_routine_not_found">Esta rutina ya no existe.</string>
-    <string name="workout_routine_empty_title">Esta rutina no tiene ejercicios</string>
-    <string name="workout_routine_empty_message">Añade al menos un ejercicio para poder entrenar con ella.</string>
+    <string name="workout_routine_empty_title">Esta rutina no tiene grupos musculares</string>
+    <string name="workout_routine_empty_message">Añade al menos un grupo muscular para poder entrenar con ella.</string>
+    <string name="workout_routine_comment_label">Comentario</string>
+    <string name="workout_routine_groups_header">Grupos musculares que vas a trabajar</string>
+    <string name="workout_routine_exercises_hint">Los ejercicios los eliges durante el entrenamiento, con el botón + de cada grupo.</string>
     <string name="workout_conflict_title">Ya hay un entrenamiento en curso</string>
     <string name="workout_conflict_message">Termínalo o descártalo antes de empezar otro.</string>
     <string name="workout_conflict_go">Ir al entrenamiento</string>
@@ -33,21 +39,39 @@
     <string name="workout_column_set">Serie</string>
     <string name="workout_column_kg">kg</string>
     <string name="workout_column_reps">Reps</string>
-    <string name="workout_column_done">Hecha</string>
     <string name="workout_weight_field">Peso de la serie %1$d en kg</string>
     <string name="workout_reps_field">Repeticiones de la serie %1$d</string>
-    <string name="workout_set_done">Serie %1$d hecha</string>
+    <string name="workout_weight_reference">La última vez: %1$s kg</string>
+    <string name="workout_reps_reference">La última vez: %1$s repeticiones</string>
     <string name="workout_weight_minus">Restar %1$s kg</string>
     <string name="workout_weight_plus">Sumar %1$s kg</string>
     <string name="workout_add_set">Añadir serie</string>
     <string name="workout_remove_set">Quitar serie</string>
     <string name="workout_set_removed">Serie quitada</string>
     <string name="workout_undo">Deshacer</string>
-    <string name="workout_previous_label">Anterior: %1$s</string>
+    <string name="workout_previous_label">Última vez (referencia): %1$s</string>
+    <string name="workout_reference_legend">Los números claros en cursiva son de la última vez, solo como referencia. Escribe los de hoy o pulsa «Copiar anterior».</string>
     <string name="workout_previous_none">Primera vez con este ejercicio</string>
     <string name="workout_copy_previous">Copiar anterior</string>
     <string name="workout_weight_x_reps">%1$s×%2$s</string>
     <string name="workout_no_value">–</string>
+    <string name="workout_reminder_label">Recordatorio de la rutina</string>
+    <string name="workout_group_add">Añadir ejercicio de %1$s</string>
+    <string name="workout_group_empty">Pulsa + para elegir un ejercicio de %1$s.</string>
+    <string name="workout_group_unavailable">Este grupo muscular ya no existe en la app.</string>
+    <string name="workout_other_exercises">Otros ejercicios</string>
+    <string name="workout_picker_title">Ejercicios de %1$s</string>
+    <string name="workout_picker_hint">Toca un ejercicio para añadirlo al entrenamiento.</string>
+    <string name="workout_picker_added">Ya está en el entrenamiento</string>
+    <string name="workout_picker_empty">%1$s aún no tiene ejercicios.</string>
+    <string name="workout_picker_create">Crear ejercicio</string>
+    <string name="workout_picker_close">Cerrar</string>
+    <string name="workout_picker_no_image">Sin foto</string>
+    <string name="workout_remove_exercise">Quitar ejercicio</string>
+    <string name="workout_remove_exercise_title">¿Quitar «%1$s»?</string>
+    <string name="workout_remove_exercise_message">Se borrarán las series que has registrado hoy en este ejercicio. Podrás deshacerlo justo después.</string>
+    <string name="workout_remove_exercise_confirm">Quitar</string>
+    <string name="workout_exercise_removed">Ejercicio quitado</string>
     <string name="workout_finish_action">Terminar entrenamiento</string>
     <string name="workout_finish_title">¿Terminar el entrenamiento?</string>
     <string name="workout_finish_message">Se guardará en el historial. Las series sin peso ni repeticiones se descartan.</string>
@@ -87,10 +111,5 @@
         <item quantity="one">%1$d serie</item>
         <item quantity="many">%1$d series</item>
         <item quantity="other">%1$d series</item>
-    </plurals>
-    <plurals name="workout_sets_done">
-        <item quantity="one">%1$d/%2$d serie hecha</item>
-        <item quantity="many">%1$d/%2$d series hechas</item>
-        <item quantity="other">%1$d/%2$d series hechas</item>
     </plurals>
 </resources>

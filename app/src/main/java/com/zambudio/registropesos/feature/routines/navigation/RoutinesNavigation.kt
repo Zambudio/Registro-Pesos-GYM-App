@@ -4,7 +4,6 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import com.zambudio.registropesos.core.navigation.ExerciseEditRoute
 import com.zambudio.registropesos.core.navigation.RoutineEditRoute
 import com.zambudio.registropesos.core.navigation.RoutinesRoute
 import com.zambudio.registropesos.core.navigation.dropUnlessResumedWith
@@ -28,9 +27,6 @@ fun NavGraphBuilder.routinesGraph(navController: NavHostController) {
                 // Si se llegó desde el detalle de la rutina (Entrenar), ese destino ya no es válido:
                 // se vuelve a la lista si está en la pila; si no, simplemente atrás.
                 if (!navController.popBackStack<RoutinesRoute>(inclusive = false)) navController.navigateUp()
-            },
-            onCreateExercise = dropUnlessResumedWith { groupId: String ->
-                navController.navigate(ExerciseEditRoute(muscleGroupId = groupId))
             },
         )
     }

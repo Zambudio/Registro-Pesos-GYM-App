@@ -5,6 +5,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.zambudio.registropesos.core.navigation.ExerciseEditRoute
 import com.zambudio.registropesos.core.navigation.HistoryRoute
 import com.zambudio.registropesos.core.navigation.RoutineDetailRoute
 import com.zambudio.registropesos.core.navigation.RoutineEditRoute
@@ -47,6 +48,9 @@ fun NavGraphBuilder.workoutGraph(navController: NavHostController) {
                 }
             },
             onDiscarded = { navController.popToTrain() },
+            onCreateExercise = dropUnlessResumedWith { groupId: String ->
+                navController.navigate(ExerciseEditRoute(muscleGroupId = groupId))
+            },
         )
     }
     composable<WorkoutSummaryRoute> {

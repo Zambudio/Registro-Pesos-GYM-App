@@ -19,6 +19,7 @@ import com.zambudio.registropesos.domain.model.RoutineBlockDetail
 import com.zambudio.registropesos.domain.model.RoutineDetail
 import com.zambudio.registropesos.domain.model.RoutineExercise
 import com.zambudio.registropesos.domain.model.RoutineExerciseDetail
+import com.zambudio.registropesos.domain.model.WorkoutSet
 import com.zambudio.registropesos.domain.util.IdGenerator
 import com.zambudio.registropesos.domain.util.TimeProvider
 import org.junit.After
@@ -84,6 +85,17 @@ class TestEnv(idPrefix: String = "id") {
         )
         routines.save(detail)
         return checkNotNull(routines.getDetail(routineId))
+    }
+
+    /** Añade [exercise] a la sesión como lo hace la pantalla: [sets] filas vacías al final. */
+    suspend fun addToSession(sessionId: String, exercise: Exercise, sets: Int): List<WorkoutSet> {
+        val order = (db.workoutDao().getSets(sessionId).maxOfOrNull { it.exerciseOrder } ?: -1) + 1
+        val groupName = checkNotNull(groups.getById(exercise.muscleGroupId)).name
+        val rows = List(sets) { index ->
+            WorkoutSet(ids.newId(), sessionId, exercise.id, exercise.name, groupName, order, index, null, null, 0L, 0L)
+        }
+        workouts.upsertSets(rows)
+        return rows
     }
 
     fun close() = db.close()

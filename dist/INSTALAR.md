@@ -21,9 +21,11 @@ Pulsa **Instalar**. Si Google Play Protect avisa de que la app no es conocida, e
 
 ## 4. Primeros pasos
 
-1. **Ejercicios**: pestaña Ejercicios > añade tus ejercicios eligiendo el grupo muscular; puedes poner una foto de la máquina (galería o cámara).
-2. **Rutinas**: pestaña Rutinas > crea una rutina (por ejemplo "Día 1"), añade bloques por grupo muscular y elige sus ejercicios y el número de series.
-3. **Entrenar**: pestaña Entrenar > elige la rutina > **Empezar entrenamiento**. Anota peso y repeticiones y marca cada serie. En gris verás lo que hiciste la vez anterior; "Copiar anterior" lo rellena de golpe.
+> Esta guía describe la versión de `main` (APK de prueba `registro-pesos-gym-v0.1.0+grupos-catalogo.apk`). En la v0.1.0 las rutinas llevaban ejercicios y series, y cada serie se marcaba como "Hecha".
+
+1. **Ejercicios**: la app ya trae 58 ejercicios con foto. En la pestaña Ejercicios puedes añadir los tuyos, eligiendo el grupo muscular y, si quieres, una foto de la máquina (galería o cámara).
+2. **Rutinas**: en la pestaña Rutinas, crea una rutina (por ejemplo "Día 1") con un comentario opcional y añade sus grupos musculares en orden. Los ejercicios no se eligen aquí.
+3. **Entrenar**: en la pestaña Entrenar, elige la rutina y pulsa **Comenzar entrenamiento**. En cada grupo, pulsa **+** y elige el ejercicio por su foto. Anota peso y repeticiones. Lo que hiciste la vez anterior aparece tenue y en cursiva como referencia; "Copiar anterior" lo convierte en los datos de hoy. El comentario de la rutina queda fijo arriba.
 4. Si se cierra la app a mitad, al volver te ofrecerá **reanudar** la sesión. Al acabar pulsa **Terminar entrenamiento**.
 
 ## 5. Actualizar a una versión nueva

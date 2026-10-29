@@ -67,16 +67,16 @@ class RoutinesScreenTest {
             RoutinesUiState(
                 isLoading = false,
                 routines = listOf(
-                    RoutineSummary("r1", "Día 1", "4 ejer pecho, 2 tríceps", blockCount = 2, exerciseCount = 6),
-                    RoutineSummary("r2", "Día 2", null, blockCount = 1, exerciseCount = 1),
+                    RoutineSummary("r1", "Día 1", "4 ejer pecho, 2 tríceps", listOf("Pecho", "Tríceps")),
+                    RoutineSummary("r2", "Día 2", null, emptyList()),
                 ),
             ),
         )
 
         compose.onNodeWithText("Día 1").assertExists()
         compose.onNodeWithText("4 ejer pecho, 2 tríceps").assertExists()
-        compose.onNodeWithText("2 bloques · 6 ejercicios").assertExists()
-        compose.onNodeWithText("1 bloque · 1 ejercicio").assertExists()
+        compose.onNodeWithText("Pecho · Tríceps").assertExists()
+        compose.onNodeWithText(context.getString(R.string.routines_no_groups)).assertExists()
         compose.onNodeWithText(context.getString(R.string.routines_new), useUnmergedTree = true).assertExists()
 
         // La primera no puede subir; la segunda sí.
@@ -93,7 +93,7 @@ class RoutinesScreenTest {
 
     @Test
     fun dialogoDeBorradoExplicaQueElHistorialSeConserva() {
-        val routine = RoutineSummary("r1", "Día 1", null, blockCount = 1, exerciseCount = 2)
+        val routine = RoutineSummary("r1", "Día 1", null, listOf("Pecho"))
         setScreen(RoutinesUiState(isLoading = false, routines = listOf(routine), pendingDelete = routine))
 
         compose.onNodeWithText(context.getString(R.string.routines_delete_message, "Día 1")).assertExists()

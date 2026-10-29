@@ -27,6 +27,7 @@ data class Exercise(
 data class Routine(
     val id: String,
     val name: String,
+    /** Comentario libre de la rutina (p. ej. "Pecho: 4 ejercicios · Tríceps: 2"). */
     val subtitle: String?,
     val sortOrder: Int,
     val createdAt: Long,
@@ -42,6 +43,11 @@ data class RoutineBlock(
     val updatedAt: Long,
 )
 
+/**
+ * Ejercicio preseleccionado en un bloque. Solo existe en rutinas creadas con la v1: desde la v2
+ * las rutinas son grupos ordenados y los ejercicios se eligen al entrenar (ADR-018). Se conservan
+ * (y viajan en el backup) pero ya no se editan ni se usan al empezar una sesión.
+ */
 data class RoutineExercise(
     val id: String,
     val blockId: String,
@@ -64,6 +70,22 @@ data class WorkoutSession(
     val notes: String?,
     val createdAt: Long,
     val updatedAt: Long,
+    /** Comentario de la rutina copiado al empezar; null si no tenía. */
+    val routineCommentSnapshot: String? = null,
+)
+
+/**
+ * Grupo muscular previsto en la sesión, en el orden de la rutina. [muscleGroupId] es null si el
+ * grupo se borró después; el nombre se conserva en [muscleGroupName].
+ */
+data class SessionGroup(
+    val id: String,
+    val sessionId: String,
+    val muscleGroupId: String?,
+    val muscleGroupName: String,
+    val sortOrder: Int,
+    val createdAt: Long,
+    val updatedAt: Long,
 )
 
 /**
@@ -81,8 +103,6 @@ data class WorkoutSet(
     val setIndex: Int,
     val weightKg: Double?,
     val reps: Int?,
-    val isDone: Boolean,
-    val completedAt: Long?,
     val createdAt: Long,
     val updatedAt: Long,
 ) {
@@ -95,8 +115,8 @@ data class RoutineSummary(
     val id: String,
     val name: String,
     val subtitle: String?,
-    val blockCount: Int,
-    val exerciseCount: Int,
+    /** Nombres de los grupos musculares de la rutina, en orden. */
+    val groupNames: List<String>,
 )
 
 data class RoutineDetail(
@@ -119,12 +139,17 @@ data class SessionDetail(
     val session: WorkoutSession,
     /** Ejercicios en orden de sesión, cada uno con sus series ordenadas por setIndex. */
     val exercises: List<SessionExercise>,
+    /** Grupos previstos, en orden (vacío en sesiones de la v1 terminadas). */
+    val groups: List<SessionGroup> = emptyList(),
 )
 
 data class SessionExercise(
     val exerciseId: String,
     val exerciseName: String,
     val muscleGroupName: String,
+    /** Grupo actual del ejercicio en la biblioteca; sirve para colocarlo bajo su grupo de la sesión. */
+    val muscleGroupId: String? = null,
+    val imagePath: String? = null,
     val order: Int,
     val sets: List<WorkoutSet>,
 )

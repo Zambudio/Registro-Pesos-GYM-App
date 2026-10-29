@@ -7,14 +7,6 @@ data class GroupExerciseCountRow(
     val count: Int,
 )
 
-data class RoutineSummaryRow(
-    val id: String,
-    val name: String,
-    val subtitle: String?,
-    val blockCount: Int,
-    val exerciseCount: Int,
-)
-
 data class SessionSummaryRow(
     val id: String,
     val routineName: String,

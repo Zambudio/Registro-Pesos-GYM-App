@@ -1,6 +1,5 @@
 package com.zambudio.registropesos.feature.workout.session
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,11 +13,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +43,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -51,11 +52,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.zambudio.registropesos.R
 import com.zambudio.registropesos.core.util.formatKg
+import com.zambudio.registropesos.feature.exercises.ExerciseThumbnail
 import com.zambudio.registropesos.feature.workout.common.formatWeightInput
 import com.zambudio.registropesos.feature.workout.common.parseRepsText
 import com.zambudio.registropesos.feature.workout.common.parseWeightText
 
-private const val DONE_ROW_ALPHA = 0.35f
+/**
+ * Opacidad de la referencia de la última vez (placeholder y fila "Última vez"): bastante más tenue
+ * que los datos de hoy, que van en el color normal y en negrita, pero legible.
+ */
+private const val REFERENCE_ALPHA = 0.6f
 
 @Composable
 internal fun ExerciseCard(
@@ -64,6 +70,7 @@ internal fun ExerciseCard(
     weightStepKg: Double,
     enabled: Boolean,
     actions: WorkoutActions,
+    onRequestRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier.fillMaxWidth()) {
@@ -72,6 +79,7 @@ internal fun ExerciseCard(
             Column(Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
                 PreviousRow(exercise, enabled, onCopy = { actions.onCopyPrevious(exercise.exerciseId) })
                 SetHeaderRow()
+                if (exercise.showsReference) ReferenceLegend()
                 exercise.sets.forEach { set ->
                     key(set.setId) {
                         SetRow(set, weightStepKg, enabled, actions)
@@ -97,6 +105,14 @@ internal fun ExerciseCard(
                         Text(stringResource(R.string.workout_remove_set))
                     }
                 }
+                TextButton(
+                    onClick = onRequestRemove,
+                    enabled = enabled,
+                    modifier = Modifier.heightIn(min = 48.dp),
+                ) {
+                    Icon(Icons.Filled.DeleteOutline, contentDescription = null)
+                    Text(stringResource(R.string.workout_remove_exercise), Modifier.padding(start = 4.dp))
+                }
             }
         }
     }
@@ -113,15 +129,11 @@ private fun ExerciseHeader(exercise: WorkoutExerciseUi, expanded: Boolean, onCli
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(Modifier.weight(1f)) {
+        ExerciseThumbnail(imageFile = exercise.imageFile, size = 56.dp)
+        Column(Modifier.weight(1f).padding(start = 12.dp)) {
             Text(exercise.name, style = MaterialTheme.typography.titleMedium)
             Text(
-                text = pluralStringResource(
-                    R.plurals.workout_sets_done,
-                    exercise.sets.size,
-                    exercise.doneCount,
-                    exercise.sets.size,
-                ),
+                text = pluralStringResource(R.plurals.workout_set_count, exercise.sets.size, exercise.sets.size),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -146,8 +158,9 @@ private fun PreviousRow(exercise: WorkoutExerciseUi, enabled: Boolean, onCopy: (
                 .joinToString(" · ")
             Text(
                 text = stringResource(R.string.workout_previous_label, summary),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
+                fontStyle = FontStyle.Italic,
+                color = referenceColor(),
                 modifier = Modifier.weight(1f).padding(start = 8.dp),
             )
             TextButton(onClick = onCopy, enabled = enabled, modifier = Modifier.heightIn(min = 48.dp)) {
@@ -163,6 +176,21 @@ private fun PreviousRow(exercise: WorkoutExerciseUi, enabled: Boolean, onCopy: (
         )
         null -> Unit
     }
+}
+
+/** Color de la referencia de la última vez: tenue frente al color normal de los datos de hoy. */
+@Composable
+private fun referenceColor() = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = REFERENCE_ALPHA)
+
+@Composable
+private fun ReferenceLegend() {
+    Text(
+        text = stringResource(R.string.workout_reference_legend),
+        style = MaterialTheme.typography.bodySmall,
+        fontStyle = FontStyle.Italic,
+        color = referenceColor(),
+        modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 4.dp),
+    )
 }
 
 @Composable
@@ -190,35 +218,21 @@ private fun SetHeaderRow() {
             color = color,
             textAlign = TextAlign.Center,
         )
-        Text(
-            stringResource(R.string.workout_column_done),
-            Modifier.width(CHECK_WIDTH),
-            style = style,
-            color = color,
-            textAlign = TextAlign.Center,
-        )
     }
 }
 
 private val SET_NUMBER_WIDTH = 28.dp
-private val CHECK_WIDTH = 48.dp
 private const val WEIGHT_GROUP_WEIGHT = 2.4f
 private const val WEIGHT_FIELD_WEIGHT = 1f
-private const val REPS_WEIGHT = 0.9f
+private const val REPS_WEIGHT = 1f
 
 @Composable
 private fun SetRow(set: WorkoutSetUi, weightStepKg: Double, enabled: Boolean, actions: WorkoutActions) {
     val focusManager = LocalFocusManager.current
     val step = formatKg(weightStepKg)
-    val rowColor = if (set.isDone) {
-        MaterialTheme.colorScheme.primaryContainer.copy(alpha = DONE_ROW_ALPHA)
-    } else {
-        MaterialTheme.colorScheme.surface.copy(alpha = 0f)
-    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(rowColor, MaterialTheme.shapes.small)
             .padding(vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -247,6 +261,9 @@ private fun SetRow(set: WorkoutSetUi, weightStepKg: Double, enabled: Boolean, ac
                 onIme = { focusManager.moveFocus(FocusDirection.Next) },
                 enabled = enabled,
                 description = stringResource(R.string.workout_weight_field, set.number),
+                referenceDescription = set.ghostWeightKg?.let {
+                    stringResource(R.string.workout_weight_reference, formatKg(it))
+                },
                 modifier = Modifier.weight(WEIGHT_FIELD_WEIGHT),
             )
             IconButton(
@@ -268,17 +285,10 @@ private fun SetRow(set: WorkoutSetUi, weightStepKg: Double, enabled: Boolean, ac
             onIme = { focusManager.clearFocus() },
             enabled = enabled,
             description = stringResource(R.string.workout_reps_field, set.number),
-            modifier = Modifier.weight(REPS_WEIGHT).padding(start = 4.dp),
-        )
-        val doneDescription = stringResource(R.string.workout_set_done, set.number)
-        Checkbox(
-            checked = set.isDone,
-            onCheckedChange = { actions.onToggleDone(set.setId) },
-            enabled = enabled,
-            modifier = Modifier
-                .width(CHECK_WIDTH)
-                .focusProperties { canFocus = false }
-                .semantics { contentDescription = doneDescription },
+            referenceDescription = set.ghostReps?.let {
+                stringResource(R.string.workout_reps_reference, it.toString())
+            },
+            modifier = Modifier.weight(REPS_WEIGHT).padding(start = 4.dp, end = 4.dp),
         )
     }
 }
@@ -334,6 +344,8 @@ private fun <T> NumberField(
     enabled: Boolean,
     description: String,
     modifier: Modifier = Modifier,
+    /** Lectura accesible de la referencia cuando el campo está vacío. */
+    referenceDescription: String? = null,
 ) {
     var field by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         val text = format(value)
@@ -352,18 +364,30 @@ private fun <T> NumberField(
             field = next
             if (changed) onValueChange(next.text)
         },
-        modifier = modifier.semantics { contentDescription = description },
+        modifier = modifier.semantics {
+            contentDescription = if (field.text.isEmpty() && referenceDescription != null) {
+                "$description. $referenceDescription"
+            } else {
+                description
+            }
+        },
         enabled = enabled,
         singleLine = true,
         isError = field.text.isNotBlank() && parse(field.text) == null,
-        textStyle = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center),
+        // Los datos de hoy (tecleados o copiados) en el color normal y en negrita.
+        textStyle = MaterialTheme.typography.bodyLarge.copy(
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.SemiBold,
+        ),
+        // La referencia de la última vez, tenue y en cursiva.
         placeholder = placeholder?.let {
             {
                 Text(
                     text = it,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.outline,
+                    fontStyle = FontStyle.Italic,
+                    color = referenceColor(),
                 )
             }
         },

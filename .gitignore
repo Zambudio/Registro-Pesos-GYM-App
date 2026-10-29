@@ -25,3 +25,6 @@ keystore.properties
 
 # Logs
 *.log
+
+# Intermedios de tools/catalog (las imágenes finales van en app/src/main/assets/catalog)
+tools/catalog/raw/

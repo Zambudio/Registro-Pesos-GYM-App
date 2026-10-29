@@ -16,6 +16,7 @@ import com.zambudio.registropesos.domain.model.RoutineExerciseDetail
 import com.zambudio.registropesos.domain.model.RoutineSummary
 import com.zambudio.registropesos.domain.model.SessionDetail
 import com.zambudio.registropesos.domain.model.SessionExercise
+import com.zambudio.registropesos.domain.model.SessionGroup
 import com.zambudio.registropesos.domain.model.SessionStatus
 import com.zambudio.registropesos.domain.model.SessionSummary
 import com.zambudio.registropesos.domain.model.WorkoutSession
@@ -97,11 +98,13 @@ class FakeSettingsRepository(initial: AppSettings = AppSettings()) : SettingsRep
 }
 
 /** Repositorio de sesiones en memoria con Flows reactivos, como Room. */
-class InMemoryWorkoutRepository(
-    private val ids: IdGenerator = TestIds("set"),
-) : WorkoutRepository {
+class InMemoryWorkoutRepository : WorkoutRepository {
     val sessions = MutableStateFlow<Map<String, WorkoutSession>>(emptyMap())
     val sets = MutableStateFlow<List<WorkoutSet>>(emptyList())
+    val groups = MutableStateFlow<List<SessionGroup>>(emptyList())
+
+    /** Grupo actual de cada ejercicio; por defecto "g-<nombre del grupo del snapshot>", como routineDetail(). */
+    val exerciseGroupIds = mutableMapOf<String, String>()
 
     /** Series de la "sesión anterior" por ejercicio que devuelve lastFinishedSetsForExercise. */
     val lastFinished = mutableMapOf<String, List<WorkoutSet>>()
@@ -123,27 +126,30 @@ class InMemoryWorkoutRepository(
         sessions.value.values.firstOrNull { it.status == SessionStatus.IN_PROGRESS }
 
     override fun observeSessionDetail(id: String): Flow<SessionDetail?> =
-        combine(sessions, sets) { all, _ -> all[id]?.let { SessionDetail(it, exercisesOf(id)) } }
+        combine(sessions, sets, groups) { all, _, sessionGroups ->
+            all[id]?.let { session ->
+                val planned = sessionGroups.filter { it.sessionId == id }.sortedBy { it.sortOrder }
+                SessionDetail(session, exercisesOf(id), planned)
+            }
+        }
 
     override suspend fun getSession(id: String): WorkoutSession? = sessions.value[id]
 
     override suspend fun start(routine: RoutineDetail, startedAt: Long): String {
         getInProgress()?.let { throw SessionAlreadyInProgressException(it.id) }
         val sessionId = "session-${sessions.value.size + 1}"
-        addSession(sessionId, routine.routine.name, startedAt)
-        var order = 0
-        val created = routine.blocks.flatMap { block ->
-            block.exercises.flatMap { item ->
-                val exerciseOrder = order++
-                val exercise = item.exercise
-                val group = block.muscleGroup.name
-                (0 until item.routineExercise.defaultSets).map { index ->
-                    emptySet(ids.newId(), sessionId, exercise.id, exercise.name, group, exerciseOrder, index)
-                }
+        addSession(sessionId, routine.routine.name, startedAt, comment = routine.routine.subtitle)
+        addGroups(sessionId, *routine.blocks.map { it.muscleGroup.name }.distinct().toTypedArray())
+        return sessionId
+    }
+
+    /** Grupos previstos de la sesión, con id de grupo "g-<nombre>". */
+    fun addGroups(sessionId: String, vararg names: String) {
+        groups.update { current ->
+            current + names.mapIndexed { index, name ->
+                SessionGroup("$sessionId-sg$index", sessionId, "g-$name", name, index, 0L, 0L)
             }
         }
-        sets.update { it + created }
-        return sessionId
     }
 
     fun addSession(
@@ -152,8 +158,20 @@ class InMemoryWorkoutRepository(
         startedAt: Long = 0L,
         status: SessionStatus = SessionStatus.IN_PROGRESS,
         finishedAt: Long? = null,
+        comment: String? = null,
     ) {
-        val session = WorkoutSession(id, "r1", routineName, startedAt, finishedAt, status, null, startedAt, startedAt)
+        val session = WorkoutSession(
+            id,
+            "r1",
+            routineName,
+            startedAt,
+            finishedAt,
+            status,
+            null,
+            startedAt,
+            startedAt,
+            routineCommentSnapshot = comment,
+        )
         sessions.update { it + (id to session) }
     }
 
@@ -172,6 +190,11 @@ class InMemoryWorkoutRepository(
     override suspend fun deleteSet(setId: String) {
         check(!failWrites) { "Fallo de escritura simulado" }
         sets.update { current -> current.filterNot { it.id == setId } }
+    }
+
+    override suspend fun removeExercise(sessionId: String, exerciseId: String) {
+        check(!failWrites) { "Fallo de escritura simulado" }
+        sets.update { current -> current.filterNot { it.sessionId == sessionId && it.exerciseId == exerciseId } }
     }
 
     override suspend fun finish(sessionId: String, finishedAt: Long, keepSetIds: List<String>) {
@@ -206,17 +229,19 @@ class InMemoryWorkoutRepository(
         check(!failDelete) { "Fallo de borrado simulado" }
         sessions.update { it - id }
         sets.update { current -> current.filterNot { it.sessionId == id } }
+        groups.update { current -> current.filterNot { it.sessionId == id } }
     }
 
     private fun exercisesOf(sessionId: String): List<SessionExercise> =
         setsOf(sessionId).groupBy { it.exerciseId }.map { (exerciseId, exerciseSets) ->
             val first = exerciseSets.first()
             SessionExercise(
-                exerciseId,
-                first.exerciseNameSnapshot,
-                first.muscleGroupNameSnapshot,
-                first.exerciseOrder,
-                exerciseSets,
+                exerciseId = exerciseId,
+                exerciseName = first.exerciseNameSnapshot,
+                muscleGroupName = first.muscleGroupNameSnapshot,
+                muscleGroupId = exerciseGroupIds[exerciseId] ?: "g-${first.muscleGroupNameSnapshot}",
+                order = first.exerciseOrder,
+                sets = exerciseSets,
             )
         }
 
@@ -241,8 +266,6 @@ class InMemoryWorkoutRepository(
             setIndex = setIndex,
             weightKg = weightKg,
             reps = reps,
-            isDone = false,
-            completedAt = null,
             createdAt = 0L,
             updatedAt = 0L,
         )
@@ -258,8 +281,7 @@ class InMemoryRoutineRepository(vararg initial: RoutineDetail) : RoutineReposito
                 id = detail.routine.id,
                 name = detail.routine.name,
                 subtitle = detail.routine.subtitle,
-                blockCount = detail.blocks.size,
-                exerciseCount = detail.blocks.sumOf { it.exercises.size },
+                groupNames = detail.blocks.map { it.muscleGroup.name },
             )
         }
     }

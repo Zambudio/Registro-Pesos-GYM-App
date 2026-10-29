@@ -5,13 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.zambudio.registropesos.core.navigation.RoutineEditRoute
-import com.zambudio.registropesos.domain.model.Exercise
 import com.zambudio.registropesos.domain.model.MuscleGroup
 import com.zambudio.registropesos.domain.model.Routine
-import com.zambudio.registropesos.domain.repository.ExerciseRepository
 import com.zambudio.registropesos.domain.repository.MuscleGroupRepository
 import com.zambudio.registropesos.domain.repository.RoutineRepository
-import com.zambudio.registropesos.domain.repository.SettingsRepository
 import com.zambudio.registropesos.domain.usecase.RoutineError
 import com.zambudio.registropesos.domain.usecase.ValidateRoutine
 import com.zambudio.registropesos.domain.util.IdGenerator
@@ -19,7 +16,6 @@ import com.zambudio.registropesos.domain.util.TimeProvider
 import com.zambudio.registropesos.feature.routines.moved
 import com.zambudio.registropesos.feature.routines.runCatchingNonCancellation
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,11 +23,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -48,22 +40,10 @@ data class RoutineEditUiState(
     val errors: Set<RoutineError> = emptySet(),
     val isDirty: Boolean = false,
     val isSaving: Boolean = false,
-    val muscleGroups: List<MuscleGroup> = emptyList(),
+    /** Grupos que aún no están en la rutina (los que ofrece el selector). */
+    val availableGroups: List<MuscleGroup> = emptyList(),
     val showGroupPicker: Boolean = false,
-    val exercisePicker: ExercisePickerUiState? = null,
     val dialog: RoutineEditDialog? = null,
-)
-
-/** Selector de selección múltiple de ejercicios para un bloque. */
-data class ExercisePickerUiState(
-    val blockId: String,
-    val muscleGroup: MuscleGroup,
-    val isLoading: Boolean,
-    /** Ejercicios no archivados del grupo que aún no están en el bloque. */
-    val available: List<Exercise> = emptyList(),
-    /** false si el grupo no tiene ningún ejercicio (no confundir con "todos ya añadidos"). */
-    val groupHasExercises: Boolean = false,
-    val selectedIds: Set<String> = emptySet(),
 )
 
 enum class RoutineEditDialog { DISCARD_CHANGES, DELETE }
@@ -77,19 +57,14 @@ sealed interface RoutineEditEvent {
 }
 
 /**
- * Editor de rutina: mantiene un [RoutineDraft] en memoria y solo persiste al guardar.
- * LongParameterList suprimido: son siete dependencias inyectadas por Hilt y agruparlas
- * en un objeto artificial no aporta claridad.
+ * Editor de rutina: nombre, comentario opcional y grupos musculares ordenados. Mantiene un
+ * [RoutineDraft] en memoria y solo persiste al guardar. Los ejercicios se eligen al entrenar.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-@Suppress("LongParameterList")
 class RoutineEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val routineRepository: RoutineRepository,
     muscleGroupRepository: MuscleGroupRepository,
-    private val exerciseRepository: ExerciseRepository,
-    private val settingsRepository: SettingsRepository,
     private val idGenerator: IdGenerator,
     private val timeProvider: TimeProvider,
 ) : ViewModel() {
@@ -105,28 +80,14 @@ class RoutineEditViewModel @Inject constructor(
     private val events = Channel<RoutineEditEvent>(Channel.BUFFERED)
     val eventFlow: Flow<RoutineEditEvent> = events.receiveAsFlow()
 
-    private val pickerExercises: Flow<GroupExercises?> = editor
-        .map { it.picker?.muscleGroup?.id }
-        .distinctUntilChanged()
-        .flatMapLatest { groupId ->
-            if (groupId == null) {
-                flowOf(null)
-            } else {
-                exerciseRepository.observeByGroup(groupId)
-                    .map { GroupExercises(groupId, it) }
-                    .catch { emit(GroupExercises(groupId, emptyList())) }
-            }
-        }
-
     val uiState: StateFlow<RoutineEditUiState> = combine(
         editor,
         muscleGroupRepository.observeAll().catch { emit(emptyList()) },
-        pickerExercises,
-    ) { state, groups, groupExercises -> state.toUiState(groups, groupExercises) }
+    ) { state, groups -> state.toUiState(groups) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = editor.value.toUiState(emptyList(), null),
+            initialValue = editor.value.toUiState(emptyList()),
         )
 
     init {
@@ -141,21 +102,22 @@ class RoutineEditViewModel @Inject constructor(
 
     fun onSubtitleChange(subtitle: String) = updateDraft { it.copy(subtitle = subtitle) }
 
-    // --- Bloques ---
+    // --- Grupos ---
 
     fun onAddBlockClick() = editor.update { it.copy(showGroupPicker = true) }
 
     fun onGroupPickerDismiss() = editor.update { it.copy(showGroupPicker = false) }
 
-    /** Añade un bloque del grupo elegido al final y abre directamente su selector de ejercicios. */
+    /** Añade el grupo elegido al final. Un grupo ya presente no se repite. */
     fun onGroupSelected(group: MuscleGroup) {
-        val block = DraftBlock(id = idGenerator.newId(), muscleGroup = group)
         editor.update { state ->
-            state.copy(
-                draft = state.draft.copy(blocks = state.draft.blocks + block),
-                showGroupPicker = false,
-                picker = PickerTarget(block.id, group),
-            )
+            val present = state.draft.blocks.any { it.muscleGroup.id == group.id }
+            val blocks = if (present) {
+                state.draft.blocks
+            } else {
+                state.draft.blocks + DraftBlock(id = idGenerator.newId(), muscleGroup = group)
+            }
+            state.copy(draft = state.draft.copy(blocks = blocks), showGroupPicker = false)
         }
     }
 
@@ -166,62 +128,6 @@ class RoutineEditViewModel @Inject constructor(
     fun onRemoveBlock(blockId: String) = updateDraft { draft ->
         draft.copy(blocks = draft.blocks.filterNot { it.id == blockId })
     }
-
-    // --- Ejercicios de un bloque ---
-
-    fun onAddExercisesClick(blockId: String) {
-        val block = editor.value.draft.blocks.firstOrNull { it.id == blockId } ?: return
-        editor.update { it.copy(picker = PickerTarget(blockId, block.muscleGroup)) }
-    }
-
-    fun onPickerToggle(exerciseId: String) = editor.update { state ->
-        val picker = state.picker ?: return@update state
-        val selected = if (exerciseId in picker.selectedIds) {
-            picker.selectedIds - exerciseId
-        } else {
-            picker.selectedIds + exerciseId
-        }
-        state.copy(picker = picker.copy(selectedIds = selected))
-    }
-
-    fun onPickerDismiss() = editor.update { it.copy(picker = null) }
-
-    /** Añade los seleccionados (en el orden del selector) con las series por defecto de ajustes. */
-    fun onPickerConfirm() {
-        val picker = editor.value.picker ?: return
-        if (picker.selectedIds.isEmpty()) {
-            onPickerDismiss()
-            return
-        }
-        viewModelScope.launch {
-            val defaultSets = runCatchingNonCancellation { settingsRepository.settings.first().defaultSets }
-                .getOrDefault(DEFAULT_SETS_FALLBACK)
-                .coerceIn(ValidateRoutine.MIN_DEFAULT_SETS, ValidateRoutine.MAX_DEFAULT_SETS)
-            val groupExercises = exerciseRepository.observeByGroup(picker.muscleGroup.id).first()
-            editor.update { state ->
-                val draft = state.draft.updateBlock(picker.blockId) { block ->
-                    val present = block.exercises.map { it.exercise.id }.toSet()
-                    val added = groupExercises
-                        .filter { it.id in picker.selectedIds && it.id !in present }
-                        .map { DraftExercise(id = idGenerator.newId(), exercise = it, defaultSets = defaultSets) }
-                    block.copy(exercises = block.exercises + added)
-                }
-                state.copy(draft = draft, picker = null)
-            }
-        }
-    }
-
-    fun onMoveExerciseUp(blockId: String, itemId: String) = moveExercise(blockId, itemId, -1)
-
-    fun onMoveExerciseDown(blockId: String, itemId: String) = moveExercise(blockId, itemId, 1)
-
-    fun onRemoveExercise(blockId: String, itemId: String) = updateDraft { draft ->
-        draft.updateBlock(blockId) { block -> block.copy(exercises = block.exercises.filterNot { it.id == itemId }) }
-    }
-
-    fun onIncrementSets(blockId: String, itemId: String) = changeSets(blockId, itemId, 1)
-
-    fun onDecrementSets(blockId: String, itemId: String) = changeSets(blockId, itemId, -1)
 
     // --- Guardar, salir y borrar ---
 
@@ -323,33 +229,9 @@ class RoutineEditViewModel @Inject constructor(
         draft.copy(blocks = draft.blocks.moved(draft.blocks.indexOfFirst { it.id == blockId }, offset))
     }
 
-    private fun moveExercise(blockId: String, itemId: String, offset: Int) = updateDraft { draft ->
-        draft.updateBlock(blockId) { block ->
-            block.copy(exercises = block.exercises.moved(block.exercises.indexOfFirst { it.id == itemId }, offset))
-        }
-    }
-
-    private fun changeSets(blockId: String, itemId: String, delta: Int) = updateDraft { draft ->
-        draft.updateBlock(blockId) { block ->
-            block.copy(
-                exercises = block.exercises.map { item ->
-                    if (item.id != itemId) {
-                        item
-                    } else {
-                        val sets = (item.defaultSets + delta)
-                            .coerceIn(ValidateRoutine.MIN_DEFAULT_SETS, ValidateRoutine.MAX_DEFAULT_SETS)
-                        item.copy(defaultSets = sets)
-                    }
-                },
-            )
-        }
-    }
-
-    private fun RoutineDraft.updateBlock(blockId: String, transform: (DraftBlock) -> DraftBlock): RoutineDraft =
-        copy(blocks = blocks.map { if (it.id == blockId) transform(it) else it })
-
-    private fun EditorState.toUiState(groups: List<MuscleGroup>, groupExercises: GroupExercises?): RoutineEditUiState {
+    private fun EditorState.toUiState(groups: List<MuscleGroup>): RoutineEditUiState {
         val errors = if (showErrors) validate(draft) else emptySet()
+        val used = draft.blocks.mapTo(HashSet()) { it.muscleGroup.id }
         return RoutineEditUiState(
             isNew = editingId == null,
             isLoading = isLoading,
@@ -359,23 +241,9 @@ class RoutineEditViewModel @Inject constructor(
             errors = errors,
             isDirty = isDirty,
             isSaving = isSaving,
-            muscleGroups = groups,
+            availableGroups = groups.filterNot { it.id in used },
             showGroupPicker = showGroupPicker,
-            exercisePicker = picker?.toUiState(draft, groupExercises),
             dialog = dialog,
-        )
-    }
-
-    private fun PickerTarget.toUiState(draft: RoutineDraft, groupExercises: GroupExercises?): ExercisePickerUiState {
-        val loaded = groupExercises?.takeIf { it.groupId == muscleGroup.id }
-        val present = draft.blocks.firstOrNull { it.id == blockId }?.exercises?.map { it.exercise.id }.orEmpty().toSet()
-        return ExercisePickerUiState(
-            blockId = blockId,
-            muscleGroup = muscleGroup,
-            isLoading = loaded == null,
-            available = loaded?.exercises.orEmpty().filter { it.id !in present },
-            groupHasExercises = loaded?.exercises.orEmpty().isNotEmpty(),
-            selectedIds = selectedIds,
         )
     }
 
@@ -393,22 +261,9 @@ class RoutineEditViewModel @Inject constructor(
         val showErrors: Boolean = false,
         val isSaving: Boolean = false,
         val showGroupPicker: Boolean = false,
-        val picker: PickerTarget? = null,
         val dialog: RoutineEditDialog? = null,
     ) {
         val isEditable: Boolean get() = !isLoading && !notFound && !loadFailed
         val isDirty: Boolean get() = isEditable && draft != original
-    }
-
-    private data class PickerTarget(
-        val blockId: String,
-        val muscleGroup: MuscleGroup,
-        val selectedIds: Set<String> = emptySet(),
-    )
-
-    private data class GroupExercises(val groupId: String, val exercises: List<Exercise>)
-
-    private companion object {
-        const val DEFAULT_SETS_FALLBACK = 4
     }
 }

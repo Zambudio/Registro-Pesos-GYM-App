@@ -6,12 +6,15 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.zambudio.registropesos.data.local.entity.WorkoutSessionEntity
+import com.zambudio.registropesos.data.local.entity.WorkoutSessionGroupEntity
 import com.zambudio.registropesos.data.local.entity.WorkoutSetEntity
 import kotlinx.coroutines.flow.Flow
 
 // Las consultas comparan status con el nombre del enum (TypeConverter en core/db/Converters).
 // SQLite 3.19 (API 26): sin window functions ni RETURNING.
 
+// Sesión, series y grupos de sesión forman un agregado (ADR-004): sus consultas van juntas.
+@Suppress("TooManyFunctions")
 @Dao
 interface WorkoutDao {
     @Query("SELECT * FROM workout_sessions WHERE status = 'IN_PROGRESS' ORDER BY started_at DESC LIMIT 1")
@@ -35,6 +38,25 @@ interface WorkoutDao {
         """,
     )
     suspend fun getSetsExcludingInProgress(): List<WorkoutSetEntity>
+
+    @Query("SELECT * FROM workout_session_groups WHERE session_id = :sessionId ORDER BY sort_order")
+    suspend fun getSessionGroups(sessionId: String): List<WorkoutSessionGroupEntity>
+
+    @Query(
+        """
+        SELECT g.* FROM workout_session_groups g
+        JOIN workout_sessions s ON s.id = g.session_id
+        WHERE s.status != 'IN_PROGRESS'
+        ORDER BY g.session_id, g.sort_order
+        """,
+    )
+    suspend fun getSessionGroupsExcludingInProgress(): List<WorkoutSessionGroupEntity>
+
+    @Insert
+    suspend fun insertSessionGroups(entities: List<WorkoutSessionGroupEntity>)
+
+    @Query("DELETE FROM workout_session_groups WHERE session_id = :sessionId")
+    suspend fun deleteSessionGroupsOf(sessionId: String)
 
     @Query("SELECT * FROM workout_sets WHERE session_id = :sessionId ORDER BY exercise_order, set_index")
     suspend fun getSets(sessionId: String): List<WorkoutSetEntity>
@@ -88,6 +110,9 @@ interface WorkoutDao {
 
     @Query("DELETE FROM workout_sets WHERE id = :id")
     suspend fun deleteSet(id: String)
+
+    @Query("DELETE FROM workout_sets WHERE session_id = :sessionId AND exercise_id = :exerciseId")
+    suspend fun deleteSetsOfExercise(sessionId: String, exerciseId: String): Int
 
     @Query("DELETE FROM workout_sessions WHERE id = :id")
     suspend fun deleteSession(id: String): Int

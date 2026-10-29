@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.zambudio.registropesos.core.navigation.RoutineDetailRoute
+import com.zambudio.registropesos.domain.model.MuscleGroup
 import com.zambudio.registropesos.domain.model.RoutineDetail
 import com.zambudio.registropesos.domain.repository.RoutineRepository
 import com.zambudio.registropesos.domain.repository.SessionAlreadyInProgressException
@@ -40,8 +41,9 @@ sealed interface RoutineDetailUiState {
         /** Id de la sesión que ya está en curso cuando se intentó empezar otra (muestra el diálogo). */
         val conflictingSessionId: String? = null,
     ) : RoutineDetailUiState {
-        val exerciseCount: Int get() = detail.blocks.sumOf { it.exercises.size }
-        val canStart: Boolean get() = exerciseCount > 0 && !isStarting
+        /** Grupos a trabajar, en orden y sin repetir (los ejercicios se eligen durante la sesión). */
+        val groups: List<MuscleGroup> get() = detail.blocks.map { it.muscleGroup }.distinctBy { it.id }
+        val canStart: Boolean get() = groups.isNotEmpty() && !isStarting
     }
 }
 

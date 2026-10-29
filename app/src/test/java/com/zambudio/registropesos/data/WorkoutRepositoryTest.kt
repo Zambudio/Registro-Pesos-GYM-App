@@ -35,12 +35,12 @@ class WorkoutRepositoryTest : DataTestBase() {
         routine = env.newRoutine("Pecho - Tríceps", PECHO to listOf(press to 3), TRICEPS to listOf(pushdown to 2))
     }
 
-    /** Sesión terminada con series (peso, reps) para [press]. */
+    /** Sesión terminada con series (peso, reps) para [press], elegido durante la sesión. */
     private suspend fun finishedSession(startedAt: Long, vararg sets: Pair<Double?, Int?>): String {
         val sessionId = env.workouts.start(routine, startedAt)
-        val pressSets = env.workouts.observeSessionDetail(sessionId).first()!!.exercises[0].sets
+        val pressSets = env.addToSession(sessionId, press, 3)
         val filled = sets.mapIndexed { index, (weight, reps) ->
-            pressSets[index].copy(weightKg = weight, reps = reps, isDone = true)
+            pressSets[index].copy(weightKg = weight, reps = reps)
         }
         env.workouts.upsertSets(filled)
         env.clock.advance()
@@ -49,7 +49,7 @@ class WorkoutRepositoryTest : DataTestBase() {
     }
 
     @Test
-    fun startCreatesEmptyRowsPerExerciseInRoutineOrder() = runTest {
+    fun startCopiesRoutineGroupsAndCommentWithoutExercises() = runTest {
         givenRoutine()
 
         val sessionId = env.workouts.start(routine, 5_000L)
@@ -58,16 +58,85 @@ class WorkoutRepositoryTest : DataTestBase() {
         assertEquals(SessionStatus.IN_PROGRESS, detail.session.status)
         assertEquals(routine.routine.id, detail.session.routineId)
         assertEquals("Pecho - Tríceps", detail.session.routineNameSnapshot)
+        assertEquals("subtítulo", detail.session.routineCommentSnapshot)
         assertEquals(5_000L, detail.session.startedAt)
-        assertEquals(listOf(press.id, pushdown.id), detail.exercises.map { it.exerciseId })
-        assertEquals(listOf(0, 1), detail.exercises.map { it.order })
-        assertEquals(listOf(3, 2), detail.exercises.map { it.sets.size })
-        assertEquals(listOf(0, 1, 2), detail.exercises[0].sets.map { it.setIndex })
-        val all = detail.exercises.flatMap { it.sets }
-        assertTrue(all.all { it.weightKg == null && it.reps == null && !it.isDone })
-        assertEquals("Polea", detail.exercises[1].exerciseName)
-        assertEquals("Tríceps", detail.exercises[1].muscleGroupName)
+        // Los ejercicios preseleccionados de la rutina (v1) ya no se cargan: se eligen en la sesión.
+        assertTrue(detail.exercises.isEmpty())
+        assertEquals(listOf(PECHO, TRICEPS), detail.groups.map { it.muscleGroupId })
+        assertEquals(listOf("Pecho", "Tríceps"), detail.groups.map { it.muscleGroupName })
         assertEquals(sessionId, env.workouts.observeInProgress().first()?.id)
+    }
+
+    @Test
+    fun startWorksForRoutineWithGroupsOnlyAndDeduplicatesGroups() = runTest {
+        val onlyGroups =
+            env.newRoutine("Solo grupos", PECHO to emptyList(), TRICEPS to emptyList(), PECHO to emptyList())
+
+        val sessionId = env.workouts.start(onlyGroups, 1L)
+
+        val detail = env.workouts.observeSessionDetail(sessionId).first()!!
+        assertEquals(listOf("Pecho", "Tríceps"), detail.groups.map { it.muscleGroupName })
+        assertEquals(listOf(0, 1), detail.groups.map { it.sortOrder })
+    }
+
+    @Test
+    fun exercisesChosenDuringSessionAreStoredWithTheirGroupImageAndOrder() = runTest {
+        givenRoutine()
+        val withImage = env.newExercise("Aperturas", imagePath = "exercise_fly.jpg")
+        val sessionId = env.workouts.start(routine, 1L)
+
+        env.addToSession(sessionId, pushdown, 2)
+        env.addToSession(sessionId, withImage, 3)
+
+        val detail = env.workouts.observeSessionDetail(sessionId).first()!!
+        assertEquals(listOf(pushdown.id, withImage.id), detail.exercises.map { it.exerciseId })
+        assertEquals(listOf(0, 1), detail.exercises.map { it.order })
+        assertEquals(listOf(TRICEPS, PECHO), detail.exercises.map { it.muscleGroupId })
+        assertEquals("exercise_fly.jpg", detail.exercises[1].imagePath)
+        assertEquals(listOf(2, 3), detail.exercises.map { it.sets.size })
+        assertTrue(detail.exercises.flatMap { it.sets }.all { it.weightKg == null && it.reps == null })
+    }
+
+    @Test
+    fun commentSnapshotSurvivesRoutineEdits() = runTest {
+        givenRoutine()
+        val sessionId = env.workouts.start(routine, 1L)
+
+        env.routines.save(routine.copy(routine = routine.routine.copy(subtitle = "otro comentario")))
+
+        assertEquals("subtítulo", env.workouts.getSession(sessionId)!!.routineCommentSnapshot)
+    }
+
+    @Test
+    fun removeExerciseDeletesOnlyItsSets() = runTest {
+        givenRoutine()
+        val sessionId = env.workouts.start(routine, 1L)
+        env.addToSession(sessionId, press, 3)
+        env.addToSession(sessionId, pushdown, 2)
+        env.clock.advance(60_000)
+
+        env.workouts.removeExercise(sessionId, press.id)
+
+        val detail = env.workouts.observeSessionDetail(sessionId).first()!!
+        assertEquals(listOf(pushdown.id), detail.exercises.map { it.exerciseId })
+        assertEquals(2, detail.groups.size)
+        assertEquals(env.clock.now, detail.session.updatedAt)
+    }
+
+    @Test
+    fun upsertKeepsLegacyDoneColumnsOfExistingRows() = runTest {
+        givenRoutine()
+        val sessionId = env.workouts.start(routine, 1L)
+        val row = env.addToSession(sessionId, press, 1).single()
+        val dao = env.db.workoutDao()
+        dao.updateSet(dao.getSet(row.id)!!.copy(isDone = true, completedAt = 42L))
+
+        env.workouts.upsertSet(row.copy(weightKg = 80.0, reps = 5))
+
+        val stored = dao.getSet(row.id)!!
+        assertEquals(80.0, stored.weightKg!!, 0.0)
+        assertTrue(stored.isDone)
+        assertEquals(42L, stored.completedAt)
     }
 
     @Test
@@ -81,14 +150,14 @@ class WorkoutRepositoryTest : DataTestBase() {
         } catch (expected: SessionAlreadyInProgressException) {
             assertEquals(first, expected.sessionId)
         }
-        assertEquals(5, env.db.workoutDao().getSets(first).size)
+        assertEquals(2, env.db.workoutDao().getSessionGroups(first).size)
     }
 
     @Test
     fun upsertSetTouchesSessionUpdatedAt() = runTest {
         givenRoutine()
         val sessionId = env.workouts.start(routine, 1L)
-        val set = env.workouts.observeSessionDetail(sessionId).first()!!.exercises[0].sets[0]
+        val set = env.addToSession(sessionId, press, 1).single()
         env.clock.advance(60_000)
 
         env.workouts.upsertSet(set.copy(weightKg = 80.0, reps = 8))
@@ -103,9 +172,7 @@ class WorkoutRepositoryTest : DataTestBase() {
         val older = finishedSession(1_000L, 60.0 to 10)
         val newer = finishedSession(2_000L, 70.0 to 8, 72.5 to 6)
         val current = env.workouts.start(routine, 3_000L)
-        env.workouts.upsertSet(
-            env.workouts.observeSessionDetail(current).first()!!.exercises[0].sets[0].copy(weightKg = 99.0, reps = 1),
-        )
+        env.workouts.upsertSet(env.addToSession(current, press, 1).single().copy(weightKg = 99.0, reps = 1))
 
         val last = env.workouts.lastFinishedSetsForExercise(press.id, current)
         assertEquals(listOf(newer), last.map { it.sessionId }.distinct())

@@ -10,8 +10,8 @@ import com.zambudio.registropesos.domain.model.RoutineExercise
 import com.zambudio.registropesos.domain.model.RoutineExerciseDetail
 
 // Copia editable de una rutina. Vive en el ViewModel y solo se persiste al pulsar Guardar.
-// Los ids de bloques y ejercicios nuevos se generan al añadirlos (sirven de clave estable
-// en la lista); createdAt = 0 marca "nuevo" y se fija a now al guardar.
+// Los ids de bloques nuevos se generan al añadirlos (sirven de clave estable en la lista);
+// createdAt = 0 marca "nuevo" y se fija a now al guardar.
 
 data class RoutineDraft(
     val name: String = "",
@@ -22,6 +22,10 @@ data class RoutineDraft(
 data class DraftBlock(
     val id: String,
     val muscleGroup: MuscleGroup,
+    /**
+     * Ejercicios preseleccionados de una rutina de la v1. El editor ya no los muestra ni los
+     * cambia, pero se guardan tal cual para no perderlos (ADR-018). Vacío en rutinas nuevas.
+     */
     val exercises: List<DraftExercise> = emptyList(),
     val createdAt: Long = 0L,
 )

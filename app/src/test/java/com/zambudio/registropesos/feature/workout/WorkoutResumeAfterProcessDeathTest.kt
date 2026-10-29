@@ -15,19 +15,19 @@ import com.zambudio.registropesos.data.repository.MuscleGroupRepositoryImpl
 import com.zambudio.registropesos.data.repository.ProgressRepositoryImpl
 import com.zambudio.registropesos.data.repository.RoutineRepositoryImpl
 import com.zambudio.registropesos.data.repository.WorkoutRepositoryImpl
+import com.zambudio.registropesos.domain.model.AppSettings
 import com.zambudio.registropesos.domain.model.Exercise
 import com.zambudio.registropesos.domain.model.Routine
 import com.zambudio.registropesos.domain.model.RoutineBlock
 import com.zambudio.registropesos.domain.model.RoutineBlockDetail
 import com.zambudio.registropesos.domain.model.RoutineDetail
-import com.zambudio.registropesos.domain.model.RoutineExercise
-import com.zambudio.registropesos.domain.model.RoutineExerciseDetail
 import com.zambudio.registropesos.domain.model.SessionDetail
 import com.zambudio.registropesos.domain.model.SessionStatus
 import com.zambudio.registropesos.domain.usecase.DiscardSession
 import com.zambudio.registropesos.domain.usecase.FinishSession
 import com.zambudio.registropesos.domain.usecase.PreviousSessionForExercise
 import com.zambudio.registropesos.domain.usecase.StartSession
+import com.zambudio.registropesos.feature.exercises.FakeImageStore
 import com.zambudio.registropesos.feature.workout.session.WorkoutUiState
 import com.zambudio.registropesos.feature.workout.session.WorkoutViewModel
 import com.zambudio.registropesos.feature.workout.train.TrainUiState
@@ -37,6 +37,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -88,7 +89,9 @@ class WorkoutResumeAfterProcessDeathTest {
             val vm = WorkoutViewModel(
                 savedStateHandle = routeHandle("sessionId" to sessionId),
                 workoutRepository = workouts,
-                settingsRepository = FakeSettingsRepository(),
+                exerciseRepository = exercises,
+                settingsRepository = FakeSettingsRepository(AppSettings(defaultSets = 2)),
+                imageStore = FakeImageStore(),
                 previousSessionForExercise = PreviousSessionForExercise(workouts),
                 finishSession = FinishSession(workouts, progress, clock),
                 discardSession = DiscardSession(workouts),
@@ -107,24 +110,16 @@ class WorkoutResumeAfterProcessDeathTest {
         }
     }
 
+    /** Rutina de la v2: solo el grupo Pecho y un comentario, sin ejercicios. */
     private suspend fun App.createRoutine(): RoutineDetail {
         val chest = DefaultMuscleGroups.all[0].id
-        val press = Exercise("ex-press", chest, "Press banca", null, null, false, 0L, 0L)
-        val fly = Exercise("ex-fly", chest, "Aperturas", null, null, false, 0L, 0L)
-        exercises.upsert(press)
-        exercises.upsert(fly)
+        exercises.upsert(Exercise("ex-press", chest, "Press banca", null, "exercise_press.jpg", false, 0L, 0L))
+        exercises.upsert(Exercise("ex-fly", chest, "Aperturas", null, null, false, 0L, 0L))
         val group = checkNotNull(groups.getById(chest)) { "El seed debe crear Pecho" }
         val detail = RoutineDetail(
-            routine = Routine("routine-1", "Pecho", null, 0, 0L, 0L),
+            routine = Routine("routine-1", "Pecho", "Pecho: 2 ejercicios", 0, 0L, 0L),
             blocks = listOf(
-                RoutineBlockDetail(
-                    block = RoutineBlock("block-1", "routine-1", chest, 0, 0L, 0L),
-                    muscleGroup = group,
-                    exercises = listOf(
-                        RoutineExerciseDetail(RoutineExercise("re-1", "block-1", press.id, 0, 3, 0L, 0L), press),
-                        RoutineExerciseDetail(RoutineExercise("re-2", "block-1", fly.id, 1, 2, 0L, 0L), fly),
-                    ),
-                ),
+                RoutineBlockDetail(RoutineBlock("block-1", "routine-1", chest, 0, 0L, 0L), group, emptyList()),
             ),
         )
         routines.save(detail)
@@ -136,19 +131,34 @@ class WorkoutResumeAfterProcessDeathTest {
 
     @Test
     fun sessionInProgressSurvivesProcessDeathAndIsOfferedForResume() = runTest {
-        // --- Primera "vida" del proceso: empezar y rellenar series desde la pantalla de sesión ---
+        val chest = DefaultMuscleGroups.all[0].id
+        // --- Primera "vida" del proceso: empezar, elegir ejercicios y rellenar series ---
         val first = App(openDatabase())
         first.createRoutine()
         val sessionId = StartSession(first.routines, first.workouts, clock)("routine-1").getOrThrow()
 
         val vm = with(first) { workoutViewModel(sessionId) }
-        val loaded = vm.uiState.first { it is WorkoutUiState.Content } as WorkoutUiState.Content
+        val started = vm.uiState.first { it is WorkoutUiState.Content } as WorkoutUiState.Content
+        assertEquals("Pecho: 2 ejercicios", started.reminder)
+        assertEquals(listOf("Pecho"), started.blocks.map { it.muscleGroupName })
+        assertTrue(started.blocks.single().exercises.isEmpty())
+
+        // Como el usuario: abrir el selector, esperar a ver los ejercicios y tocar uno.
+        suspend fun pick(exerciseId: String) {
+            vm.onOpenPicker(chest)
+            vm.uiState.first { (it as? WorkoutUiState.Content)?.picker?.isLoading == false }
+            vm.onPickExercise(exerciseId)
+        }
+        pick("ex-press")
+        pick("ex-fly")
+        val loaded = vm.uiState.first {
+            it is WorkoutUiState.Content && it.blocks.single().exercises.size == 2
+        } as WorkoutUiState.Content
         val pressRows = loaded.blocks.single().exercises.first { it.exerciseId == "ex-press" }.sets
         val flyRows = loaded.blocks.single().exercises.first { it.exerciseId == "ex-fly" }.sets
 
         vm.onWeightChange(pressRows[0].setId, "82,5")
         vm.onRepsChange(pressRows[0].setId, "8")
-        vm.onToggleDone(pressRows[0].setId)
         vm.onWeightChange(pressRows[1].setId, "80")
         vm.onRepsChange(pressRows[1].setId, "10")
         vm.onAddSet("ex-fly")
@@ -157,13 +167,14 @@ class WorkoutResumeAfterProcessDeathTest {
         // Las escrituras van a Room en segundo plano: esperar a que estén todas confirmadas.
         first.workouts.observeSessionDetail(sessionId).first { detail ->
             detail != null &&
-                detail.set("ex-press", 0).isDone &&
+                detail.exercises.size == 2 &&
                 detail.set("ex-press", 1).reps == 10 &&
                 detail.exercises.single { it.exerciseId == "ex-fly" }.sets.size == 3 &&
                 detail.set("ex-fly", 0).weightKg == 14.0
         }
 
-        // --- El sistema mata el proceso ---
+        // --- El sistema mata el proceso; mientras, se edita el comentario de la rutina ---
+        first.routines.save(first.createRoutine().let { it.copy(routine = it.routine.copy(subtitle = "otro")) })
         first.db.close()
 
         // --- Segunda "vida": BD nueva sobre el mismo fichero ---
@@ -175,11 +186,10 @@ class WorkoutResumeAfterProcessDeathTest {
             assertEquals("Pecho", inProgress.routineNameSnapshot)
 
             val detail = checkNotNull(second.workouts.observeSessionDetail(sessionId).first())
+            assertEquals(listOf("ex-press", "ex-fly"), detail.exercises.map { it.exerciseId })
             val press0 = detail.set("ex-press", 0)
             assertEquals(82.5, press0.weightKg)
             assertEquals(8, press0.reps)
-            assertTrue(press0.isDone)
-            assertEquals(10_000_000L, press0.completedAt)
             assertEquals(80.0, detail.set("ex-press", 1).weightKg)
             assertEquals(10, detail.set("ex-press", 1).reps)
             assertEquals(14.0, detail.set("ex-fly", 0).weightKg)
@@ -192,13 +202,23 @@ class WorkoutResumeAfterProcessDeathTest {
             assertEquals(sessionId, home.inProgress?.sessionId)
             assertEquals("Pecho", home.inProgress?.routineName)
 
-            // ...y la pantalla de sesión reanuda con lo tecleado.
+            // ...y la pantalla de sesión reanuda con lo elegido, lo tecleado y el comentario de entonces.
             val resumed = with(second) { workoutViewModel(sessionId) }
             val content = resumed.uiState.first { it is WorkoutUiState.Content } as WorkoutUiState.Content
+            assertEquals("Pecho: 2 ejercicios", content.reminder)
             val press = content.blocks.single().exercises.first { it.exerciseId == "ex-press" }
-            assertEquals(listOf(82.5, 80.0, null), press.sets.map { it.weightKg })
-            assertEquals(listOf(8, 10, null), press.sets.map { it.reps })
-            assertEquals(listOf(true, false, false), press.sets.map { it.isDone })
+            assertEquals(listOf(82.5, 80.0), press.sets.map { it.weightKg })
+            assertEquals(listOf(8, 10), press.sets.map { it.reps })
+            assertEquals("exercise_press.jpg", press.imageFile?.name)
+
+            // Elegir otra vez un ejercicio ya añadido no lo duplica.
+            resumed.onOpenPicker(chest)
+            val picker = (resumed.uiState.first { (it as? WorkoutUiState.Content)?.picker?.isLoading == false }
+                as WorkoutUiState.Content).picker!!
+            assertTrue(picker.exercises.all { it.alreadyAdded })
+            resumed.onPickExercise("ex-press")
+            assertNull((resumed.uiState.value as WorkoutUiState.Content).picker)
+            assertEquals(2, second.db.workoutDao().getSets(sessionId).count { it.exerciseId == "ex-press" })
         } finally {
             second.db.close()
         }

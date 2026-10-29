@@ -37,8 +37,7 @@ class FakeRoutineRepository(initial: List<RoutineDetail> = emptyList()) : Routin
                 id = detail.routine.id,
                 name = detail.routine.name,
                 subtitle = detail.routine.subtitle,
-                blockCount = detail.blocks.size,
-                exerciseCount = detail.blocks.sumOf { it.exercises.size },
+                groupNames = detail.blocks.map { it.muscleGroup.name },
             )
         }
     }

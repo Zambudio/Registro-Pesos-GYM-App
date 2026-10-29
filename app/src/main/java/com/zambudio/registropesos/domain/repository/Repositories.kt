@@ -75,13 +75,19 @@ interface WorkoutRepository {
     suspend fun getSession(id: String): WorkoutSession?
 
     /**
-     * Crea la sesión IN_PROGRESS con [defaultSets] filas vacías por ejercicio de la rutina.
-     * Lanza [SessionAlreadyInProgressException] si ya hay una en curso. Devuelve el id.
+     * Crea la sesión IN_PROGRESS sin ejercicios, con los grupos musculares de la rutina en orden y
+     * una copia de su comentario. Lanza [SessionAlreadyInProgressException] si ya hay una en curso.
+     * Devuelve el id.
      */
     suspend fun start(routine: RoutineDetail, startedAt: Long): String
+
+    /** Guarda series nuevas o modificadas. Añadir un ejercicio a la sesión = guardar sus filas. */
     suspend fun upsertSet(set: WorkoutSet)
     suspend fun upsertSets(sets: List<WorkoutSet>)
     suspend fun deleteSet(setId: String)
+
+    /** Quita el ejercicio de la sesión: borra todas sus series. */
+    suspend fun removeExercise(sessionId: String, exerciseId: String)
 
     /** Marca FINISHED con [finishedAt] y borra las series cuyos ids no estén en [keepSetIds]. */
     suspend fun finish(sessionId: String, finishedAt: Long, keepSetIds: List<String>)

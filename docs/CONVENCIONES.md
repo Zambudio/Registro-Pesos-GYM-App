@@ -34,6 +34,8 @@ Reglas que siguió la v0.1.0 y que conviene mantener al seguir desarrollando (a 
 
   `MigrationTest` lo valida.
 - Si el esquema del backup cambia, sube `schemaVersion` y mantén la importación de ZIP antiguos.
+- El catálogo incluido (`assets/catalog`) se regenera con `tools/catalog/`; sus ids son fijos y no se renumeran (ADR-019). El sembrado nunca modifica un ejercicio existente.
+- Rutinas = grupos ordenados; los ejercicios se eligen en la sesión creando sus filas (ADR-018). `workout_sets.is_done/completed_at` son columnas heredadas: no se usan en código nuevo.
 
 ## Calidad
 - `allWarningsAsErrors = true`: cero avisos, incluidas deprecaciones.

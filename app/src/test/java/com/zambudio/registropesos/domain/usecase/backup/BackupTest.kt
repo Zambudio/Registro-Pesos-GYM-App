@@ -99,6 +99,25 @@ class BackupSerializerTest {
         assertEquals(BackupSnapshot(dbVersion = 1, appVersion = "0.1.0", exportedAt = 5), snapshot)
     }
 
+    /** backup.json tal como lo escribía la v0.1.0 (schemaVersion 1). */
+    @Test
+    fun decode_v1Backup_fillsNewFieldsWithDefaults() {
+        val snapshot = BackupSerializer.decode(
+            """
+            {"schemaVersion":1,"dbVersion":1,"appVersion":"0.1.0","exportedAt":5,
+             "sessions":[{"id":"s1","routineId":null,"routineNameSnapshot":"Día 1","startedAt":1,
+               "finishedAt":2,"status":"FINISHED","notes":null,"createdAt":1,"updatedAt":2}],
+             "sets":[{"id":"x1","sessionId":"s1","exerciseId":"e1","exerciseNameSnapshot":"Press",
+               "muscleGroupNameSnapshot":"Pecho","exerciseOrder":0,"setIndex":0,"weightKg":80.0,"reps":8,
+               "isDone":true,"completedAt":2,"createdAt":1,"updatedAt":2}]}
+            """.trimIndent(),
+        )
+        assertEquals(1, snapshot.schemaVersion)
+        assertTrue(snapshot.sessionGroups.isEmpty())
+        assertEquals(null, snapshot.sessions.single().routineCommentSnapshot)
+        assertTrue(snapshot.sets.single().isDone)
+    }
+
     @Test(expected = UnsupportedBackupVersionException::class)
     fun decode_newerSchema_isRejected() {
         BackupSerializer.decode("""{"schemaVersion":999,"dbVersion":1,"appVersion":"9","exportedAt":5}""")

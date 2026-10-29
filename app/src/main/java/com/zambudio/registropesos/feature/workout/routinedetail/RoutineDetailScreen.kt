@@ -10,13 +10,14 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,7 +35,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,14 +48,11 @@ import com.zambudio.registropesos.core.ui.EmptyState
 import com.zambudio.registropesos.core.ui.ErrorState
 import com.zambudio.registropesos.core.ui.LoadingState
 import com.zambudio.registropesos.core.ui.ObserveAsEvents
-import com.zambudio.registropesos.domain.model.Exercise
 import com.zambudio.registropesos.domain.model.MuscleGroup
 import com.zambudio.registropesos.domain.model.Routine
 import com.zambudio.registropesos.domain.model.RoutineBlock
 import com.zambudio.registropesos.domain.model.RoutineBlockDetail
 import com.zambudio.registropesos.domain.model.RoutineDetail
-import com.zambudio.registropesos.domain.model.RoutineExercise
-import com.zambudio.registropesos.domain.model.RoutineExerciseDetail
 import kotlinx.coroutines.launch
 
 @Composable
@@ -133,7 +130,7 @@ fun RoutineDetailScreen(
             )
         },
         bottomBar = {
-            if (content != null && content.exerciseCount > 0) {
+            if (content != null && content.groups.isNotEmpty()) {
                 StartBar(isStarting = content.isStarting, enabled = content.canStart, onStart = onStart)
             }
         },
@@ -146,7 +143,7 @@ fun RoutineDetailScreen(
             RoutineDetailUiState.NotFound ->
                 ErrorState(contentModifier, message = stringResource(R.string.workout_routine_not_found))
             is RoutineDetailUiState.Content -> {
-                if (state.exerciseCount == 0) {
+                if (state.groups.isEmpty()) {
                     EmptyState(
                         title = stringResource(R.string.workout_routine_empty_title),
                         message = stringResource(R.string.workout_routine_empty_message),
@@ -155,7 +152,7 @@ fun RoutineDetailScreen(
                         modifier = contentModifier,
                     )
                 } else {
-                    RoutineBlocks(state.detail, contentModifier)
+                    RoutineOverview(state.detail.routine.subtitle, state.groups, contentModifier)
                 }
             }
         }
@@ -204,48 +201,65 @@ private fun StartBar(isStarting: Boolean, enabled: Boolean, onStart: () -> Unit)
     }
 }
 
+/** Lo que se va a trabajar: comentario de la rutina (si hay) y grupos musculares en orden. */
 @Composable
-private fun RoutineBlocks(detail: RoutineDetail, modifier: Modifier = Modifier) {
+private fun RoutineOverview(comment: String?, groups: List<MuscleGroup>, modifier: Modifier = Modifier) {
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        val subtitle = detail.routine.subtitle
-        if (!subtitle.isNullOrBlank()) {
-            item(key = "subtitle") {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-        items(detail.blocks, key = { it.block.id }) { block ->
-            Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(vertical = 8.dp)) {
-                    Text(
-                        text = block.muscleGroup.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    )
-                    block.exercises.forEach { item ->
-                        ListItem(
-                            headlineContent = { Text(item.exercise.name) },
-                            trailingContent = {
-                                Text(
-                                    pluralStringResource(
-                                        R.plurals.workout_set_count,
-                                        item.routineExercise.defaultSets,
-                                        item.routineExercise.defaultSets,
-                                    ),
-                                )
-                            },
+        if (!comment.isNullOrBlank()) {
+            item(key = "comment") {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    ),
+                ) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = stringResource(R.string.workout_routine_comment_label),
+                            style = MaterialTheme.typography.labelLarge,
                         )
+                        Text(text = comment, style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             }
+        }
+        item(key = "groups-header") {
+            Text(
+                text = stringResource(R.string.workout_routine_groups_header),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+        itemsIndexed(groups, key = { _, group -> group.id }) { index, group ->
+            Card(Modifier.fillMaxWidth()) {
+                ListItem(
+                    leadingContent = {
+                        Text(
+                            text = (index + 1).toString(),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                    headlineContent = {
+                        Text(
+                            text = group.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                )
+            }
+        }
+        item(key = "hint") {
+            Text(
+                text = stringResource(R.string.workout_routine_exercises_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
@@ -253,16 +267,13 @@ private fun RoutineBlocks(detail: RoutineDetail, modifier: Modifier = Modifier) 
 @Preview(showBackground = true)
 @Composable
 private fun RoutineDetailScreenPreview() {
-    val group = MuscleGroup("g1", "Pecho", 0, true, 0L, 0L)
-    val exercise = Exercise("e1", "g1", "Press banca", null, null, false, 0L, 0L)
+    val chest = MuscleGroup("g1", "Pecho", 0, true, 0L, 0L)
+    val triceps = MuscleGroup("g2", "Tríceps", 1, true, 0L, 0L)
     val detail = RoutineDetail(
-        routine = Routine("r1", "Pecho - Tríceps", "4 ejer pecho, 2 tríceps", 0, 0L, 0L),
+        routine = Routine("r1", "Día 1", "Pecho: 4 ejercicios · Tríceps: 2 ejercicios", 0, 0L, 0L),
         blocks = listOf(
-            RoutineBlockDetail(
-                block = RoutineBlock("b1", "r1", "g1", 0, 0L, 0L),
-                muscleGroup = group,
-                exercises = listOf(RoutineExerciseDetail(RoutineExercise("re1", "b1", "e1", 0, 4, 0L, 0L), exercise)),
-            ),
+            RoutineBlockDetail(RoutineBlock("b1", "r1", "g1", 0, 0L, 0L), chest, emptyList()),
+            RoutineBlockDetail(RoutineBlock("b2", "r1", "g2", 1, 0L, 0L), triceps, emptyList()),
         ),
     )
     GymTheme {

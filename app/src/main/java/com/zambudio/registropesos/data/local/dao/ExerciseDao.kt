@@ -31,6 +31,10 @@ interface ExerciseDao {
     @Query("SELECT * FROM exercises WHERE id IN (:ids)")
     suspend fun getByIds(ids: List<String>): List<ExerciseEntity>
 
+    /** Todos los del grupo, archivados incluidos. */
+    @Query("SELECT * FROM exercises WHERE muscle_group_id = :groupId")
+    suspend fun getByGroup(groupId: String): List<ExerciseEntity>
+
     @Query("SELECT * FROM exercises ORDER BY created_at")
     suspend fun getAll(): List<ExerciseEntity>
 

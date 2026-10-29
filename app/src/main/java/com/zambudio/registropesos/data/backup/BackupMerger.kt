@@ -13,6 +13,7 @@ import com.zambudio.registropesos.domain.backup.RoutineBlockDto
 import com.zambudio.registropesos.domain.backup.RoutineDto
 import com.zambudio.registropesos.domain.backup.RoutineExerciseDto
 import com.zambudio.registropesos.domain.backup.SessionDto
+import com.zambudio.registropesos.domain.backup.SessionGroupDto
 import com.zambudio.registropesos.domain.backup.SetDto
 import com.zambudio.registropesos.domain.backup.TableReport
 import com.zambudio.registropesos.domain.backup.TombstoneDto
@@ -27,7 +28,8 @@ import java.util.Locale
  * 3. Por tabla (grupos → ejercicios → rutinas → sesiones): tombstone local con deletedAt >=
  *    updatedAt entrante → skip; no existe → insert; entrante más nuevo → update (los agregados
  *    reemplazan sus hijos); si no → skip. FKs rotas → skip + warning.
- * Las sesiones IN_PROGRESS nunca se importan ni se pisan.
+ * Las sesiones IN_PROGRESS nunca se importan ni se pisan. Los grupos de sesión (v2) se reemplazan
+ * con la sesión; un backup v1 no los trae y entonces se dejan como estén.
  */
 internal class BackupMerger(private val db: AppDatabase) {
     private val groupDao = db.muscleGroupDao()
@@ -47,7 +49,7 @@ internal class BackupMerger(private val db: AppDatabase) {
         val groups = mergeGroups(snapshot.muscleGroups)
         val exercises = mergeExercises(snapshot.exercises)
         val routines = mergeRoutines(snapshot.routines, snapshot.routineBlocks, snapshot.routineExercises)
-        val sessions = mergeSessions(snapshot.sessions, snapshot.sets)
+        val sessions = mergeSessions(snapshot, snapshot.sets)
         return ImportReport(
             muscleGroups = groups.toReport(),
             exercises = exercises.toReport(),
@@ -188,10 +190,12 @@ internal class BackupMerger(private val db: AppDatabase) {
 
     // --- Sesiones (agregado) ---
 
-    private suspend fun mergeSessions(sessions: List<SessionDto>, sets: List<SetDto>): Counter {
+    private suspend fun mergeSessions(snapshot: BackupSnapshot, sets: List<SetDto>): Counter {
         val counter = Counter()
         val setsBySession = sets.groupBy { it.sessionId }
-        for (session in sessions) {
+        val groupsBySession = snapshot.sessionGroups.groupBy { it.sessionId }
+        val hasSessionGroups = snapshot.schemaVersion >= SESSION_GROUPS_SINCE
+        for (session in snapshot.sessions) {
             val status = SessionStatus.entries.firstOrNull { it.name == session.status }
             val local = workoutDao.getSession(session.id)
             val skip = when {
@@ -213,8 +217,13 @@ internal class BackupMerger(private val db: AppDatabase) {
             }
             // routineId es SET NULL: si la rutina no existe aquí, el snapshot conserva el nombre.
             val routineId = session.routineId?.takeIf { routineDao.getById(it) != null }
-            workoutDao.saveSession(session.toEntity(status, routineId))
+            // Un backup v1 no trae el comentario de la sesión: se conserva el local, como sus grupos.
+            val entity = session.toEntity(status, routineId).let {
+                if (hasSessionGroups) it else it.copy(routineCommentSnapshot = local?.routineCommentSnapshot)
+            }
+            workoutDao.saveSession(entity)
             replaceSessionSets(session, setsBySession[session.id].orEmpty())
+            if (hasSessionGroups) replaceSessionGroups(session, groupsBySession[session.id].orEmpty())
             if (local == null) counter.inserted++ else counter.updated++
         }
         return counter
@@ -232,6 +241,16 @@ internal class BackupMerger(private val db: AppDatabase) {
                 else -> workoutDao.insertSet(set.toEntity())
             }
         }
+    }
+
+    /** El grupo puede no existir aquí: el snapshot conserva el nombre (FK SET NULL). */
+    private suspend fun replaceSessionGroups(session: SessionDto, groups: List<SessionGroupDto>) {
+        workoutDao.deleteSessionGroupsOf(session.id)
+        val entities = groups.map { group ->
+            val groupId = group.muscleGroupId?.let(::mapGroupId)?.takeIf { groupDao.getById(it) != null }
+            group.toEntity(groupId)
+        }
+        workoutDao.insertSessionGroups(entities)
     }
 
     // --- Tombstones ---
@@ -285,6 +304,11 @@ internal class BackupMerger(private val db: AppDatabase) {
     private fun normalize(name: String): String = name.trim().lowercase(Locale.ROOT)
 
     private enum class Outcome { INSERTED, UPDATED, SKIPPED }
+
+    private companion object {
+        /** Primera versión del formato que incluye sessionGroups. */
+        const val SESSION_GROUPS_SINCE = 2
+    }
 
     private class Counter {
         var inserted = 0

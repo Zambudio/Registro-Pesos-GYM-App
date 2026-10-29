@@ -8,23 +8,9 @@ import androidx.room.Update
 import com.zambudio.registropesos.data.local.entity.RoutineBlockEntity
 import com.zambudio.registropesos.data.local.entity.RoutineEntity
 import com.zambudio.registropesos.data.local.entity.RoutineExerciseEntity
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RoutineDao {
-    @Query(
-        """
-        SELECT r.id AS id, r.name AS name, r.subtitle AS subtitle,
-            (SELECT COUNT(*) FROM routine_blocks b WHERE b.routine_id = r.id) AS blockCount,
-            (SELECT COUNT(*) FROM routine_exercises re
-                JOIN routine_blocks b ON b.id = re.block_id
-                WHERE b.routine_id = r.id) AS exerciseCount
-        FROM routines r
-        ORDER BY r.sort_order, r.name
-        """,
-    )
-    fun observeSummaries(): Flow<List<RoutineSummaryRow>>
-
     @Query("SELECT * FROM routines WHERE id = :id")
     suspend fun getById(id: String): RoutineEntity?
 

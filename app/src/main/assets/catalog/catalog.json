@@ -1,0 +1,445 @@
+{
+  "version": 1,
+  "groups": [
+    {
+      "id": "8d6e3b1c-5a2f-4c71-9e40-000000000001",
+      "name": "Pecho"
+    },
+    {
+      "id": "8d6e3b1c-5a2f-4c71-9e40-000000000002",
+      "name": "Espalda"
+    },
+    {
+      "id": "8d6e3b1c-5a2f-4c71-9e40-000000000003",
+      "name": "Hombros"
+    },
+    {
+      "id": "8d6e3b1c-5a2f-4c71-9e40-000000000004",
+      "name": "Bíceps"
+    },
+    {
+      "id": "8d6e3b1c-5a2f-4c71-9e40-000000000005",
+      "name": "Tríceps"
+    },
+    {
+      "id": "8d6e3b1c-5a2f-4c71-9e40-000000000010",
+      "name": "Abdomen"
+    },
+    {
+      "id": "8d6e3b1c-5a2f-4c71-9e40-000000000012",
+      "name": "Pierna"
+    },
+    {
+      "id": "8d6e3b1c-5a2f-4c71-9e40-000000000013",
+      "name": "Deltoides posterior"
+    }
+  ],
+  "exercises": [
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000001",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000001",
+      "group": "Pecho",
+      "name": "Press de banca plano con barra",
+      "image": "image29.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000002",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000001",
+      "group": "Pecho",
+      "name": "Press inclinado con mancuernas",
+      "image": "image2.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000003",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000001",
+      "group": "Pecho",
+      "name": "Press de pecho en máquina",
+      "image": "image35.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000004",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000001",
+      "group": "Pecho",
+      "name": "Cruces de poleas",
+      "image": "image10.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000005",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000001",
+      "group": "Pecho",
+      "name": "Press de banca plano con mancuernas",
+      "image": "image63.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000006",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000001",
+      "group": "Pecho",
+      "name": "Press inclinado en máquina",
+      "image": "image5.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000007",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000001",
+      "group": "Pecho",
+      "name": "Aperturas en máquina contractora",
+      "image": "image8.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000008",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000001",
+      "group": "Pecho",
+      "name": "Fondos orientados al pecho",
+      "image": "image57.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000009",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000001",
+      "group": "Pecho",
+      "name": "Elevación unilateral para pecho superior",
+      "image": "image69.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000010",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000001",
+      "group": "Pecho",
+      "name": "Pullover con mancuerna (pecho)",
+      "image": "image87.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000011",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000005",
+      "group": "Tríceps",
+      "name": "Extensión de tríceps con cuerda",
+      "image": "image41.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000012",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000005",
+      "group": "Tríceps",
+      "name": "Extensión de tríceps por encima de la cabeza",
+      "image": "image24.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000013",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000005",
+      "group": "Tríceps",
+      "name": "Extensión de tríceps con barra en polea",
+      "image": "image42.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000014",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000005",
+      "group": "Tríceps",
+      "name": "Press francés",
+      "image": "image50.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000015",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000005",
+      "group": "Tríceps",
+      "name": "Extensión unilateral en polea",
+      "image": "image12.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000016",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000002",
+      "group": "Espalda",
+      "name": "Dominadas asistidas",
+      "image": "image18.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000017",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000002",
+      "group": "Espalda",
+      "name": "Remo con barra",
+      "image": "image30.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000018",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000002",
+      "group": "Espalda",
+      "name": "Jalón con agarre neutro",
+      "image": "image15.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000019",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000002",
+      "group": "Espalda",
+      "name": "Pullover en polea",
+      "image": "image17.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000020",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000002",
+      "group": "Espalda",
+      "name": "Jalón al pecho en polea",
+      "image": "image32.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000021",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000002",
+      "group": "Espalda",
+      "name": "Remo sentado en polea",
+      "image": "image6.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000022",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000002",
+      "group": "Espalda",
+      "name": "Remo con mancuerna unilateral",
+      "image": "image47.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000023",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000002",
+      "group": "Espalda",
+      "name": "Remo en máquina con pecho apoyado",
+      "image": "image20.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000024",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000004",
+      "group": "Bíceps",
+      "name": "Curl con barra Z",
+      "image": "image55.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000025",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000004",
+      "group": "Bíceps",
+      "name": "Curl predicador",
+      "image": "image46.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000026",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000004",
+      "group": "Bíceps",
+      "name": "Curl alterno con mancuernas",
+      "image": "image26.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000027",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000004",
+      "group": "Bíceps",
+      "name": "Curl martillo",
+      "image": "image16.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000028",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000004",
+      "group": "Bíceps",
+      "name": "Curl de bíceps en polea",
+      "image": "image106.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000029",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000012",
+      "group": "Pierna",
+      "name": "Prensa de piernas",
+      "image": "image75.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000030",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000012",
+      "group": "Pierna",
+      "name": "Peso muerto rumano",
+      "image": "image51.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000031",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000012",
+      "group": "Pierna",
+      "name": "Curl femoral sentado",
+      "image": "image61.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000032",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000012",
+      "group": "Pierna",
+      "name": "Elevación de gemelos",
+      "image": "image34.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000033",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000012",
+      "group": "Pierna",
+      "name": "Sentadilla en multipower",
+      "image": "image9.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000034",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000012",
+      "group": "Pierna",
+      "name": "Sentadilla goblet",
+      "image": "image19.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000035",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000012",
+      "group": "Pierna",
+      "name": "Extensión de cuádriceps",
+      "image": "image22.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000036",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000012",
+      "group": "Pierna",
+      "name": "Curl femoral tumbado",
+      "image": "image53.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000037",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000012",
+      "group": "Pierna",
+      "name": "Hip thrust",
+      "image": "image39.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000038",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000010",
+      "group": "Abdomen",
+      "name": "Crunch abdominal en máquina",
+      "image": "image31.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000039",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000010",
+      "group": "Abdomen",
+      "name": "Plancha abdominal",
+      "image": "image1.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000040",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000010",
+      "group": "Abdomen",
+      "name": "Crunch en polea",
+      "image": "image59.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000041",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000010",
+      "group": "Abdomen",
+      "name": "Elevaciones de rodillas",
+      "image": "image58.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000042",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000010",
+      "group": "Abdomen",
+      "name": "Crunch inverso",
+      "image": "image62.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000043",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000003",
+      "group": "Hombros",
+      "name": "Press de hombros con mancuernas",
+      "image": "image37.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000044",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000003",
+      "group": "Hombros",
+      "name": "Elevaciones laterales con mancuernas",
+      "image": "image27.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000045",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000003",
+      "group": "Hombros",
+      "name": "Press militar en máquina",
+      "image": "image21.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000046",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000003",
+      "group": "Hombros",
+      "name": "Elevaciones laterales en polea",
+      "image": "image38.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000047",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000003",
+      "group": "Hombros",
+      "name": "Elevaciones laterales en máquina",
+      "image": "image49.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000048",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000005",
+      "group": "Tríceps",
+      "name": "Extensión de tríceps con cuerda en polea",
+      "image": "image41.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000049",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000005",
+      "group": "Tríceps",
+      "name": "Extensión con barra en polea",
+      "image": "image42.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000050",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000005",
+      "group": "Tríceps",
+      "name": "Extensión unilateral",
+      "image": "image12.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000051",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000002",
+      "group": "Espalda",
+      "name": "Remo unilateral con mancuerna",
+      "image": "image47.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000052",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000004",
+      "group": "Bíceps",
+      "name": "Curl de bíceps con mancuernas",
+      "image": "image26.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000053",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000004",
+      "group": "Bíceps",
+      "name": "Curl martillo con mancuernas",
+      "image": "image16.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000054",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000004",
+      "group": "Bíceps",
+      "name": "Curl en polea",
+      "image": "image106.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000055",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000013",
+      "group": "Deltoides posterior",
+      "name": "Aperturas inversas en máquina",
+      "image": "image78.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000056",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000013",
+      "group": "Deltoides posterior",
+      "name": "Face pull en polea",
+      "image": "image74.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000057",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000013",
+      "group": "Deltoides posterior",
+      "name": "Pájaros con mancuernas",
+      "image": "image73.jpg"
+    },
+    {
+      "id": "5f0c2a9e-7d41-4b8e-a3c6-000000000058",
+      "groupId": "8d6e3b1c-5a2f-4c71-9e40-000000000013",
+      "group": "Deltoides posterior",
+      "name": "Aperturas inversas en poleas",
+      "image": "image114.jpg"
+    }
+  ]
+}
