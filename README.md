@@ -3,7 +3,7 @@
 App Android nativa (Kotlin + Jetpack Compose) para registrar los pesos levantados en el gimnasio y ver la evolución. Funciona 100 % sin conexión: sin login, sin backend, sin Play Store. Idioma de la interfaz: español. Unidad: kg.
 
 - Versión publicada: `0.1.0` (`versionCode 1`), `applicationId` `com.zambudio.registropesos`.
-- Estado actual: `main` lleva los cambios de la siguiente versión (rutinas por grupos, ejercicios elegidos en la sesión, catálogo con fotos, sin "Hecha", rediseño con modo oscuro, descanso entre series y biblioteca de ejercicios), todavía sin número de versión. APK de prueba en `dist/registro-pesos-gym-v0.1.0+grupos-catalogo.apk`. Detalle en [CHANGELOG.md](CHANGELOG.md).
+- Estado actual: `main` lleva los cambios de la siguiente versión (rutinas por grupos, ejercicios elegidos en la sesión, catálogo con fotos, sin "Hecha", rediseño con modo oscuro, descanso entre series y biblioteca de ejercicios), todavía sin número de versión. APK de prueba en `dist/registro-pesos-gym-v0.1.0+diseno-descanso.apk`. Detalle en [CHANGELOG.md](CHANGELOG.md).
 - `minSdk 26`, `targetSdk`/`compileSdk 36`.
 - Instalación en el móvil: ver [dist/INSTALAR.md](dist/INSTALAR.md).
 - Decisiones técnicas (ADR-001 a 022): [docs/DECISIONES.md](docs/DECISIONES.md).

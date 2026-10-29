@@ -65,7 +65,7 @@ Cambios hechos tras probar la v0.1.0 en el móvil. Aún no tienen número de ver
 - Listado y prompt para generar las ilustraciones con ChatGPT en `docs/imagenes-ejercicios/`. Al regenerar el ZIP con ellas, la ilustración sustituye también la foto de los ejercicios existentes.
 
 ### APK de prueba
-- `dist/registro-pesos-gym-v0.1.0+grupos-catalogo.apk`. Está firmado con la misma clave que la v0.1.0, así que se instala encima y conserva los datos. Por dentro sigue diciendo 0.1.0.
+- `dist/registro-pesos-gym-v0.1.0+diseno-descanso.apk` (incluye todo lo anterior y sustituye al APK de prueba `+grupos-catalogo`). Está firmado con la misma clave que la v0.1.0, así que se instala encima y conserva los datos. Por dentro sigue diciendo 0.1.0.
 
 ## 0.1.0 (2026-10-29)
 
