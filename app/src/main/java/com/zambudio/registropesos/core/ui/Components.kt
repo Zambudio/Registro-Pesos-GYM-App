@@ -176,6 +176,15 @@ val HeroBrush: Brush = Brush.linearGradient(listOf(HeroStart, HeroEnd))
 /** Color del contenido sobre [HeroBrush]. */
 val OnHero: Color = Color.White
 
+/**
+ * Fondo de las fotos de ejercicio: blanco en claro y en oscuro, porque las fotos del catálogo tienen
+ * fondo blanco y así se ven como una lámina recortada en vez de un recuadro mal ajustado.
+ */
+val PhotoBackground: Color = Color.White
+
+/** Texto de un botón blanco sobre [HeroBrush] (el naranja oscuro del degradado). */
+val HeroButtonContent: Color = HeroEnd
+
 /** Tarjeta destacada con el degradado de la marca (llamada a la acción principal de una pantalla). */
 @Composable
 fun HeroCard(

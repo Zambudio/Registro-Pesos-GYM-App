@@ -107,6 +107,9 @@ data class WorkoutSet(
     val updatedAt: Long,
 ) {
     val isEmpty: Boolean get() = (weightKg == null || weightKg == 0.0) && (reps == null || reps == 0)
+
+    /** Serie hecha: con peso (0 vale, p. ej. peso corporal) y repeticiones. Arranca el descanso automático. */
+    val isComplete: Boolean get() = weightKg != null && reps != null && reps > 0
 }
 
 // --- Agregados de lectura ---
@@ -203,4 +206,13 @@ data class AppSettings(
     val weightStepKg: Double = 2.5,
     val defaultSets: Int = 4,
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    /** Duración por defecto del descanso entre series. */
+    val restSeconds: Int = 90,
+    /** El descanso empieza solo al completar una serie (peso y repeticiones). */
+    val restAutoStart: Boolean = true,
 )
+
+/** Cuenta atrás de descanso en marcha: termina en [endsAt] (epoch ms); [durationMillis] es su duración total. */
+data class RestTimerState(val endsAt: Long, val durationMillis: Long) {
+    fun remainingMillis(now: Long): Long = (endsAt - now).coerceAtLeast(0L)
+}

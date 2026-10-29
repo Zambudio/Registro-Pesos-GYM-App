@@ -1,5 +1,7 @@
 package com.zambudio.registropesos.feature.workout.session
 
+import com.zambudio.registropesos.domain.model.AppSettings
+import com.zambudio.registropesos.domain.model.RestTimerState
 import com.zambudio.registropesos.domain.usecase.GhostSet
 import java.io.File
 
@@ -25,6 +27,10 @@ sealed interface WorkoutUiState {
         val isClosing: Boolean,
         /** Selector de ejercicios abierto para un grupo; null si está cerrado. */
         val picker: ExercisePickerUi? = null,
+        /** Descanso en marcha; null si no hay ninguno. */
+        val rest: RestTimerState? = null,
+        /** Duración del descanso al arrancarlo a mano (Ajustes). */
+        val restDefaultSeconds: Int = AppSettings().restSeconds,
     ) : WorkoutUiState
 }
 

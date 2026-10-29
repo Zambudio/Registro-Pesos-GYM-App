@@ -44,7 +44,17 @@ class MoreViewModel @Inject constructor(
         viewModelScope.launch { settingsRepository.update { it.copy(themeMode = mode) } }
     }
 
+    fun setRestSeconds(seconds: Int) {
+        if (seconds !in REST_SECONDS_OPTIONS) return
+        viewModelScope.launch { settingsRepository.update { it.copy(restSeconds = seconds) } }
+    }
+
+    fun setRestAutoStart(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.update { it.copy(restAutoStart = enabled) } }
+    }
+
     companion object {
+        val REST_SECONDS_OPTIONS = listOf(45, 60, 90, 120, 150, 180)
         val WEIGHT_STEPS_KG = listOf(1.0, 1.25, 2.5, 5.0)
         val DEFAULT_SETS_RANGE = 1..10
     }

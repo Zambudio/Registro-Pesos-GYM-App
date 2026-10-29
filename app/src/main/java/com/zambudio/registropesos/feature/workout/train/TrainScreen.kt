@@ -1,27 +1,30 @@
 package com.zambudio.registropesos.feature.workout.train
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -36,20 +39,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zambudio.registropesos.R
 import com.zambudio.registropesos.core.theme.GymTheme
+import com.zambudio.registropesos.core.ui.CardSpacing
 import com.zambudio.registropesos.core.ui.ConfirmDialog
 import com.zambudio.registropesos.core.ui.EmptyState
 import com.zambudio.registropesos.core.ui.ErrorState
+import com.zambudio.registropesos.core.ui.GymCard
+import com.zambudio.registropesos.core.ui.HeroButtonContent
+import com.zambudio.registropesos.core.ui.HeroCard
+import com.zambudio.registropesos.core.ui.IconBadge
+import com.zambudio.registropesos.core.ui.ListContentPadding
 import com.zambudio.registropesos.core.ui.LoadingState
 import com.zambudio.registropesos.core.ui.ObserveAsEvents
+import com.zambudio.registropesos.core.ui.OnHero
+import com.zambudio.registropesos.core.ui.Pill
+import com.zambudio.registropesos.core.ui.SectionHeader
 import com.zambudio.registropesos.core.util.formatTime
 import com.zambudio.registropesos.domain.model.RoutineSummary
 import kotlinx.coroutines.launch
@@ -136,53 +149,53 @@ private fun TrainContent(
     modifier: Modifier = Modifier,
 ) {
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
-    Column(modifier.fillMaxSize()) {
-        state.inProgress?.let { session ->
-            InProgressCard(
-                session = session,
-                onResume = { onResumeSession(session.sessionId) },
-                onDiscard = { confirmDiscard = true },
-                modifier = Modifier.padding(16.dp),
-            )
-            if (confirmDiscard) {
-                ConfirmDialog(
-                    title = stringResource(R.string.workout_discard_title),
-                    message = stringResource(R.string.workout_discard_message),
-                    confirmLabel = stringResource(R.string.workout_discard_confirm),
-                    onConfirm = {
-                        confirmDiscard = false
-                        onDiscardSession(session.sessionId)
-                    },
-                    onDismiss = { confirmDiscard = false },
+    val session = state.inProgress
+    if (session != null && confirmDiscard) {
+        ConfirmDialog(
+            title = stringResource(R.string.workout_discard_title),
+            message = stringResource(R.string.workout_discard_message),
+            confirmLabel = stringResource(R.string.workout_discard_confirm),
+            onConfirm = {
+                confirmDiscard = false
+                onDiscardSession(session.sessionId)
+            },
+            onDismiss = { confirmDiscard = false },
+        )
+    }
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = ListContentPadding,
+        verticalArrangement = Arrangement.spacedBy(CardSpacing),
+    ) {
+        if (session != null) {
+            item(key = "in-progress") {
+                InProgressCard(
+                    session = session,
+                    onResume = { onResumeSession(session.sessionId) },
+                    onDiscard = { confirmDiscard = true },
                 )
             }
         }
         if (state.routines.isEmpty()) {
-            EmptyState(
-                title = stringResource(R.string.workout_train_empty_title),
-                message = stringResource(R.string.workout_train_empty_message),
-                icon = Icons.Filled.FitnessCenter,
-                actionLabel = stringResource(R.string.workout_train_empty_action),
-                onAction = onCreateRoutine,
-                modifier = Modifier.weight(1f),
-            )
+            item(key = "empty") {
+                EmptyState(
+                    title = stringResource(R.string.workout_train_empty_title),
+                    message = stringResource(R.string.workout_train_empty_message),
+                    icon = Icons.Filled.FitnessCenter,
+                    actionLabel = stringResource(R.string.workout_train_empty_action),
+                    onAction = onCreateRoutine,
+                    modifier = Modifier.padding(top = 48.dp),
+                )
+            }
         } else {
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(bottom = 16.dp),
-            ) {
-                item(key = "header") {
-                    Text(
-                        text = stringResource(R.string.workout_train_routines_header),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    )
-                }
-                items(state.routines, key = { it.id }) { routine ->
-                    RoutineRow(routine, onClick = { onOpenRoutine(routine.id) })
-                    HorizontalDivider()
-                }
+            item(key = "header") {
+                SectionHeader(
+                    title = stringResource(R.string.workout_train_routines_header),
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
+            items(state.routines, key = { it.id }) { routine ->
+                RoutineCard(routine, onClick = { onOpenRoutine(routine.id) })
             }
         }
     }
@@ -195,59 +208,97 @@ private fun InProgressCard(
     onDiscard: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        ),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    HeroCard(modifier = modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Filled.Timer, contentDescription = null, tint = OnHero, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
             Text(
-                text = stringResource(R.string.workout_in_progress_title),
-                style = MaterialTheme.typography.labelLarge,
+                text = stringResource(R.string.workout_in_progress_title).uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                color = OnHero,
             )
-            Text(
-                text = session.routineName,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = stringResource(R.string.workout_in_progress_started_at, formatTime(session.startedAt)),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = onResume, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.workout_in_progress_resume))
-                }
-                OutlinedButton(onClick = onDiscard, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.workout_in_progress_discard))
-                }
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = session.routineName,
+            style = MaterialTheme.typography.headlineMedium,
+            color = OnHero,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = stringResource(R.string.workout_in_progress_started_at, formatTime(session.startedAt)),
+            style = MaterialTheme.typography.bodyMedium,
+            color = OnHero.copy(alpha = 0.85f),
+        )
+        Spacer(Modifier.height(16.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Button(
+                onClick = onResume,
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(containerColor = OnHero, contentColor = HeroButtonContent),
+            ) {
+                Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.workout_in_progress_resume))
+            }
+            OutlinedButton(
+                onClick = onDiscard,
+                modifier = Modifier.weight(1f),
+                border = BorderStroke(1.dp, OnHero.copy(alpha = 0.6f)),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = OnHero),
+            ) {
+                Text(stringResource(R.string.workout_in_progress_discard))
             }
         }
     }
 }
 
 @Composable
-private fun RoutineRow(routine: RoutineSummary, onClick: () -> Unit) {
-    ListItem(
-        modifier = Modifier.clickable(onClick = onClick),
-        headlineContent = { Text(routine.name, fontWeight = FontWeight.Medium) },
-        supportingContent = {
-            Column {
+private fun RoutineCard(routine: RoutineSummary, onClick: () -> Unit) {
+    GymCard(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconBadge(Icons.Filled.FitnessCenter)
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
                 Text(
-                    text = if (routine.groupNames.isEmpty()) {
-                        stringResource(R.string.workout_routine_no_groups)
-                    } else {
-                        routine.groupNames.joinToString(stringResource(R.string.workout_groups_separator))
-                    },
-                    color = MaterialTheme.colorScheme.primary,
+                    routine.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                routine.subtitle?.takeIf { it.isNotBlank() }?.let { Text(it) }
+                routine.subtitle?.takeIf { it.isNotBlank() }?.let {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
-        },
-        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
-    )
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Spacer(Modifier.height(12.dp))
+        if (routine.groupNames.isEmpty()) {
+            Text(
+                stringResource(R.string.workout_routine_no_groups),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                routine.groupNames.forEach { Pill(it) }
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)

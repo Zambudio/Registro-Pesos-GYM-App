@@ -3,11 +3,14 @@ package com.zambudio.registropesos.feature.workout
 import android.app.Application
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasScrollToNodeAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -102,6 +105,7 @@ class WorkoutScreensTest {
         }
 
         compose.onNodeWithText("Pierna: 4 · Abdomen: 2").assertExists()
+        compose.onNode(hasScrollToNodeAction()).performScrollToNode(hasText("Abdomen"))
         compose.onNodeWithText("Pierna").assertExists()
         compose.onNodeWithText("Abdomen").assertExists()
         compose.onNodeWithText(context.getString(R.string.workout_start)).performClick()
@@ -119,7 +123,7 @@ class WorkoutScreensTest {
             ),
         )
 
-        compose.onNodeWithText(context.getString(R.string.workout_reminder_label)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.workout_reminder_label), ignoreCase = true).assertExists()
         compose.onNodeWithText("Pecho: 4 ejercicios · Tríceps: 2").assertExists()
         compose.onNodeWithText(context.getString(R.string.workout_group_empty, "Pecho")).assertExists()
         compose.onNodeWithContentDescription(context.getString(R.string.workout_group_add, "Tríceps")).performClick()
@@ -130,7 +134,8 @@ class WorkoutScreensTest {
     fun noReminderWhenRoutineHasNoComment() {
         setWorkout(content(listOf(WorkoutBlockUi("g1", "Pecho", "g-pecho", emptyList())), reminder = null))
 
-        compose.onAllNodesWithText(context.getString(R.string.workout_reminder_label)).assertCountEquals(0)
+        compose.onAllNodesWithText(context.getString(R.string.workout_reminder_label), ignoreCase = true)
+            .assertCountEquals(0)
     }
 
     @Test

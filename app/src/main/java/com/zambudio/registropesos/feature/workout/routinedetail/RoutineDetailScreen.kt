@@ -2,27 +2,29 @@ package com.zambudio.registropesos.feature.workout.routinedetail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.StickyNote2
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -34,7 +36,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,11 +47,20 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zambudio.registropesos.R
 import com.zambudio.registropesos.core.theme.GymTheme
+import com.zambudio.registropesos.core.ui.CardSpacing
 import com.zambudio.registropesos.core.ui.ConfirmDialog
 import com.zambudio.registropesos.core.ui.EmptyState
 import com.zambudio.registropesos.core.ui.ErrorState
+import com.zambudio.registropesos.core.ui.GymCard
+import com.zambudio.registropesos.core.ui.HeroCard
+import com.zambudio.registropesos.core.ui.IconBadge
+import com.zambudio.registropesos.core.ui.ListContentPadding
 import com.zambudio.registropesos.core.ui.LoadingState
+import com.zambudio.registropesos.core.ui.NumberBadge
 import com.zambudio.registropesos.core.ui.ObserveAsEvents
+import com.zambudio.registropesos.core.ui.OnHero
+import com.zambudio.registropesos.core.ui.ScreenPadding
+import com.zambudio.registropesos.core.ui.SectionHeader
 import com.zambudio.registropesos.domain.model.MuscleGroup
 import com.zambudio.registropesos.domain.model.Routine
 import com.zambudio.registropesos.domain.model.RoutineBlock
@@ -106,11 +119,7 @@ fun RoutineDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = content?.detail?.routine?.name ?: stringResource(R.string.workout_routine_detail_title),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    if (content == null) Text(stringResource(R.string.workout_routine_detail_title))
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -152,7 +161,12 @@ fun RoutineDetailScreen(
                         modifier = contentModifier,
                     )
                 } else {
-                    RoutineOverview(state.detail.routine.subtitle, state.groups, contentModifier)
+                    RoutineOverview(
+                        name = state.detail.routine.name,
+                        comment = state.detail.routine.subtitle,
+                        groups = state.groups,
+                        modifier = contentModifier,
+                    )
                 }
             }
         }
@@ -172,19 +186,20 @@ fun RoutineDetailScreen(
 
 @Composable
 private fun StartBar(isStarting: Boolean, enabled: Boolean, onStart: () -> Unit) {
-    Surface(tonalElevation = 3.dp) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, shadowElevation = 8.dp) {
         Box(
             Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(16.dp),
+                .padding(horizontal = ScreenPadding, vertical = 12.dp),
         ) {
             Button(
                 onClick = onStart,
                 enabled = enabled,
+                shape = MaterialTheme.shapes.large,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 56.dp),
+                    .heightIn(min = 60.dp),
             ) {
                 if (isStarting) {
                     CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
@@ -201,65 +216,95 @@ private fun StartBar(isStarting: Boolean, enabled: Boolean, onStart: () -> Unit)
     }
 }
 
-/** Lo que se va a trabajar: comentario de la rutina (si hay) y grupos musculares en orden. */
+/** Lo que se va a trabajar: cabecera con el nombre, comentario de la rutina (si hay) y grupos en orden. */
 @Composable
-private fun RoutineOverview(comment: String?, groups: List<MuscleGroup>, modifier: Modifier = Modifier) {
+private fun RoutineOverview(
+    name: String,
+    comment: String?,
+    groups: List<MuscleGroup>,
+    modifier: Modifier = Modifier,
+) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = ListContentPadding,
+        verticalArrangement = Arrangement.spacedBy(CardSpacing),
     ) {
+        item(key = "hero") {
+            HeroCard(Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.workout_routine_detail_title).uppercase(),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = OnHero.copy(alpha = 0.85f),
+                )
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = OnHero,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = pluralStringResource(R.plurals.workout_routine_groups_count, groups.size, groups.size),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = OnHero.copy(alpha = 0.85f),
+                )
+            }
+        }
         if (!comment.isNullOrBlank()) {
             item(key = "comment") {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    ),
-                ) {
-                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                GymCard(Modifier.fillMaxWidth()) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconBadge(
+                            Icons.AutoMirrored.Filled.StickyNote2,
+                            size = 36.dp,
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        )
+                        Spacer(Modifier.width(12.dp))
                         Text(
                             text = stringResource(R.string.workout_routine_comment_label),
-                            style = MaterialTheme.typography.labelLarge,
+                            style = MaterialTheme.typography.titleSmall,
                         )
-                        Text(text = comment, style = MaterialTheme.typography.bodyLarge)
                     }
+                    Spacer(Modifier.height(10.dp))
+                    Text(text = comment, style = MaterialTheme.typography.bodyLarge)
                 }
             }
         }
         item(key = "groups-header") {
-            Text(
-                text = stringResource(R.string.workout_routine_groups_header),
-                style = MaterialTheme.typography.titleMedium,
+            SectionHeader(
+                title = stringResource(R.string.workout_routine_groups_header),
+                modifier = Modifier.padding(top = 8.dp),
             )
         }
         itemsIndexed(groups, key = { _, group -> group.id }) { index, group ->
-            Card(Modifier.fillMaxWidth()) {
-                ListItem(
-                    leadingContent = {
-                        Text(
-                            text = (index + 1).toString(),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    },
-                    headlineContent = {
-                        Text(
-                            text = group.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    },
-                )
+            GymCard(Modifier.fillMaxWidth(), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    NumberBadge(index + 1)
+                    Spacer(Modifier.width(14.dp))
+                    Text(text = group.name, style = MaterialTheme.typography.titleLarge)
+                }
             }
         }
         item(key = "hint") {
-            Text(
-                text = stringResource(R.string.workout_routine_exercises_hint),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Row(
+                modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.workout_routine_exercises_hint),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }

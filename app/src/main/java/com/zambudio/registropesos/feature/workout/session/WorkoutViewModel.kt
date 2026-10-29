@@ -8,6 +8,7 @@ import com.zambudio.registropesos.core.di.ApplicationScope
 import com.zambudio.registropesos.core.navigation.WorkoutRoute
 import com.zambudio.registropesos.domain.model.AppSettings
 import com.zambudio.registropesos.domain.model.Exercise
+import com.zambudio.registropesos.domain.model.RestTimerState
 import com.zambudio.registropesos.domain.model.SessionDetail
 import com.zambudio.registropesos.domain.model.SessionGroup
 import com.zambudio.registropesos.domain.model.SessionStatus
@@ -15,6 +16,7 @@ import com.zambudio.registropesos.domain.model.WorkoutSession
 import com.zambudio.registropesos.domain.model.WorkoutSet
 import com.zambudio.registropesos.domain.repository.ExerciseRepository
 import com.zambudio.registropesos.domain.repository.ImageStore
+import com.zambudio.registropesos.domain.repository.RestTimer
 import com.zambudio.registropesos.domain.repository.SettingsRepository
 import com.zambudio.registropesos.domain.repository.WorkoutRepository
 import com.zambudio.registropesos.domain.usecase.DiscardSession
@@ -67,7 +69,7 @@ import javax.inject.Inject
  * selector de cada grupo. Añadir un ejercicio = crear sus filas vacías (ADR-018), así que la
  * elección queda guardada igual que las series y la sesión se reanuda tal cual.
  */
-// 11 dependencias inyectadas por Hilt: agruparlas en un contenedor solo añadiría indirección.
+// 12 dependencias inyectadas por Hilt: agruparlas en un contenedor solo añadiría indirección.
 @Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -80,9 +82,10 @@ class WorkoutViewModel @Inject constructor(
     private val previousSessionForExercise: PreviousSessionForExercise,
     private val finishSession: FinishSession,
     private val discardSession: DiscardSession,
+    private val restTimer: RestTimer,
     private val timeProvider: TimeProvider,
     private val idGenerator: IdGenerator,
-    @ApplicationScope applicationScope: CoroutineScope,
+    @param:ApplicationScope private val applicationScope: CoroutineScope,
 ) : ViewModel() {
 
     val sessionId: String = savedStateHandle.toRoute<WorkoutRoute>().sessionId
@@ -98,16 +101,21 @@ class WorkoutViewModel @Inject constructor(
     /** Último ejercicio quitado (todas sus series), pendiente de un posible "Deshacer". */
     private var lastRemovedExercise: RemovedExercise? = null
 
-    private val weightStepKg: StateFlow<Double> = settingsRepository.settings
-        .map { it.weightStepKg }
-        .catch { emit(AppSettings().weightStepKg) }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings().weightStepKg)
+    /** Paso de peso, "Series por defecto" y descanso. Sin ajustes legibles se usan los de por defecto. */
+    private val settings: StateFlow<AppSettings> = settingsRepository.settings
+        .catch { emit(AppSettings()) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings())
 
-    /** Filas vacías con las que entra un ejercicio elegido (ajuste "Series por defecto"). */
-    private val defaultSets: StateFlow<Int> = settingsRepository.settings
-        .map { it.defaultSets }
-        .catch { emit(AppSettings().defaultSets) }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings().defaultSets)
+    /** Descanso en marcha (puede venir de antes de matar el proceso). */
+    private val rest: StateFlow<RestTimerState?> = restTimer.state
+        .catch { emit(null) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /**
+     * Serie que arrancó el último descanso automático: corregir esa misma serie no lo reinicia; completar
+     * otra, sí.
+     */
+    private var lastRestTriggerSetId: String? = null
 
     /**
      * Ejercicios del grupo del selector abierto (se actualiza si se crea uno nuevo mientras tanto).
@@ -128,9 +136,10 @@ class WorkoutViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    val uiState: StateFlow<WorkoutUiState> = combine(editor, weightStepKg, pickerExercises) { state, step, picker ->
-        state.toUi(step, picker)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), WorkoutUiState.Loading)
+    val uiState: StateFlow<WorkoutUiState> =
+        combine(editor, settings, pickerExercises, rest) { state, appSettings, picker, restState ->
+            state.toUi(appSettings, picker, restState)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), WorkoutUiState.Loading)
 
     init {
         // Un único consumidor: FIFO. Termina cuando onCleared cierra la cola y se ha vaciado.
@@ -161,7 +170,7 @@ class WorkoutViewModel @Inject constructor(
 
     /** ±paso de ajustes. Sin peso, parte del de la sesión anterior (el que se ve en gris) o de 0. Nunca baja de 0. */
     fun onStepWeight(setId: String, increase: Boolean) {
-        val step = weightStepKg.value
+        val step = settings.value.weightStepKg
         modifySet(setId) { set ->
             val base = set.weightKg ?: ghostFor(set)?.weightKg ?: 0.0
             val next = if (increase) base + step else base - step
@@ -282,7 +291,7 @@ class WorkoutViewModel @Inject constructor(
         if (exercise == null) return
         val now = timeProvider.now()
         val order = (editor.value.sets.maxOfOrNull { it.exerciseOrder } ?: -1) + 1
-        val setCount = defaultSets.value.coerceIn(1, MAX_INITIAL_SETS)
+        val setCount = settings.value.defaultSets.coerceIn(1, MAX_INITIAL_SETS)
         val added = List(setCount) { index ->
             WorkoutSet(
                 id = idGenerator.newId(),
@@ -359,6 +368,43 @@ class WorkoutViewModel @Inject constructor(
         }
     }
 
+    // --- Descanso entre series (ADR-020) ---
+
+    /** Arranca (o reinicia) el descanso con la duración de Ajustes. */
+    fun onStartRest() {
+        if (!canEdit()) return
+        startRest()
+    }
+
+    fun onAdjustRest(deltaSeconds: Int) {
+        applicationScope.launch { suspendRunCatching { restTimer.adjust(deltaSeconds * MILLIS_PER_SECOND) } }
+    }
+
+    fun onStopRest() {
+        lastRestTriggerSetId = null
+        stopRest()
+    }
+
+    private fun startRest() {
+        val millis = settings.value.restSeconds * MILLIS_PER_SECOND
+        applicationScope.launch { suspendRunCatching { restTimer.start(millis) } }
+    }
+
+    private fun stopRest() {
+        applicationScope.launch { suspendRunCatching { restTimer.stop() } }
+    }
+
+    /**
+     * Con "Empezar al anotar una serie", completar peso y repeticiones de una serie arranca el
+     * descanso. Solo al pasar de incompleta a completa, y no otra vez por corregir la misma serie.
+     */
+    private fun maybeAutoStartRest(before: WorkoutSet, after: WorkoutSet) {
+        if (!settings.value.restAutoStart || before.isComplete || !after.isComplete) return
+        if (after.id == lastRestTriggerSetId && rest.value != null) return
+        lastRestTriggerSetId = after.id
+        startRest()
+    }
+
     // --- Cierre de la sesión ---
 
     fun onFinish() {
@@ -366,7 +412,10 @@ class WorkoutViewModel @Inject constructor(
         editor.update { it.copy(isClosing = true, pickerGroup = null) }
         enqueue(reportFailure = false) {
             suspendRunCatching { finishSession(sessionId) }.flatten()
-                .onSuccess { eventChannel.trySend(WorkoutEvent.OpenSummary(sessionId)) }
+                .onSuccess {
+                    suspendRunCatching { restTimer.stop() }
+                    eventChannel.trySend(WorkoutEvent.OpenSummary(sessionId))
+                }
                 .onFailure {
                     editor.update { it.copy(isClosing = false) }
                     eventChannel.trySend(WorkoutEvent.FinishFailed)
@@ -379,7 +428,10 @@ class WorkoutViewModel @Inject constructor(
         editor.update { it.copy(isClosing = true, pickerGroup = null) }
         enqueue(reportFailure = false) {
             suspendRunCatching { discardSession(sessionId) }.flatten()
-                .onSuccess { eventChannel.trySend(WorkoutEvent.Discarded) }
+                .onSuccess {
+                    suspendRunCatching { restTimer.stop() }
+                    eventChannel.trySend(WorkoutEvent.Discarded)
+                }
                 .onFailure {
                     editor.update { it.copy(isClosing = false) }
                     eventChannel.trySend(WorkoutEvent.DiscardFailed)
@@ -440,6 +492,7 @@ class WorkoutViewModel @Inject constructor(
         if (updated == current) return
         applyChanges(changed = listOf(updated))
         enqueue { workoutRepository.upsertSet(updated) }
+        maybeAutoStartRest(before = current, after = updated)
     }
 
     private fun applyChanges(changed: List<WorkoutSet>, removedId: String? = null) {
@@ -482,7 +535,11 @@ class WorkoutViewModel @Inject constructor(
     private fun lastEditedExercise(detail: SessionDetail): String? =
         detail.exercises.maxByOrNull { exercise -> exercise.sets.maxOf { it.updatedAt } }?.exerciseId
 
-    private fun EditorState.toUi(stepKg: Double, groupExercises: GroupExercises?): WorkoutUiState = when (load) {
+    private fun EditorState.toUi(
+        appSettings: AppSettings,
+        groupExercises: GroupExercises?,
+        restState: RestTimerState?,
+    ): WorkoutUiState = when (load) {
         Load.Loading -> WorkoutUiState.Loading
         Load.Failed -> WorkoutUiState.Error
         Load.Gone -> WorkoutUiState.NotInProgress
@@ -493,10 +550,12 @@ class WorkoutViewModel @Inject constructor(
             reminder = load.session.routineCommentSnapshot?.takeIf { it.isNotBlank() },
             blocks = buildBlocks(groups, sets, exercises, ghosts) { imageStore.fileOrNull(it) },
             expandedExerciseId = expandedExerciseId,
-            weightStepKg = stepKg,
+            weightStepKg = appSettings.weightStepKg,
             hasAnyData = sets.any { !it.isEmpty },
             isClosing = isClosing,
             picker = pickerGroup?.let { group -> buildPicker(group, groupExercises) },
+            rest = restState,
+            restDefaultSeconds = appSettings.restSeconds,
         )
     }
 
@@ -545,6 +604,7 @@ class WorkoutViewModel @Inject constructor(
     companion object {
         private val SetOrder = compareBy<WorkoutSet>({ it.exerciseOrder }, { it.setIndex })
         private const val MAX_INITIAL_SETS = 20
+        private const val MILLIS_PER_SECOND = 1_000L
 
         /**
          * Un bloque por grupo previsto de la sesión (aunque aún no tenga ejercicios), con sus

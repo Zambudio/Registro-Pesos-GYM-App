@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelStore
 import com.zambudio.registropesos.domain.model.AppSettings
 import com.zambudio.registropesos.domain.model.Exercise
 import com.zambudio.registropesos.domain.model.MuscleGroup
+import com.zambudio.registropesos.domain.model.RestTimerState
 import com.zambudio.registropesos.domain.model.Routine
 import com.zambudio.registropesos.domain.model.RoutineBlock
 import com.zambudio.registropesos.domain.model.RoutineBlockDetail
@@ -21,6 +22,7 @@ import com.zambudio.registropesos.domain.model.SessionStatus
 import com.zambudio.registropesos.domain.model.SessionSummary
 import com.zambudio.registropesos.domain.model.WorkoutSession
 import com.zambudio.registropesos.domain.model.WorkoutSet
+import com.zambudio.registropesos.domain.repository.RestTimer
 import com.zambudio.registropesos.domain.repository.RoutineRepository
 import com.zambudio.registropesos.domain.repository.SessionAlreadyInProgressException
 import com.zambudio.registropesos.domain.repository.SettingsRepository
@@ -95,6 +97,27 @@ class FakeSettingsRepository(initial: AppSettings = AppSettings()) : SettingsRep
     private val state = MutableStateFlow(initial)
     override val settings: Flow<AppSettings> = state
     override suspend fun update(transform: (AppSettings) -> AppSettings) = state.update(transform)
+}
+
+/** Descanso en memoria: guarda el estado y registra las llamadas. */
+class FakeRestTimer(private val clock: TimeProvider) : RestTimer {
+    override val state = MutableStateFlow<RestTimerState?>(null)
+    val starts = mutableListOf<Long>()
+    var stops = 0
+
+    override suspend fun start(durationMillis: Long) {
+        starts += durationMillis
+        state.value = RestTimerState(clock.now() + durationMillis, durationMillis)
+    }
+
+    override suspend fun adjust(deltaMillis: Long) {
+        state.update { current -> current?.copy(endsAt = current.endsAt + deltaMillis) }
+    }
+
+    override suspend fun stop() {
+        stops++
+        state.value = null
+    }
 }
 
 /** Repositorio de sesiones en memoria con Flows reactivos, como Room. */

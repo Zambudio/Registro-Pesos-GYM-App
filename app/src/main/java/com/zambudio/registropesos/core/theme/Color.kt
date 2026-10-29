@@ -16,7 +16,7 @@ internal val Orange90 = Color(0xFFFFDBC9)
 
 // Dorado (terciario: récords).
 internal val Gold10 = Color(0xFF2B1A00)
-internal val Gold30 = Color(0xFF5C4300)
+internal val Gold30 = Color(0xFF3D3015)
 internal val Gold40 = Color(0xFF8A5A00)
 internal val Gold80 = Color(0xFFF5BF48)
 internal val Gold90 = Color(0xFFFFE2A8)

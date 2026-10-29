@@ -1,27 +1,45 @@
 package com.zambudio.registropesos.feature.workout.session
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.StickyNote2
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.AddCircleOutline
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -33,9 +51,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -45,11 +65,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zambudio.registropesos.R
@@ -59,7 +85,11 @@ import com.zambudio.registropesos.core.ui.EmptyState
 import com.zambudio.registropesos.core.ui.ErrorState
 import com.zambudio.registropesos.core.ui.LoadingState
 import com.zambudio.registropesos.core.ui.ObserveAsEvents
+import com.zambudio.registropesos.core.ui.Pill
+import com.zambudio.registropesos.core.ui.ScreenPadding
+import com.zambudio.registropesos.domain.model.RestTimerState
 import com.zambudio.registropesos.domain.usecase.GhostSet
+import com.zambudio.registropesos.feature.workout.common.formatCountdown
 import com.zambudio.registropesos.feature.workout.common.formatElapsed
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -90,6 +120,8 @@ fun WorkoutRoute(
         view.keepScreenOn = true
         onDispose { view.keepScreenOn = false }
     }
+
+    RequestNotificationPermission()
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
@@ -129,6 +161,9 @@ fun WorkoutRoute(
                 onCreateExercise(groupId)
             },
             onRemoveExercise = viewModel::onRemoveExercise,
+            onStartRest = viewModel::onStartRest,
+            onAdjustRest = viewModel::onAdjustRest,
+            onStopRest = viewModel::onStopRest,
         )
     }
     WorkoutScreen(
@@ -140,6 +175,26 @@ fun WorkoutRoute(
         onDiscard = viewModel::onDiscard,
         onRetry = viewModel::retry,
     )
+}
+
+/**
+ * El aviso de fin de descanso es una notificación: en Android 13+ se pide el permiso al entrar en la
+ * sesión (una vez por pantalla). Si se deniega, el descanso sigue funcionando dentro de la app.
+ */
+@Composable
+private fun RequestNotificationPermission() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+    val context = LocalContext.current
+    var asked by rememberSaveable { mutableStateOf(false) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    LaunchedEffect(Unit) {
+        val granted = ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
+        if (!granted && !asked) {
+            asked = true
+            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 }
 
 /** Callbacks de la sesión (agrupados para no arrastrar diez parámetros por cada composable). */
@@ -156,6 +211,9 @@ class WorkoutActions(
     val onPickExercise: (exerciseId: String) -> Unit = {},
     val onCreateExercise: (muscleGroupId: String) -> Unit = {},
     val onRemoveExercise: (exerciseId: String) -> Unit = {},
+    val onStartRest: () -> Unit = {},
+    val onAdjustRest: (deltaSeconds: Int) -> Unit = {},
+    val onStopRest: () -> Unit = {},
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -190,7 +248,7 @@ fun WorkoutScreen(
         },
         bottomBar = {
             if (content != null) {
-                FinishBar(enabled = !content.isClosing, onFinish = { confirmFinish = true })
+                BottomPanel(content, actions, onFinish = { confirmFinish = true })
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -301,6 +359,7 @@ private fun WorkoutTopBar(content: WorkoutUiState.Content?, onBack: () -> Unit, 
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.workout_discard_action)) },
+                            leadingIcon = { Icon(Icons.Filled.DeleteOutline, contentDescription = null) },
                             enabled = !content.isClosing,
                             onClick = {
                                 menuOpen = false
@@ -323,31 +382,166 @@ private fun ElapsedText(startedAt: Long) {
             delay(TICK_MILLIS)
         }
     }
-    Text(
-        text = formatElapsed(now - startedAt),
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.primary,
-    )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            Icons.Outlined.Timer,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(14.dp),
+        )
+        Text(
+            text = formatElapsed(now - startedAt),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = 4.dp),
+        )
+    }
 }
 
+/** Zona inferior fija: descanso entre series y "Terminar entrenamiento". */
 @Composable
-private fun FinishBar(enabled: Boolean, onFinish: () -> Unit) {
-    Surface(tonalElevation = 3.dp) {
+private fun BottomPanel(content: WorkoutUiState.Content, actions: WorkoutActions, onFinish: () -> Unit) {
+    val enabled = !content.isClosing
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, shadowElevation = 8.dp) {
         Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
             if (!enabled) LinearProgressIndicator(Modifier.fillMaxWidth())
-            Button(
-                onClick = onFinish,
-                enabled = enabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .heightIn(min = 56.dp),
+            val rest = content.rest
+            if (rest != null) {
+                RestRunning(rest, enabled, actions)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            }
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(stringResource(R.string.workout_finish_action), style = MaterialTheme.typography.titleMedium)
+                if (rest == null) {
+                    RestStartButton(content.restDefaultSeconds, enabled, actions.onStartRest)
+                }
+                Button(
+                    onClick = onFinish,
+                    enabled = enabled,
+                    shape = MaterialTheme.shapes.large,
+                    modifier = Modifier
+                        .weight(1f)
+                        .heightIn(min = 56.dp),
+                ) {
+                    Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Text(
+                        stringResource(R.string.workout_finish_action),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(start = 6.dp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }
 }
+
+/** Arranque manual del descanso con la duración de Ajustes. */
+@Composable
+private fun RestStartButton(defaultSeconds: Int, enabled: Boolean, onStart: () -> Unit) {
+    val label = formatCountdown(defaultSeconds * MILLIS_PER_SECOND)
+    val description = stringResource(R.string.workout_rest_start, label)
+    FilledTonalButton(
+        onClick = onStart,
+        enabled = enabled,
+        shape = MaterialTheme.shapes.large,
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        modifier = Modifier
+            .heightIn(min = 56.dp)
+            .semantics { contentDescription = description },
+    ) {
+        Icon(Icons.Outlined.Timer, contentDescription = null, modifier = Modifier.size(20.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(start = 6.dp),
+        )
+    }
+}
+
+/** Cuenta atrás en marcha: progreso, tiempo restante y ajustes rápidos. */
+@Composable
+private fun RestRunning(rest: RestTimerState, enabled: Boolean, actions: WorkoutActions) {
+    val now by produceState(System.currentTimeMillis(), rest) {
+        while (true) {
+            value = System.currentTimeMillis()
+            delay(REST_TICK_MILLIS)
+        }
+    }
+    val remaining = rest.remainingMillis(now)
+    val progress = if (rest.durationMillis > 0) remaining.toFloat() / rest.durationMillis else 0f
+    val finished = remaining == 0L
+    val remainingText = formatCountdown(remaining)
+    val description = stringResource(R.string.workout_rest_remaining, remainingText)
+    Column(Modifier.fillMaxWidth()) {
+        LinearProgressIndicator(
+            progress = { progress.coerceIn(0f, 1f) },
+            modifier = Modifier.fillMaxWidth().height(4.dp),
+            drawStopIndicator = {},
+            gapSize = 0.dp,
+        )
+        Row(
+            modifier = Modifier.padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                Modifier
+                    .weight(1f)
+                    .semantics(mergeDescendants = true) { contentDescription = description },
+            ) {
+                Text(
+                    text = stringResource(R.string.workout_rest_label).uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = if (finished) stringResource(R.string.workout_rest_over) else remainingText,
+                    style = with(MaterialTheme.typography) { if (finished) titleLarge else displaySmall },
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+            if (!finished) {
+                RestAdjustButton(
+                    label = stringResource(R.string.workout_rest_minus_label, REST_STEP_SECONDS),
+                    description = stringResource(R.string.workout_rest_minus, REST_STEP_SECONDS),
+                    enabled = enabled,
+                    onClick = { actions.onAdjustRest(-REST_STEP_SECONDS) },
+                )
+                RestAdjustButton(
+                    label = stringResource(R.string.workout_rest_plus_label, REST_STEP_SECONDS),
+                    description = stringResource(R.string.workout_rest_plus, REST_STEP_SECONDS),
+                    enabled = enabled,
+                    onClick = { actions.onAdjustRest(REST_STEP_SECONDS) },
+                )
+            }
+            IconButton(onClick = actions.onStopRest) {
+                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.workout_rest_skip))
+            }
+        }
+    }
+}
+
+@Composable
+private fun RestAdjustButton(label: String, description: String, enabled: Boolean, onClick: () -> Unit) {
+    TextButton(
+        onClick = onClick,
+        enabled = enabled,
+        contentPadding = PaddingValues(horizontal = 10.dp),
+        modifier = Modifier
+            .heightIn(min = 48.dp)
+            .semantics { contentDescription = description },
+    ) {
+        Text(label, style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+private const val REST_TICK_MILLIS = 250L
+private const val REST_STEP_SECONDS = 15
+private const val MILLIS_PER_SECOND = 1_000L
 
 @Composable
 private fun WorkoutContent(
@@ -371,21 +565,22 @@ private fun WorkoutContent(
             contentPadding = PaddingValues(
                 top = 4.dp,
                 bottom = padding.calculateBottomPadding() + 16.dp,
-                start = 12.dp,
-                end = 12.dp,
+                start = ScreenPadding,
+                end = ScreenPadding,
             ),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             state.blocks.forEach { block ->
                 item(key = block.key) {
                     GroupHeader(block, enabled = !state.isClosing, onAdd = actions.onOpenPicker)
                 }
-                if (block.exercises.isEmpty() && block.canAddExercise) {
+                val groupId = block.muscleGroupId
+                if (block.exercises.isEmpty() && groupId != null) {
                     item(key = "${block.key}-empty") {
-                        Text(
-                            text = stringResource(R.string.workout_group_empty, block.muscleGroupName),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp),
+                        EmptyGroupCard(
+                            groupName = block.muscleGroupName,
+                            enabled = !state.isClosing,
+                            onClick = { actions.onOpenPicker(groupId) },
                         )
                     }
                 }
@@ -397,7 +592,6 @@ private fun WorkoutContent(
                         enabled = !state.isClosing,
                         actions = actions,
                         onRequestRemove = { onRequestRemove(exercise) },
-                        modifier = Modifier.padding(bottom = 8.dp),
                     )
                 }
             }
@@ -405,18 +599,34 @@ private fun WorkoutContent(
     }
 }
 
+/** Comentario de la rutina, fijo arriba durante toda la sesión. */
 @Composable
 private fun ReminderBanner(text: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        modifier = Modifier.fillMaxWidth(),
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = ScreenPadding, vertical = 4.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.tertiaryContainer)
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.Top,
     ) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-            Text(stringResource(R.string.workout_reminder_label), style = MaterialTheme.typography.labelMedium)
+        Icon(
+            Icons.AutoMirrored.Filled.StickyNote2,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+            modifier = Modifier.size(20.dp).padding(top = 2.dp),
+        )
+        Column(Modifier.padding(start = 10.dp)) {
+            Text(
+                stringResource(R.string.workout_reminder_label).uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
+            )
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
                 maxLines = REMINDER_MAX_LINES,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -431,15 +641,19 @@ private fun GroupHeader(block: WorkoutBlockUi, enabled: Boolean, onAdd: (String)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 4.dp, top = 8.dp, bottom = 4.dp),
+            .padding(top = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(
-                text = block.muscleGroupName,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = block.muscleGroupName, style = MaterialTheme.typography.headlineSmall)
+                if (block.exercises.isNotEmpty()) {
+                    Pill(
+                        text = block.exercises.size.toString(),
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                }
+            }
             if (!block.canAddExercise && block.exercises.isEmpty()) {
                 Text(
                     text = stringResource(R.string.workout_group_unavailable),
@@ -450,12 +664,46 @@ private fun GroupHeader(block: WorkoutBlockUi, enabled: Boolean, onAdd: (String)
         }
         val groupId = block.muscleGroupId
         if (groupId != null) {
-            FilledTonalIconButton(onClick = { onAdd(groupId) }, enabled = enabled) {
+            FilledIconButton(
+                onClick = { onAdd(groupId) },
+                enabled = enabled,
+                modifier = Modifier.size(44.dp),
+            ) {
                 Icon(
                     Icons.Filled.Add,
                     contentDescription = stringResource(R.string.workout_group_add, block.muscleGroupName),
                 )
             }
+        }
+    }
+}
+
+/** Grupo todavía sin ejercicios: invita a elegir el primero (también abre el selector). */
+@Composable
+private fun EmptyGroupCard(groupName: String, enabled: Boolean, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        enabled = enabled,
+        shape = MaterialTheme.shapes.large,
+        color = Color.Transparent,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Outlined.AddCircleOutline,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                text = stringResource(R.string.workout_group_empty, groupName),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 12.dp),
+            )
         }
     }
 }
