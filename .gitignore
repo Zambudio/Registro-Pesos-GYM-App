@@ -28,3 +28,10 @@ keystore.properties
 
 # Intermedios de tools/catalog (las imágenes finales van en app/src/main/assets/catalog)
 tools/catalog/raw/
+
+# Ficheros del IDE (Eclipse/Buildship en VS Code)
+.project
+.settings/
+
+# Excel origen del catálogo: contiene el historial de pesos y el repo es público
+docs/*.xlsx
