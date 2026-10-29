@@ -62,5 +62,5 @@ internal val Red10 = Color(0xFF410E0B)
 internal val Red30 = Color(0xFF8C1D18)
 
 // Degradado de las cabeceras destacadas (igual en claro y oscuro).
-internal val HeroStart = Color(0xFFFF7A2F)
-internal val HeroEnd = Color(0xFFD9420B)
+internal val HeroStart = Color(0xFFDC5212) // 4:1 con texto blanco
+internal val HeroEnd = Color(0xFFB93F06) // 5,6:1 con texto blanco
