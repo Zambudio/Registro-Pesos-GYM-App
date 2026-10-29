@@ -99,3 +99,34 @@ Formato: contexto / decisión / consecuencias. Las decisiones del stack de `docs
   - Ids fijos: ejercicios `5f0c2a9e-7d41-4b8e-a3c6-0000000000NN`; los grupos existentes usan los ids del seed y hay dos nuevos, "Pierna" (`…000000000012`) y "Deltoides posterior" (`…000000000013`), sin reasignar sus ejercicios a otros grupos. No se renumeran nunca las entradas publicadas.
   - `CatalogSeeder` se ejecuta en cada arranque (`GymApplication`, scope de aplicación) y es idempotente: crea un ejercicio solo si no existe su id ni otro con el mismo nombre en su grupo; nunca modifica uno existente ni su foto; reutiliza el grupo por id o por nombre; no recrea un grupo borrado (tombstone). Copia la foto a `filesDir/images/exercise_<id>.jpg` antes de insertar la fila. Marcas de tiempo 0, como el seed de grupos (ADR-010).
 - **Consecuencias**: el APK crece ~1,6 MB. Las fotos del catálogo viajan en Auto Backup y en el ZIP como cualquier otra. `CatalogSeederTest` comprueba recuento, asociación nombre-imagen e idempotencia. Cómo regenerarlo: README, sección "Catálogo de ejercicios".
+
+## ADR-020 — Descanso entre series con aviso en segundo plano
+- **Contexto**: entre series hace falta una cuenta atrás integrada en la sesión que avise aunque el móvil esté bloqueado o la app en segundo plano, y que arranque sola al anotar una serie.
+- **Decisión**:
+  - Una sola cuenta atrás (`RestTimer`, dominio). Su estado es el instante de fin y la duración total, en el DataStore de ajustes (`rest_ends_at`, `rest_duration_ms`): sobrevive a salir de la pantalla y a la muerte del proceso. La UI calcula el tiempo restante con su propio reloj. No hay servicio en primer plano.
+  - Aviso final con una alarma exacta (`AlarmManager.setExactAndAllowWhileIdle`) que recibe `RestTimerReceiver` y publica la notificación "Descanso terminado" (canal de importancia alta, vibración y sonido). Permisos: `USE_EXACT_ALARM` (API 33+, se concede al instalar; la app no está en Play) y `SCHEDULE_EXACT_ALARM` hasta API 32. Si el sistema retira el permiso, se usa una alarma inexacta.
+  - Mientras dura el descanso, una notificación silenciosa con la cuenta atrás nativa (`setChronometerCountDown`) y la acción "Saltar". `POST_NOTIFICATIONS` se pide al entrar en la sesión. Sin ese permiso, el descanso sigue funcionando dentro de la app.
+  - Arranque automático (ajuste, activado por defecto): solo cuando una serie pasa de incompleta a completa (peso, 0 incluido, y repeticiones > 0). Corregir la misma serie mientras sigue el descanso no lo reinicia. "Copiar anterior" no lo arranca, porque es una acción en bloque.
+  - También se puede arrancar a mano con la duración de Ajustes (45 s a 3 min), sumar o restar 15 s y saltarlo. Terminar o descartar la sesión lo para.
+- **Consecuencias**: no hay servicio que mantener ni batería que gastar mientras se descansa. Tras un reinicio del móvil se pierde la alarma de un descanso en curso (caso marginal). Cubierto por `AndroidRestTimerTest` (estado, ajustes, alarma, persistencia) y `WorkoutViewModelTest` (arranque automático y manual, parada al terminar).
+
+## ADR-021 — Sistema de diseño propio y tema elegible
+- **Contexto**: la UI de la v0.1.0 usaba Material 3 casi sin personalizar y había que darle un aspecto de app profesional. Además, el modo oscuro debía poder elegirse.
+- **Decisión**:
+  - Paleta "deportivo naranja" (`core/theme/Color.kt`): naranja de acento (AA sobre su fondo en claro y en oscuro), neutros grafito y dorado para récords. En claro, tarjetas blancas sobre fondo gris. En oscuro, casi negro con tarjetas grafito.
+  - Tipografía: Barlow Condensed (OFL, `res/font`, licencia en `third_party/fonts`) para titulares y cifras; la del sistema para el texto corrido.
+  - Formas redondeadas de 8 a 28 dp y componentes comunes en `core/ui/Components.kt`: `GymCard`, `SectionHeader`, `IconBadge`, `NumberBadge`, `StatValue`, `Pill` y `HeroCard` con degradado. Las pantallas no usan colores fijos, solo `MaterialTheme.colorScheme` o estos tokens.
+  - `AppSettings.themeMode` (Sistema / Claro / Oscuro) se guarda en DataStore. `MainActivity` lo aplica al tema y a los iconos de las barras del sistema. El color dinámico sigue desactivado.
+  - Galería de capturas con Robolectric en modo de gráficos nativo (`screenshots/`, solo con `-Pgym.screenshots=true`): guarda PNG en claro y oscuro en `app/build/screenshots` para revisar el diseño sin dispositivo. No compara contra referencias.
+- **Consecuencias**: el APK crece unos 330 KB por la fuente. Cambiar el aspecto se hace en `core/theme` y `core/ui`, no pantalla a pantalla.
+
+## ADR-022 — Biblioteca de ejercicios importable por ZIP
+- **Contexto**: se quiere una biblioteca amplia de ejercicios por grupo muscular (máquinas, mancuernas, barra, polea...), cada uno con una ilustración que explique la técnica. Las ilustraciones las genera el usuario con ChatGPT y llegan después.
+- **Decisión**:
+  - La biblioteca (`tools/library/exercises.json`, 189 ejercicios) no va dentro del APK, a diferencia del catálogo (ADR-019): se distribuye como un ZIP del formato de copia de seguridad, que la app ya sabe importar y fusionar (ADR-010). No hace falta código nuevo en la app ni migración.
+  - `tools/library/build-backup.mjs` genera el ZIP a partir de una copia exportada por el usuario, de la que toma los grupos y los ejercicios existentes:
+    - los ejercicios nuevos llevan ids fijos derivados de su código, así que reimportar no duplica;
+    - un ejercicio existente solo entra si tiene ilustración nueva, con su id, nombre y grupo y `updatedAt` = ahora, para que gane la fusión;
+    - el ZIP solo lleva grupos y ejercicios.
+  - Las ilustraciones se convierten a JPEG de 1280 px con el criterio de la app. Las originales se guardan en `docs/imagenes-ejercicios/imagenes/` y no se suben a git.
+- **Consecuencias**: el usuario decide cuándo importar y puede hacerlo por partes, según tenga ilustraciones. El generador se verificó importando una copia real y el ZIP con el código de la app (lector ZIP, decodificador, fusión): 129 ejercicios insertados, ilustración de uno existente sustituida y reimportación sin duplicados.

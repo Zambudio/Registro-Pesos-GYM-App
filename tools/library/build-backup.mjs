@@ -9,7 +9,7 @@
 //           docs/imagenes-ejercicios/imagenes.
 // --out     Por defecto dist/biblioteca-ejercicios.zip.
 //
-// Reglas (la importación de la app mezcla por id y gana el updatedAt más reciente, ADR-005):
+// Reglas (la importación de la app mezcla por id y gana el updatedAt más reciente, ADR-010):
 // - Ejercicio que ya existe (existingId) y tiene ilustración: va con su id, nombre y grupo actuales,
 //   la ilustración nueva y updatedAt = ahora, así sustituye a la foto anterior.
 // - Ejercicio que ya existe sin ilustración: no se incluye (no cambia nada).
