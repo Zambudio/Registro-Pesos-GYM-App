@@ -62,7 +62,7 @@ El repo de GitHub (`https://github.com/Zambudio/Registro-Pesos-GYM-App`) es la f
    - Sin `keystore.properties` todo compila igual, pero el APK de release sale **sin firmar** y no se puede instalar.
 5. Compilar y probar (siguiente sección). La primera vez Gradle y Robolectric descargan dependencias (varios minutos).
 
-Opcional: para sacar las salidas de build a otra carpeta, usa `-Pgym.buildRoot=C:/build/gym` o la variable `GYM_BUILD_ROOT` (en PowerShell, el `-P…` entre comillas simples). Debe estar en la **misma unidad** que el código, porque KSP falla con unidades distintas. Por defecto se usa el `build/` estándar.
+Opcional: para sacar las salidas de build a otra carpeta, usa `-Pgym.buildRoot=<carpeta>` o la variable `GYM_BUILD_ROOT` (en PowerShell, el `-P…` entre comillas simples). Debe estar en la **misma unidad** que el código, porque KSP falla con unidades distintas. Por defecto se usa el `build/` estándar.
 
 ### Particularidades del PC original
 
