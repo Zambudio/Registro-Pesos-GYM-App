@@ -63,6 +63,8 @@ Cambios hechos tras probar la v0.1.0 en el móvil. Aún no tienen número de ver
 - 189 ejercicios: los 60 actuales y 129 nuevos, de máquina, mancuernas, barra, polea, multipower y peso corporal.
 - `dist/biblioteca-ejercicios.zip` se importa desde Más > Exportar / importar. Reimportarlo no duplica nada.
 - Listado y prompt para generar las ilustraciones con ChatGPT en `docs/imagenes-ejercicios/`. Al regenerar el ZIP con ellas, la ilustración sustituye también la foto de los ejercicios existentes.
+- Ya con las 189 ilustraciones (`dist/biblioteca-ejercicios.zip`, 11,6 MB).
+- `build-backup.mjs --with-routines` genera `dist/rutinas-y-ejercicios.zip`: ejercicios con ilustración más las rutinas de la copia, sin sesiones, series ni borrados, para compartir la configuración con otra persona sin su historial. No se sube a git (repo público).
 
 ### APK de prueba
 - `dist/registro-pesos-gym-v0.1.0+diseno-descanso.apk` (incluye todo lo anterior y sustituye al APK de prueba `+grupos-catalogo`). Está firmado con la misma clave que la v0.1.0, así que se instala encima y conserva los datos. Por dentro sigue diciendo 0.1.0.
