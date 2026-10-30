@@ -29,7 +29,7 @@ Pulsa **Instalar**. Si Google Play Protect avisa de que la app no es conocida, e
 4. **Descanso**: al completar el peso y las repeticiones de una serie empieza solo la cuenta atrás, que aparece abajo, junto a **Terminar entrenamiento**. Puedes sumar o restar 15 s, o saltarla. Si no hay ninguna en marcha, el botón del reloj la arranca a mano. Al terminar, el móvil vibra y avisa aunque esté bloqueado. La primera vez, acepta el permiso de notificaciones. La duración y el arranque automático se cambian en **Más > Descanso entre series**.
 5. Si se cierra la app a mitad, al volver te ofrecerá **reanudar** la sesión. Al acabar pulsa **Terminar entrenamiento**.
 6. **Tema**: en **Más > Apariencia** eliges Sistema, Claro u Oscuro.
-7. **Biblioteca de ejercicios**: importa `biblioteca-ejercicios.zip` desde **Más > Exportar / importar > Importar desde ZIP** para añadir más ejercicios. Puedes importarlo otra vez cuando tenga ilustraciones; no se duplica nada.
+7. **Biblioteca de ejercicios**: importa `biblioteca-ejercicios.zip` desde **Más > Exportar / importar > Importar desde ZIP** para añadir más ejercicios. Trae las 189 ilustraciones; importarlo otra vez no duplica nada. Para pasarle a otra persona tus ejercicios y rutinas sin tu historial de pesos, usa `rutinas-y-ejercicios.zip` (se importa igual) en lugar de una exportación de la app.
 
 ## 5. Actualizar a una versión nueva
 

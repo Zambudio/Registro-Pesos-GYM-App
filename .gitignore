@@ -41,3 +41,6 @@ docs/*.zip
 
 # Ilustraciones originales de la biblioteca (pesadas); van convertidas dentro de dist/biblioteca-ejercicios.zip
 docs/imagenes-ejercicios/imagenes/
+
+# ZIP con las rutinas del usuario para compartir en privado (repo público)
+dist/rutinas-y-ejercicios.zip

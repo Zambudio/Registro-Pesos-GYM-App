@@ -135,6 +135,8 @@ No reordenes ni renumeres los ids ya publicados: las instalaciones existentes se
 node tools/library/build-backup.mjs --base "docs\gym-backup-AAAAMMDD-HHmm.zip"
 ```
 
+Con `--with-routines` genera `dist/rutinas-y-ejercicios.zip`, que además lleva las rutinas de la copia para compartir la configuración completa. Ninguno de los dos ZIP lleva sesiones, series ni borrados.
+
 Las ilustraciones (`docs/imagenes-ejercicios/imagenes/<código>.png`) no se suben a git. El flujo completo está en `docs/imagenes-ejercicios/README.md`.
 
 ## Notas de desarrollo
