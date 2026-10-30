@@ -4,7 +4,7 @@
     <!-- Entrenar (inicio) -->
     <string name="workout_train_title">Entrenar</string>
     <string name="workout_open_history">Historial</string>
-    <string name="workout_train_routines_header">Rutinas</string>
+    <string name="workout_train_routines_header">Tus rutinas</string>
     <string name="workout_train_empty_title">Aún no tienes rutinas</string>
     <string name="workout_train_empty_message">Crea una rutina con los grupos musculares que vas a trabajar para empezar a entrenar.</string>
     <!-- Grupos de una rutina separados por " · " -->
@@ -25,6 +25,10 @@
     <string name="workout_routine_empty_message">Añade al menos un grupo muscular para poder entrenar con ella.</string>
     <string name="workout_routine_comment_label">Comentario</string>
     <string name="workout_routine_groups_header">Grupos musculares que vas a trabajar</string>
+    <plurals name="workout_routine_groups_count">
+        <item quantity="one">%1$d grupo muscular</item>
+        <item quantity="other">%1$d grupos musculares</item>
+    </plurals>
     <string name="workout_routine_exercises_hint">Los ejercicios los eliges durante el entrenamiento, con el botón + de cada grupo.</string>
     <string name="workout_conflict_title">Ya hay un entrenamiento en curso</string>
     <string name="workout_conflict_message">Termínalo o descártalo antes de empezar otro.</string>
@@ -46,6 +50,7 @@
     <string name="workout_weight_minus">Restar %1$s kg</string>
     <string name="workout_weight_plus">Sumar %1$s kg</string>
     <string name="workout_add_set">Añadir serie</string>
+    <string name="workout_sets_done">%1$d/%2$d series</string>
     <string name="workout_remove_set">Quitar serie</string>
     <string name="workout_set_removed">Serie quitada</string>
     <string name="workout_undo">Deshacer</string>
@@ -62,7 +67,7 @@
     <string name="workout_other_exercises">Otros ejercicios</string>
     <string name="workout_picker_title">Ejercicios de %1$s</string>
     <string name="workout_picker_hint">Toca un ejercicio para añadirlo al entrenamiento.</string>
-    <string name="workout_picker_added">Ya está en el entrenamiento</string>
+    <string name="workout_picker_added">Ya añadido</string>
     <string name="workout_picker_empty">%1$s aún no tiene ejercicios.</string>
     <string name="workout_picker_create">Crear ejercicio</string>
     <string name="workout_picker_close">Cerrar</string>
@@ -92,6 +97,7 @@
     <!-- Resumen -->
     <string name="workout_summary_title">Entrenamiento terminado</string>
     <string name="workout_summary_done">Hecho</string>
+    <string name="workout_summary_completed">¡Buen trabajo!</string>
     <string name="workout_summary_duration">Duración</string>
     <string name="workout_summary_volume">Volumen total</string>
     <string name="workout_summary_exercises">Ejercicios</string>
@@ -112,4 +118,20 @@
         <item quantity="many">%1$d series</item>
         <item quantity="other">%1$d series</item>
     </plurals>
+
+    <!-- Descanso entre series (ADR-020) -->
+    <string name="workout_rest_label">Descanso</string>
+    <string name="workout_rest_start">Empezar descanso de %1$s</string>
+    <string name="workout_rest_remaining">Descanso: quedan %1$s</string>
+    <string name="workout_rest_over">¡A por la siguiente serie!</string>
+    <string name="workout_rest_minus_label">−%1$d s</string>
+    <string name="workout_rest_plus_label">+%1$d s</string>
+    <string name="workout_rest_minus">Quitar %1$d segundos al descanso</string>
+    <string name="workout_rest_plus">Añadir %1$d segundos al descanso</string>
+    <string name="workout_rest_skip">Saltar descanso</string>
+    <string name="workout_rest_countdown_title">Descansando</string>
+    <string name="workout_rest_finished_title">Descanso terminado</string>
+    <string name="workout_rest_finished_text">A por la siguiente serie.</string>
+    <string name="workout_rest_channel_finished">Fin del descanso</string>
+    <string name="workout_rest_channel_countdown">Cuenta atrás del descanso</string>
 </resources>

@@ -3,6 +3,7 @@ package com.zambudio.registropesos.feature.workout
 import android.app.Application
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.zambudio.registropesos.domain.model.AppSettings
+import com.zambudio.registropesos.domain.model.RestTimerState
 import com.zambudio.registropesos.domain.model.SessionStatus
 import com.zambudio.registropesos.domain.usecase.DiscardSession
 import com.zambudio.registropesos.domain.usecase.FakeProgressRepository
@@ -55,6 +56,7 @@ class WorkoutViewModelTest {
     )
     private lateinit var sessionId: String
     private val events = mutableListOf<WorkoutEvent>()
+    private val restTimer = FakeRestTimer(clock)
 
     @Before
     fun setUp() {
@@ -85,6 +87,7 @@ class WorkoutViewModelTest {
             previousSessionForExercise = PreviousSessionForExercise(repo),
             finishSession = FinishSession(repo, FakeProgressRepository(emptyList()), clock),
             discardSession = DiscardSession(repo),
+            restTimer = restTimer,
             timeProvider = clock,
             idGenerator = TestIds("new"),
             applicationScope = applicationScope,
@@ -556,6 +559,81 @@ class WorkoutViewModelTest {
         assertEquals(8, repo.set("p0").reps)
         assertTrue("el consumidor termina al vaciar la cola", applicationScope.coroutineContext.job.children.none())
         applicationScope.cancel()
+    }
+
+    // --- Descanso entre series (ADR-020) ---
+
+    @Test
+    fun completingWeightAndRepsStartsRestWithTheConfiguredDuration() = runTest {
+        val vm = viewModel(settings = AppSettings(restSeconds = 120))
+        vm.onWeightChange("p0", "80")
+        assertTrue("solo el peso no completa la serie", restTimer.starts.isEmpty())
+
+        vm.onRepsChange("p0", "8")
+
+        assertEquals(listOf(120_000L), restTimer.starts)
+        assertEquals(RestTimerState(5_000_000L + 120_000L, 120_000L), vm.content().rest)
+        assertEquals(120, vm.content().restDefaultSeconds)
+    }
+
+    @Test
+    fun correctingTheSameSetDoesNotRestartRestButCompletingAnotherDoes() = runTest {
+        val vm = viewModel()
+        vm.onWeightChange("p0", "80")
+        vm.onRepsChange("p0", "8")
+
+        // Borrar y reescribir las reps de la misma serie (corregir una errata) no reinicia.
+        vm.onRepsChange("p0", "")
+        vm.onRepsChange("p0", "9")
+        vm.onStepWeight("p0", increase = true)
+        assertEquals(1, restTimer.starts.size)
+
+        vm.onRepsChange("p1", "8")
+        assertEquals("sin peso no está completa", 1, restTimer.starts.size)
+        vm.onWeightChange("p1", "0")
+        assertEquals("0 kg vale (peso corporal)", 2, restTimer.starts.size)
+    }
+
+    @Test
+    fun restDoesNotStartAutomaticallyWhenDisabledOrWhenCopyingPrevious() = runTest {
+        repo.lastFinished["fly"] = listOf(emptySet("o0", "old", "fly", "Aperturas", "Pecho", 1, 0, 14.0, 12))
+        val vm = viewModel()
+        vm.onToggleExercise("fly")
+        vm.onCopyPrevious("fly")
+        assertTrue("copiar de golpe no es completar una serie", restTimer.starts.isEmpty())
+
+        val manual = viewModel(settings = AppSettings(restAutoStart = false))
+        manual.onWeightChange("p0", "80")
+        manual.onRepsChange("p0", "8")
+        assertTrue(restTimer.starts.isEmpty())
+    }
+
+    @Test
+    fun manualRestCanBeStartedAdjustedAndStopped() = runTest {
+        val vm = viewModel(settings = AppSettings(restSeconds = 60))
+
+        vm.onStartRest()
+        assertEquals(listOf(60_000L), restTimer.starts)
+        vm.onAdjustRest(15)
+        assertEquals(5_000_000L + 75_000L, vm.content().rest?.endsAt)
+
+        vm.onStopRest()
+        assertNull(vm.content().rest)
+        assertEquals(1, restTimer.stops)
+    }
+
+    @Test
+    fun finishingOrDiscardingTheSessionStopsTheRest() = runTest {
+        val vm = viewModel()
+        vm.onWeightChange("p0", "80")
+        vm.onRepsChange("p0", "8")
+
+        vm.onFinish()
+
+        assertNull(restTimer.state.value)
+        assertEquals(1, restTimer.stops)
+        vm.onStartRest()
+        assertEquals("sesión cerrada: no se arranca otro", 1, restTimer.starts.size)
     }
 
     @Test

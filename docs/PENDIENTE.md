@@ -2,10 +2,14 @@
 
 ## Cambios tras probar la v0.1.0 en el móvil
 - Hechos (pendientes de versión): rutinas solo con grupos y comentario, ejercicios elegidos durante la sesión con foto, catálogo del Excel, sin "Hecha" y referencias de la última vez más tenues (ADR-018, ADR-019). Detalle en `CHANGELOG.md`.
-- Siguiente paso: probar `dist/registro-pesos-gym-v0.1.0+grupos-catalogo.apk` encima de la v0.1.0 instalada (exportar antes un ZIP) y, si va bien, publicarlo como 0.2.0 (`versionCode` 2, APK en `dist/`, `INSTALAR.md`, tag).
+- Siguiente paso: probar `dist/registro-pesos-gym-v0.1.0+diseno-descanso.apk` encima de la v0.1.0 instalada (exportar antes un ZIP) y, si va bien, publicarlo como 0.2.0 (`versionCode` 2, APK en `dist/`, `INSTALAR.md`, tag).
+- Generar las 189 ilustraciones con `docs/imagenes-ejercicios/PROMPT_CHATGPT.md`, regenerar `dist/biblioteca-ejercicios.zip` e importarlo.
+- Aclarar qué es "Press barra", que está en el grupo Espalda: en la biblioteca se ha descrito como press de hombros con barra.
 - El Excel origen del catálogo (`docs/261013 Registro Pesos - Rutina 5 Dias.xlsx`) no se sube al repo porque es público y el Excel contiene el historial de pesos; solo hace falta para regenerar el catálogo.
 
 ## Sin verificar en dispositivo real
+- Rediseño y modo oscuro en el móvil (revisado solo con la galería de capturas de Robolectric).
+- Descanso entre series: vibración y notificación con el móvil bloqueado, permiso de notificaciones y alarma exacta en Android 14+.
 - Flujo nuevo de la sesión (selector con fotos a pantalla completa, recordatorio fijo arriba con el teclado abierto) y legibilidad de las referencias tenues con luz del gimnasio.
 - Actualización real desde la v0.1.0 instalada (migración 1→2 y carga del catálogo en el primer arranque); probado solo con Robolectric.
 - Cámara y galería, incluida la rotación EXIF de las fotos.

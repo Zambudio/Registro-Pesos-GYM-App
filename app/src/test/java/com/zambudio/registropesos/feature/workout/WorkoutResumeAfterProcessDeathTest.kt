@@ -95,6 +95,7 @@ class WorkoutResumeAfterProcessDeathTest {
                 previousSessionForExercise = PreviousSessionForExercise(workouts),
                 finishSession = FinishSession(workouts, progress, clock),
                 discardSession = DiscardSession(workouts),
+                restTimer = FakeRestTimer(clock),
                 timeProvider = clock,
                 idGenerator = ids,
                 applicationScope = immediateApplicationScope(),

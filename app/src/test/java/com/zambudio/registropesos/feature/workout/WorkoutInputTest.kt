@@ -1,5 +1,6 @@
 package com.zambudio.registropesos.feature.workout
 
+import com.zambudio.registropesos.feature.workout.common.formatCountdown
 import com.zambudio.registropesos.feature.workout.common.formatElapsed
 import com.zambudio.registropesos.feature.workout.common.formatWeightInput
 import com.zambudio.registropesos.feature.workout.common.parseRepsText
@@ -44,6 +45,16 @@ class WorkoutInputTest {
         assertEquals("05:09", formatElapsed(309_000))
         assertEquals("1:05:09", formatElapsed(3_909_000))
         assertEquals(0.3, roundKg(0.1 + 0.2), 0.0)
+    }
+
+    @Test
+    fun formatsRestCountdownRoundingUp() {
+        assertEquals("0:00", formatCountdown(0))
+        assertEquals("0:00", formatCountdown(-500))
+        assertEquals("0:01", formatCountdown(400))
+        assertEquals("1:30", formatCountdown(90_000))
+        assertEquals("1:30", formatCountdown(89_001))
+        assertEquals("10:00", formatCountdown(600_000))
     }
 
     @Test

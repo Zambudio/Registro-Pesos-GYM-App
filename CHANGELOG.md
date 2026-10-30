@@ -38,11 +38,34 @@ Cambios hechos tras probar la v0.1.0 en el móvil. Aún no tienen número de ver
 - Las copias de seguridad pasan a `schemaVersion` 2. Los ZIP de la v0.1.0 se siguen importando, y al importar uno no se pierde el comentario ni los grupos de las sesiones.
 
 ### Calidad
-- 270 tests JVM/Robolectric. Cubren la migración 1→2 con datos reales de la v1, la importación de ZIP v1, el catálogo (las 58 asociaciones nombre-foto, comprobadas byte a byte) y el flujo completo de rutina, sesión e historial. `assembleRelease test detekt` pasa sin errores.
+- 289 tests JVM/Robolectric (y galería de capturas en claro y oscuro). Cubren la migración 1→2 con datos reales de la v1, la importación de ZIP v1, el catálogo (las 58 asociaciones nombre-foto, comprobadas byte a byte) y el flujo completo de rutina, sesión e historial. `assembleRelease test detekt` pasa sin errores.
 - No se ha probado en un dispositivo real; ver `docs/PENDIENTE.md`.
 
+### Diseño y modo oscuro (ADR-021)
+- Rediseño completo con una paleta naranja deportiva:
+  - tarjetas y cabeceras destacadas con degradado;
+  - titulares y cifras en Barlow Condensed;
+  - estados vacíos cuidados.
+- En la sesión:
+  - las series se numeran en círculos, que se rellenan al anotarlas;
+  - las cifras son grandes;
+  - la referencia de la última vez va en un recuadro propio.
+- Más > Apariencia: tema Sistema, Claro u Oscuro. Se aplica también a los iconos de las barras del sistema.
+
+### Descanso entre series (ADR-020)
+- Cuenta atrás integrada en la parte inferior de la sesión.
+- Arranca sola al completar peso y repeticiones de una serie. Se puede desactivar en Ajustes y también arrancar a mano.
+- Botones −15 s, +15 s y Saltar. Duración por defecto en Ajustes, de 45 s a 3 min.
+- Mientras corre, una notificación muestra la cuenta atrás. Al terminar, vibra y avisa aunque el móvil esté bloqueado o la app cerrada.
+- Sobrevive a cerrar la app. Terminar o descartar la sesión lo para.
+
+### Biblioteca de ejercicios (ADR-022)
+- 189 ejercicios: los 60 actuales y 129 nuevos, de máquina, mancuernas, barra, polea, multipower y peso corporal.
+- `dist/biblioteca-ejercicios.zip` se importa desde Más > Exportar / importar. Reimportarlo no duplica nada.
+- Listado y prompt para generar las ilustraciones con ChatGPT en `docs/imagenes-ejercicios/`. Al regenerar el ZIP con ellas, la ilustración sustituye también la foto de los ejercicios existentes.
+
 ### APK de prueba
-- `dist/registro-pesos-gym-v0.1.0+grupos-catalogo.apk`. Está firmado con la misma clave que la v0.1.0, así que se instala encima y conserva los datos. Por dentro sigue diciendo 0.1.0.
+- `dist/registro-pesos-gym-v0.1.0+diseno-descanso.apk` (incluye todo lo anterior y sustituye al APK de prueba `+grupos-catalogo`). Está firmado con la misma clave que la v0.1.0, así que se instala encima y conserva los datos. Por dentro sigue diciendo 0.1.0.
 
 ## 0.1.0 (2026-10-29)
 

@@ -1,6 +1,7 @@
 package com.zambudio.registropesos.feature.settings
 
 import com.zambudio.registropesos.domain.model.AppSettings
+import com.zambudio.registropesos.domain.model.ThemeMode
 import com.zambudio.registropesos.domain.repository.SettingsRepository
 import com.zambudio.registropesos.feature.progress.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -62,6 +63,22 @@ class MoreViewModelTest {
         viewModel.setDefaultSets(1)
         assertEquals(1, viewModel.state.value.settings.defaultSets)
         assertEquals(2, repository.updates)
+    }
+
+    @Test
+    fun `theme and rest settings are stored`() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.setThemeMode(ThemeMode.DARK)
+        viewModel.setRestSeconds(120)
+        viewModel.setRestSeconds(100)
+        viewModel.setRestAutoStart(false)
+
+        val settings = viewModel.state.value.settings
+        assertEquals(ThemeMode.DARK, settings.themeMode)
+        assertEquals("solo duraciones ofrecidas", 120, settings.restSeconds)
+        assertFalse(settings.restAutoStart)
+        assertEquals(3, repository.updates)
     }
 }
 

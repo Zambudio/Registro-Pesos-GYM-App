@@ -1,6 +1,7 @@
 package com.zambudio.registropesos.feature.routines.edit
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,10 +21,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,7 +40,6 @@ import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,16 +50,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zambudio.registropesos.R
 import com.zambudio.registropesos.core.theme.GymTheme
+import com.zambudio.registropesos.core.ui.CardSpacing
 import com.zambudio.registropesos.core.ui.ConfirmDialog
 import com.zambudio.registropesos.core.ui.ErrorState
+import com.zambudio.registropesos.core.ui.GymCard
+import com.zambudio.registropesos.core.ui.IconBadge
 import com.zambudio.registropesos.core.ui.LoadingState
+import com.zambudio.registropesos.core.ui.NumberBadge
 import com.zambudio.registropesos.core.ui.ObserveAsEvents
+import com.zambudio.registropesos.core.ui.ScreenPadding
+import com.zambudio.registropesos.core.ui.SectionHeader
 import com.zambudio.registropesos.domain.model.MuscleGroup
 import com.zambudio.registropesos.domain.usecase.RoutineError
 import kotlinx.coroutines.launch
@@ -160,13 +173,17 @@ fun RoutineEditScreen(
                     if (!state.isNew && editable) {
                         IconButton(onClick = actions.onDeleteClick) {
                             Icon(
-                                Icons.Filled.Delete,
+                                Icons.Outlined.Delete,
                                 contentDescription = stringResource(R.string.routines_edit_delete),
                             )
                         }
                     }
                     if (editable) {
-                        TextButton(onClick = actions.onSave, enabled = !state.isSaving) {
+                        Button(
+                            onClick = actions.onSave,
+                            enabled = !state.isSaving,
+                            modifier = Modifier.padding(end = 8.dp),
+                        ) {
                             Text(
                                 stringResource(
                                     if (state.isSaving) R.string.routines_edit_saving else R.string.routines_edit_save,
@@ -234,54 +251,22 @@ private fun EditorContent(state: RoutineEditUiState, actions: RoutineEditActions
     val draft = state.draft
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(start = ScreenPadding, top = 4.dp, end = ScreenPadding, bottom = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(CardSpacing),
     ) {
-        item(key = "name") {
-            val nameError = RoutineError.NAME_EMPTY in state.errors
-            OutlinedTextField(
-                value = draft.name,
-                onValueChange = actions.onNameChange,
-                label = { Text(stringResource(R.string.routines_edit_name)) },
-                placeholder = { Text(stringResource(R.string.routines_edit_name_hint)) },
-                isError = nameError,
-                supportingText = if (nameError) {
-                    { Text(stringResource(R.string.routines_error_name_empty)) }
-                } else {
-                    null
-                },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        item(key = "subtitle") {
-            OutlinedTextField(
-                value = draft.subtitle,
-                onValueChange = actions.onSubtitleChange,
-                label = { Text(stringResource(R.string.routines_edit_subtitle)) },
-                placeholder = { Text(stringResource(R.string.routines_edit_subtitle_hint)) },
-                supportingText = { Text(stringResource(R.string.routines_edit_subtitle_help)) },
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                maxLines = 3,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+        item(key = "details") { DetailsCard(state = state, actions = actions) }
         item(key = "header") {
-            Text(stringResource(R.string.routines_edit_blocks), style = MaterialTheme.typography.titleMedium)
+            SectionHeader(
+                title = stringResource(R.string.routines_edit_blocks),
+                modifier = Modifier.padding(start = 4.dp, top = 12.dp),
+            )
         }
         val blockErrors = state.errors - RoutineError.NAME_EMPTY
         if (blockErrors.isNotEmpty()) {
             item(key = "errors") { ValidationErrors(blockErrors) }
         }
         if (draft.blocks.isEmpty()) {
-            item(key = "no-blocks") {
-                Text(
-                    stringResource(R.string.routines_edit_no_blocks),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            item(key = "no-blocks") { NoBlocksCard() }
         }
         items(draft.blocks, key = { it.id }) { block ->
             val index = draft.blocks.indexOf(block)
@@ -295,11 +280,68 @@ private fun EditorContent(state: RoutineEditUiState, actions: RoutineEditActions
             )
         }
         item(key = "add-block") {
-            OutlinedButton(onClick = actions.onAddBlockClick, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = actions.onAddBlockClick,
+                shape = MaterialTheme.shapes.medium,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 52.dp),
+            ) {
                 Icon(Icons.Filled.Add, contentDescription = null)
                 Spacer(Modifier.size(8.dp))
                 Text(stringResource(R.string.routines_edit_add_block))
             }
+        }
+    }
+}
+
+@Composable
+private fun DetailsCard(state: RoutineEditUiState, actions: RoutineEditActions) {
+    val draft = state.draft
+    GymCard(modifier = Modifier.fillMaxWidth()) {
+        val nameError = RoutineError.NAME_EMPTY in state.errors
+        OutlinedTextField(
+            value = draft.name,
+            onValueChange = actions.onNameChange,
+            label = { Text(stringResource(R.string.routines_edit_name)) },
+            placeholder = { Text(stringResource(R.string.routines_edit_name_hint)) },
+            isError = nameError,
+            supportingText = if (nameError) {
+                { Text(stringResource(R.string.routines_error_name_empty)) }
+            } else {
+                null
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
+            value = draft.subtitle,
+            onValueChange = actions.onSubtitleChange,
+            label = { Text(stringResource(R.string.routines_edit_subtitle)) },
+            placeholder = { Text(stringResource(R.string.routines_edit_subtitle_hint)) },
+            supportingText = { Text(stringResource(R.string.routines_edit_subtitle_help)) },
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            maxLines = 3,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun NoBlocksCard() {
+    GymCard(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            IconBadge(Icons.Filled.Category)
+            Text(
+                stringResource(R.string.routines_edit_no_blocks),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 }
@@ -312,15 +354,24 @@ private fun ValidationErrors(errors: Set<RoutineError>) {
                 RoutineError.NAME_EMPTY -> R.string.routines_error_name_empty
                 RoutineError.NO_GROUPS -> R.string.routines_error_no_groups
             }
-            Text(
-                stringResource(message),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(
+                    Icons.Filled.ErrorOutline,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(18.dp),
+                )
+                Text(
+                    stringResource(message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
         }
     }
 }
 
+/** Grupo de la rutina: número de orden, nombre y acciones de orden/quitar. */
 @Composable
 private fun BlockCard(
     block: DraftBlock,
@@ -331,22 +382,20 @@ private fun BlockCard(
     modifier: Modifier = Modifier,
 ) {
     val groupName = block.muscleGroup.name
-    Card(modifier = modifier.fillMaxWidth()) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(start = 16.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
-        ) {
-            Text(
-                "$position.",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(end = 8.dp),
-            )
+    GymCard(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(start = 14.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            NumberBadge(number = position)
             Text(
                 groupName,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp),
             )
             IconButton(onClick = { actions.onMoveBlockUp(block.id) }, enabled = canMoveUp) {
                 Icon(
@@ -362,8 +411,9 @@ private fun BlockCard(
             }
             IconButton(onClick = { actions.onRemoveBlock(block.id) }) {
                 Icon(
-                    Icons.Filled.Delete,
+                    Icons.Filled.Close,
                     contentDescription = stringResource(R.string.routines_edit_remove_block, groupName),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

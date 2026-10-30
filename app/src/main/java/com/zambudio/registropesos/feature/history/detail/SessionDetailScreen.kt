@@ -2,18 +2,20 @@ package com.zambudio.registropesos.feature.history.detail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,9 +31,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,10 +45,19 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.zambudio.registropesos.R
 import com.zambudio.registropesos.core.theme.GymTheme
+import com.zambudio.registropesos.core.ui.CardSpacing
 import com.zambudio.registropesos.core.ui.ConfirmDialog
 import com.zambudio.registropesos.core.ui.ErrorState
+import com.zambudio.registropesos.core.ui.GymCard
+import com.zambudio.registropesos.core.ui.HeroCard
+import com.zambudio.registropesos.core.ui.ListContentPadding
 import com.zambudio.registropesos.core.ui.LoadingState
+import com.zambudio.registropesos.core.ui.MetaItem
+import com.zambudio.registropesos.core.ui.NumberBadge
 import com.zambudio.registropesos.core.ui.ObserveAsEvents
+import com.zambudio.registropesos.core.ui.OnHero
+import com.zambudio.registropesos.core.ui.Pill
+import com.zambudio.registropesos.core.ui.StatValue
 import com.zambudio.registropesos.core.util.formatDateTime
 import com.zambudio.registropesos.core.util.formatDuration
 import com.zambudio.registropesos.core.util.formatKg
@@ -110,7 +123,7 @@ fun SessionDetailScreen(
                 actions = {
                     if (content != null) {
                         IconButton(onClick = { confirmDelete = true }, enabled = !content.isDeleting) {
-                            Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.history_delete))
+                            Icon(Icons.Outlined.Delete, contentDescription = stringResource(R.string.history_delete))
                         }
                     }
                 },
@@ -145,72 +158,118 @@ fun SessionDetailScreen(
 private fun DetailContent(state: SessionDetailUiState.Content, modifier: Modifier = Modifier) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = ListContentPadding,
+        verticalArrangement = Arrangement.spacedBy(CardSpacing),
     ) {
-        item(key = "header") {
-            val details = listOfNotNull(
-                formatDateTime(state.startedAt),
-                state.durationMs?.let(::formatDuration),
-                formatKgWithUnit(state.volumeKg),
-            ).joinToString(" · ")
-            Text(
-                text = details,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        item(key = "summary") { SummaryCard(state) }
         if (state.exercises.isEmpty()) {
             item(key = "empty") {
-                Text(stringResource(R.string.history_detail_no_sets), style = MaterialTheme.typography.bodyLarge)
+                GymCard(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        stringResource(R.string.history_detail_no_sets),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
         items(state.exercises, key = { it.exerciseId }) { exercise -> ExerciseSetsCard(exercise) }
     }
 }
 
+/** Cabecera destacada: fecha y duración, y las tres cifras de la sesión. */
+@Composable
+private fun SummaryCard(state: SessionDetailUiState.Content) {
+    HeroCard(modifier = Modifier.fillMaxWidth()) {
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            MetaItem(Icons.Outlined.CalendarToday, formatDateTime(state.startedAt), color = OnHero)
+            state.durationMs?.let { MetaItem(Icons.Outlined.Timer, formatDuration(it), color = OnHero) }
+        }
+        Spacer(Modifier.height(16.dp))
+        Row {
+            StatValue(
+                value = state.exercises.size.toString(),
+                label = stringResource(R.string.history_stat_exercises),
+                valueColor = OnHero,
+                labelColor = OnHero,
+                modifier = Modifier.weight(1f),
+            )
+            StatValue(
+                value = state.exercises.sumOf { it.sets.size }.toString(),
+                label = stringResource(R.string.history_stat_sets),
+                valueColor = OnHero,
+                labelColor = OnHero,
+                modifier = Modifier.weight(1f),
+            )
+            StatValue(
+                value = formatKg(state.volumeKg),
+                label = stringResource(R.string.history_stat_volume),
+                valueColor = OnHero,
+                labelColor = OnHero,
+                modifier = Modifier.weight(1.3f),
+            )
+        }
+    }
+}
+
 @Composable
 private fun ExerciseSetsCard(exercise: HistoryExerciseUi) {
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(exercise.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            Text(
-                text = stringResource(
-                    R.string.history_exercise_group_volume,
-                    exercise.muscleGroupName,
-                    formatKgWithUnit(exercise.volumeKg),
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            exercise.sets.forEach { set ->
-                Row(Modifier.fillMaxWidth()) {
-                    Text(
-                        text = stringResource(R.string.history_set_number, set.number),
-                        modifier = Modifier.width(72.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.history_set_weight_reps,
-                            set.weightKg?.let(::formatKg) ?: stringResource(R.string.history_no_value),
-                            set.reps?.toString() ?: stringResource(R.string.history_no_value),
-                        ),
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Text(
-                        text = if (set.e1rmKg > 0.0) {
-                            stringResource(R.string.history_set_e1rm, formatKg(set.e1rmKg))
-                        } else {
-                            ""
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.End,
-                    )
-                }
+    GymCard(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    exercise.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Pill(text = exercise.muscleGroupName)
             }
+            Text(
+                formatKgWithUnit(exercise.volumeKg),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 12.dp),
+            color = MaterialTheme.colorScheme.outlineVariant,
+        )
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            exercise.sets.forEach { set -> SetRow(set) }
+        }
+    }
+}
+
+@Composable
+private fun SetRow(set: HistorySetUi) {
+    val setLabel = stringResource(R.string.history_set_number, set.number)
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        NumberBadge(
+            number = set.number,
+            size = 28.dp,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.clearAndSetSemantics { contentDescription = setLabel },
+        )
+        Text(
+            text = stringResource(
+                R.string.history_set_weight_reps,
+                set.weightKg?.let(::formatKg) ?: stringResource(R.string.history_no_value),
+                set.reps?.toString() ?: stringResource(R.string.history_no_value),
+            ),
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 12.dp),
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        if (set.e1rmKg > 0.0) {
+            Text(
+                text = stringResource(R.string.history_set_e1rm, formatKg(set.e1rmKg)),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.End,
+            )
         }
     }
 }

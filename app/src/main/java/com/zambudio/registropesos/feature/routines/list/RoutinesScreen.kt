@@ -1,26 +1,26 @@
 package com.zambudio.registropesos.feature.routines.list
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,11 +45,16 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zambudio.registropesos.R
 import com.zambudio.registropesos.core.theme.GymTheme
+import com.zambudio.registropesos.core.ui.CardSpacing
 import com.zambudio.registropesos.core.ui.ConfirmDialog
 import com.zambudio.registropesos.core.ui.EmptyState
 import com.zambudio.registropesos.core.ui.ErrorState
+import com.zambudio.registropesos.core.ui.GymCard
+import com.zambudio.registropesos.core.ui.GymExtendedFab
 import com.zambudio.registropesos.core.ui.LoadingState
 import com.zambudio.registropesos.core.ui.ObserveAsEvents
+import com.zambudio.registropesos.core.ui.Pill
+import com.zambudio.registropesos.core.ui.ScreenPadding
 import com.zambudio.registropesos.domain.model.RoutineSummary
 import kotlinx.coroutines.launch
 
@@ -109,10 +114,10 @@ fun RoutinesScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             if (showContent) {
-                ExtendedFloatingActionButton(
+                GymExtendedFab(
+                    text = stringResource(R.string.routines_new),
+                    icon = Icons.Filled.Add,
                     onClick = onCreateRoutine,
-                    icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                    text = { Text(stringResource(R.string.routines_new)) },
                 )
             }
         },
@@ -165,8 +170,8 @@ private fun RoutineList(
     LazyColumn(
         modifier = modifier,
         // Hueco inferior para que el FAB no tape la última tarjeta.
-        contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 96.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(start = ScreenPadding, top = 4.dp, end = ScreenPadding, bottom = 96.dp),
+        verticalArrangement = Arrangement.spacedBy(CardSpacing),
     ) {
         itemsIndexed(routines, key = { _, routine -> routine.id }) { index, routine ->
             RoutineCard(
@@ -183,6 +188,7 @@ private fun RoutineList(
     }
 }
 
+/** Tarjeta de rutina: nombre en grande, comentario, grupos en una píldora y acciones al pie. */
 @Composable
 private fun RoutineCard(
     routine: RoutineSummary,
@@ -194,43 +200,43 @@ private fun RoutineCard(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                Text(
-                    routine.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                routine.subtitle?.takeIf { it.isNotBlank() }?.let {
-                    Text(
-                        it,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Text(
-                    if (routine.groupNames.isEmpty()) {
-                        stringResource(R.string.routines_no_groups)
-                    } else {
+    GymCard(
+        modifier = modifier.fillMaxWidth(),
+        onClick = onClick,
+        contentPadding = PaddingValues(start = 16.dp, top = 14.dp, end = 4.dp, bottom = 4.dp),
+    ) {
+        Text(
+            routine.name,
+            style = MaterialTheme.typography.titleLarge,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(end = 12.dp),
+        )
+        routine.subtitle?.takeIf { it.isNotBlank() }?.let {
+            Text(
+                it,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 2.dp, end = 12.dp),
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            val hasGroups = routine.groupNames.isNotEmpty()
+            val colors = MaterialTheme.colorScheme
+            // La píldora ocupa lo que necesita y las acciones quedan siempre a la derecha.
+            Box(Modifier.weight(1f)) {
+                Pill(
+                    text = if (hasGroups) {
                         routine.groupNames.joinToString(stringResource(R.string.routines_groups_separator))
+                    } else {
+                        stringResource(R.string.routines_no_groups)
                     },
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
+                    icon = Icons.Filled.Category,
+                    containerColor = if (hasGroups) colors.primaryContainer else colors.secondaryContainer,
+                    contentColor = if (hasGroups) colors.onPrimaryContainer else colors.onSecondaryContainer,
                 )
             }
             IconButton(onClick = onMoveUp, enabled = canMoveUp) {
@@ -247,8 +253,9 @@ private fun RoutineCard(
             }
             IconButton(onClick = onDelete) {
                 Icon(
-                    Icons.Filled.Delete,
+                    Icons.Outlined.Delete,
                     contentDescription = stringResource(R.string.routines_delete_named, routine.name),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

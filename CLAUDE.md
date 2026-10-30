@@ -6,7 +6,7 @@ App Android nativa (Kotlin + Jetpack Compose) para registrar pesos del gimnasio.
 
 Documentación que manda (leer antes de cambios no triviales):
 - `docs/CONVENCIONES.md`: reglas de código a respetar (estructura, UI/estado, datos, calidad, git).
-- `docs/DECISIONES.md`: ADR-001 a 017; citar/añadir ADR cuando se tome una decisión de fondo.
+- `docs/DECISIONES.md`: ADR-001 a 022; citar/añadir ADR cuando se tome una decisión de fondo.
 - `docs/PENDIENTE.md`: deuda técnica conocida e ideas para la v0.2.
 - `README.md`: stack con versiones, firma/release, backups, puesta en marcha en otro PC.
 
@@ -43,6 +43,9 @@ Patrones transversales que no son obvios leyendo un solo fichero:
 - **Navegación**: acciones del usuario envueltas en `dropUnlessResumed {}`; cierres disparados por eventos del ViewModel con `popBackStack<Ruta>(inclusive = true)` (ADR-014).
 - **Rutinas y sesión (BD v2, ADR-018)**: una rutina es nombre + comentario (`routines.subtitle`) + grupos ordenados; `routine_exercises` es legado de la v1 (se conserva, no se usa). `StartSession` copia los grupos a `workout_session_groups` y el comentario a `routine_comment_snapshot`; la sesión empieza sin ejercicios. Elegir un ejercicio en el selector del grupo = crear sus filas vacías (`WorkoutViewModel.onPickExercise`); no existe tabla de "ejercicios de la sesión". `workout_sets.is_done/completed_at` son columnas heredadas sin uso ("Hecha" se retiró).
 - **Sesión de entrenamiento**: cada cambio de serie se guarda al instante; las escrituras van por una cola FIFO en el `@ApplicationScope CoroutineScope` para no perderse al salir de la pantalla (ADR-013). La copia en memoria del ViewModel es la verdad de la pantalla. Solo puede haber una sesión `IN_PROGRESS`, que se reanuda tras matar el proceso.
+- **Diseño (ADR-021)**: `core/theme` (paleta naranja, Barlow Condensed para títulos y cifras) y `core/ui/Components.kt` (`GymCard`, `SectionHeader`, `IconBadge`, `HeroCard`...). En las pantallas no hay colores fijos. `AppSettings.themeMode` lo aplica `MainActivity`. Para revisar el aspecto sin dispositivo: `--tests "*ScreenshotGallery*" -Pgym.screenshots=true` → `app/build/screenshots/*.png` (con Read se ven las imágenes).
+- **Descanso (ADR-020)**: `RestTimer` (dominio) → `data/rest/AndroidRestTimer`, con el estado en DataStore, alarma exacta, `RestTimerReceiver` y notificaciones (`RestAlerts`). `WorkoutViewModel` lo arranca al pasar una serie a completa (`WorkoutSet.isComplete`).
+- **Biblioteca (ADR-022)**: `tools/library/exercises.json` + `build-backup.mjs` generan `dist/biblioteca-ejercicios.zip` (formato de copia de seguridad, ids fijos), a partir de una copia exportada. No va dentro del APK.
 - **Catálogo incluido (ADR-019)**: `assets/catalog/` (58 ejercicios con foto, ids fijos) generado con `tools/catalog/` desde el Excel de `docs/`; `data/catalog/CatalogSeeder` lo siembra en cada arranque desde `GymApplication`, sin duplicar ni modificar ejercicios existentes. No renumerar ids publicados.
 - **Modelo de datos**: PK UUID + `createdAt`/`updatedAt` en todas las tablas; los borrados dejan tombstone en `deleted_entities` (ADR-004); ejercicios se archivan, no se borran. Prohibido `@Upsert` y `OnConflictStrategy.REPLACE` (ADR-009).
 - **Backup**: export ZIP (`backup.json` con `schemaVersion` + `sets.csv` + `images/`) vía SAF; import = merge por UUID, gana el `updatedAt` más reciente, respeta tombstones, no pisa la sesión en curso. Si cambia el formato, subir `schemaVersion` y seguir aceptando ZIP antiguos. Auto Backup depende de `res/xml/backup_rules.xml` y `data_extraction_rules.xml` (lint exige que cada `<exclude>` esté dentro de un `<include>`).

@@ -5,35 +5,40 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Unarchive
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -48,8 +53,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -62,14 +67,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.zambudio.registropesos.R
 import com.zambudio.registropesos.core.theme.GymTheme
+import com.zambudio.registropesos.core.ui.CardSpacing
 import com.zambudio.registropesos.core.ui.ConfirmDialog
 import com.zambudio.registropesos.core.ui.ErrorState
+import com.zambudio.registropesos.core.ui.GymCard
 import com.zambudio.registropesos.core.ui.LoadingState
 import com.zambudio.registropesos.core.ui.ObserveAsEvents
+import com.zambudio.registropesos.core.ui.PickerField
+import com.zambudio.registropesos.core.ui.ScreenPadding
 import com.zambudio.registropesos.domain.usecase.ExerciseNameError
 import com.zambudio.registropesos.domain.usecase.ValidateExerciseName
 import kotlinx.coroutines.launch
 import java.io.File
+
+private val ImageHeight = 220.dp
 
 @Composable
 fun ExerciseEditorRoute(
@@ -263,47 +274,49 @@ private fun ExerciseForm(
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(start = ScreenPadding, end = ScreenPadding, top = 4.dp, bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(CardSpacing),
     ) {
-        if (state.isArchived) {
-            Text(
-                text = stringResource(R.string.exercises_archived_notice),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error,
-            )
-        }
-        OutlinedTextField(
-            value = state.name,
-            onValueChange = onNameChange,
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(stringResource(R.string.exercises_field_name)) },
-            isError = state.nameError != null,
-            supportingText = state.nameError?.let { error -> { Text(nameErrorText(error)) } },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-        )
-        GroupSelector(state = state, onClick = { showGroupPicker = true })
-        OutlinedTextField(
-            value = state.notes,
-            onValueChange = onNotesChange,
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(stringResource(R.string.exercises_field_notes)) },
-            minLines = 3,
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-        )
+        if (state.isArchived) ArchivedBanner()
         ImageSection(
             state = state,
             onPickFromGallery = onPickFromGallery,
             onTakePhoto = onTakePhoto,
             onRemoveImage = onRemoveImage,
         )
+        GymCard(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = state.name,
+                onValueChange = onNameChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.exercises_field_name)) },
+                isError = state.nameError != null,
+                supportingText = state.nameError?.let { error -> { Text(nameErrorText(error)) } },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            )
+            Spacer(Modifier.height(8.dp))
+            GroupSelector(state = state, onClick = { showGroupPicker = true })
+            Spacer(Modifier.height(16.dp))
+            OutlinedTextField(
+                value = state.notes,
+                onValueChange = onNotesChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.exercises_field_notes)) },
+                minLines = 3,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            )
+        }
         Button(
             onClick = onSave,
             enabled = !state.isBusy,
-            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 52.dp),
         ) {
-            Text(stringResource(R.string.common_save))
+            ButtonIcon(Icons.Filled.Check)
+            Text(stringResource(R.string.common_save), modifier = Modifier.padding(start = 8.dp))
         }
     }
 
@@ -327,17 +340,38 @@ private fun nameErrorText(error: ExerciseNameError): String = when (error) {
 }
 
 @Composable
-private fun GroupSelector(state: ExerciseEditUiState, onClick: () -> Unit) {
-    Column {
-        OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-            ListItem(
-                overlineContent = { Text(stringResource(R.string.exercises_field_group)) },
-                headlineContent = {
-                    Text(state.selectedGroupName ?: stringResource(R.string.exercises_field_group_none))
-                },
-                modifier = Modifier.clickableRow(onClick),
+private fun ArchivedBanner() {
+    GymCard(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Icon(
+                Icons.Filled.Archive,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            Text(
+                text = stringResource(R.string.exercises_archived_notice),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
         }
+    }
+}
+
+@Composable
+private fun GroupSelector(state: ExerciseEditUiState, onClick: () -> Unit) {
+    Column {
+        PickerField(
+            label = stringResource(R.string.exercises_field_group),
+            value = state.selectedGroupName,
+            placeholder = stringResource(R.string.exercises_field_group_none),
+            onClick = onClick,
+            isError = state.isGroupMissing,
+            leadingIcon = Icons.Filled.Category,
+        )
         if (state.isGroupMissing) {
             Text(
                 text = stringResource(R.string.exercises_error_group_missing),
@@ -349,6 +383,7 @@ private fun GroupSelector(state: ExerciseEditUiState, onClick: () -> Unit) {
     }
 }
 
+/** Foto grande arriba (o un hueco con icono) y, debajo, las acciones para cambiarla. */
 @Composable
 private fun ImageSection(
     state: ExerciseEditUiState,
@@ -356,45 +391,73 @@ private fun ImageSection(
     onTakePhoto: () -> Unit,
     onRemoveImage: () -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(stringResource(R.string.exercises_image_label), style = MaterialTheme.typography.titleSmall)
+    GymCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(0.dp)) {
         val imageFile = state.imageFile
-        if (imageFile != null) {
-            AsyncImage(
-                model = imageFile,
-                contentDescription = stringResource(R.string.exercises_image_description),
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-            )
-        } else {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                ExerciseThumbnail(imageFile = null, size = 64.dp)
-                Text(
-                    text = stringResource(R.string.exercises_image_none),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 20.dp),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(ImageHeight)
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (imageFile != null) {
+                AsyncImage(
+                    model = imageFile,
+                    contentDescription = stringResource(R.string.exercises_image_description),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.matchParentSize(),
                 )
+            } else {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(
+                        Icons.Filled.AddPhotoAlternate,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(48.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.exercises_image_none),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
         if (state.isImageBusy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = onPickFromGallery, enabled = !state.isBusy) {
-                ButtonIcon(Icons.Filled.PhotoLibrary)
-                Text(stringResource(R.string.exercises_image_gallery), modifier = Modifier.padding(start = 8.dp))
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilledTonalButton(
+                    onClick = onPickFromGallery,
+                    enabled = !state.isBusy,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    ButtonIcon(Icons.Filled.PhotoLibrary)
+                    Text(stringResource(R.string.exercises_image_gallery), modifier = Modifier.padding(start = 8.dp))
+                }
+                FilledTonalButton(
+                    onClick = onTakePhoto,
+                    enabled = !state.isBusy,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    ButtonIcon(Icons.Filled.PhotoCamera)
+                    Text(stringResource(R.string.exercises_image_camera), modifier = Modifier.padding(start = 8.dp))
+                }
             }
-            OutlinedButton(onClick = onTakePhoto, enabled = !state.isBusy) {
-                ButtonIcon(Icons.Filled.PhotoCamera)
-                Text(stringResource(R.string.exercises_image_camera), modifier = Modifier.padding(start = 8.dp))
-            }
-        }
-        if (imageFile != null) {
-            TextButton(onClick = onRemoveImage, enabled = !state.isBusy) {
-                ButtonIcon(Icons.Filled.Delete)
-                Text(stringResource(R.string.exercises_image_remove), modifier = Modifier.padding(start = 8.dp))
+            if (imageFile != null) {
+                TextButton(
+                    onClick = onRemoveImage,
+                    enabled = !state.isBusy,
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                ) {
+                    ButtonIcon(Icons.Outlined.Delete)
+                    Text(stringResource(R.string.exercises_image_remove), modifier = Modifier.padding(start = 8.dp))
+                }
             }
         }
     }

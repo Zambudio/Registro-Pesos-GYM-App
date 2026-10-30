@@ -8,11 +8,15 @@ import com.zambudio.registropesos.data.repository.ProgressRepositoryImpl
 import com.zambudio.registropesos.data.repository.RoutineRepositoryImpl
 import com.zambudio.registropesos.data.repository.SettingsRepositoryImpl
 import com.zambudio.registropesos.data.repository.WorkoutRepositoryImpl
+import com.zambudio.registropesos.data.rest.AndroidRestAlerts
+import com.zambudio.registropesos.data.rest.AndroidRestTimer
+import com.zambudio.registropesos.data.rest.RestAlerts
 import com.zambudio.registropesos.domain.repository.BackupRepository
 import com.zambudio.registropesos.domain.repository.ExerciseRepository
 import com.zambudio.registropesos.domain.repository.ImageStore
 import com.zambudio.registropesos.domain.repository.MuscleGroupRepository
 import com.zambudio.registropesos.domain.repository.ProgressRepository
+import com.zambudio.registropesos.domain.repository.RestTimer
 import com.zambudio.registropesos.domain.repository.RoutineRepository
 import com.zambudio.registropesos.domain.repository.SettingsRepository
 import com.zambudio.registropesos.domain.repository.WorkoutRepository
@@ -52,6 +56,13 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRestTimer(impl: AndroidRestTimer): RestTimer
+
+    @Binds
+    abstract fun bindRestAlerts(impl: AndroidRestAlerts): RestAlerts
 
     @Binds
     @Singleton

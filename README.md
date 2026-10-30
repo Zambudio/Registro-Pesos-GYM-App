@@ -3,10 +3,10 @@
 App Android nativa (Kotlin + Jetpack Compose) para registrar los pesos levantados en el gimnasio y ver la evolución. Funciona 100 % sin conexión: sin login, sin backend, sin Play Store. Idioma de la interfaz: español. Unidad: kg.
 
 - Versión publicada: `0.1.0` (`versionCode 1`), `applicationId` `com.zambudio.registropesos`.
-- Estado actual: `main` lleva los cambios de la siguiente versión (rutinas por grupos, ejercicios elegidos en la sesión, catálogo con fotos, sin "Hecha"), todavía sin número de versión. APK de prueba en `dist/registro-pesos-gym-v0.1.0+grupos-catalogo.apk`. Detalle en [CHANGELOG.md](CHANGELOG.md).
+- Estado actual: `main` lleva los cambios de la siguiente versión (rutinas por grupos, ejercicios elegidos en la sesión, catálogo con fotos, sin "Hecha", rediseño con modo oscuro, descanso entre series y biblioteca de ejercicios), todavía sin número de versión. APK de prueba en `dist/registro-pesos-gym-v0.1.0+diseno-descanso.apk`. Detalle en [CHANGELOG.md](CHANGELOG.md).
 - `minSdk 26`, `targetSdk`/`compileSdk 36`.
 - Instalación en el móvil: ver [dist/INSTALAR.md](dist/INSTALAR.md).
-- Decisiones técnicas (ADR-001 a 019): [docs/DECISIONES.md](docs/DECISIONES.md).
+- Decisiones técnicas (ADR-001 a 022): [docs/DECISIONES.md](docs/DECISIONES.md).
 - Convenciones de código para seguir desarrollando: [docs/CONVENCIONES.md](docs/CONVENCIONES.md).
 - Pendientes y siguiente versión: [docs/PENDIENTE.md](docs/PENDIENTE.md).
 
@@ -18,6 +18,9 @@ App Android nativa (Kotlin + Jetpack Compose) para registrar los pesos levantado
 - **Entrenar**: antes de empezar se ven los grupos y el comentario de la rutina. En la sesión, el comentario queda fijo arriba como recordatorio y cada grupo tiene un botón + para elegir ejercicios con foto; se pueden quitar con "Deshacer". Series con peso (paso 0,5, atajos +/-2,5 kg) y repeticiones; la sesión anterior se ve como referencia tenue y en cursiva, y "Copiar anterior" la convierte en datos de hoy. Guardado inmediato en cada cambio y reanudación tras cierre del proceso; resumen final con volumen y récords (ADR-018).
 - **Historial**: sesiones por fecha, detalle y borrado.
 - **Progreso**: gráficas Vico por ejercicio (peso máximo, volumen, 1RM estimado Epley) y por grupo (volumen semanal, sesiones), filtros 1M/3M/6M/1A/Todo y tarjetas de récord personal.
+- **Descanso entre series**: cuenta atrás integrada en la sesión. Arranca sola al completar peso y repeticiones de una serie, o a mano; admite ±15 s y "Saltar". Al terminar vibra y avisa con una notificación aunque el móvil esté bloqueado (ADR-020).
+- **Diseño y modo oscuro**: tema propio naranja deportivo, con cifras en Barlow Condensed. En Más se elige Sistema, Claro u Oscuro (ADR-021).
+- **Biblioteca de ejercicios**: 189 ejercicios por grupo muscular, importables con un ZIP, con ilustraciones generadas aparte (ADR-022, `docs/imagenes-ejercicios/README.md`).
 - **Copias de seguridad**: Auto Backup de Android y exportación/importación ZIP (ver más abajo).
 
 ## Stack
@@ -85,7 +88,8 @@ $env:JAVA_HOME='<ruta al JDK 17>'
 ```
 
 - La primera compilación completa ronda los 5 min; los builds incrementales, ~1,5 min.
-- ~270 tests JVM/Robolectric. Los de Robolectric fijan `@Config(sdk = [35], application = Application::class)` (4.16 falla con SDK 36 en JDK 17).
+- ~290 tests JVM/Robolectric.
+- Galería de capturas (claro y oscuro, sin dispositivo): `.\gradlew.bat :app:testDebugUnitTest --tests "*ScreenshotGallery*" -Pgym.screenshots=true` deja los PNG en `app/build/screenshots`. Sin la propiedad, esos tests se omiten. Los de Robolectric fijan `@Config(sdk = [35], application = Application::class)` (4.16 falla con SDK 36 en JDK 17).
 - detekt se ejecuta con Kotlin 2.0.21 forzado en su classpath: no usar sintaxis exclusiva de Kotlin 2.2 (context parameters, guard en `when`, `$$`).
 - `allWarningsAsErrors = true` en todo `:app`.
 - Lint de release (`lintVitalRelease`): las rutas `<exclude>` de las reglas de backup deben estar dentro de un `<include>`; no se excluye `exports/` porque vive en caché y ya queda fuera.
@@ -122,6 +126,16 @@ powershell -File tools/catalog/convert-images.ps1
 ```
 
 No reordenes ni renumeres los ids ya publicados: las instalaciones existentes se basan en ellos para no duplicar ejercicios.
+
+## Biblioteca de ejercicios
+
+`tools/library/exercises.json` (189 ejercicios) se distribuye como un ZIP importable, `dist/biblioteca-ejercicios.zip`. Se regenera a partir de una copia exportada desde la app, que aporta los ids de los grupos y de los ejercicios existentes:
+
+```powershell
+node tools/library/build-backup.mjs --base "docs\gym-backup-AAAAMMDD-HHmm.zip"
+```
+
+Las ilustraciones (`docs/imagenes-ejercicios/imagenes/<código>.png`) no se suben a git. El flujo completo está en `docs/imagenes-ejercicios/README.md`.
 
 ## Notas de desarrollo
 

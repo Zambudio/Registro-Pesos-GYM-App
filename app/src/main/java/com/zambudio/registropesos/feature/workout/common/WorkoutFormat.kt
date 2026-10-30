@@ -41,6 +41,13 @@ fun formatElapsed(millis: Long): String {
     return if (hours > 0) "$hours:$mmss" else mmss
 }
 
+/** Cuenta atrás "m:ss" redondeando hacia arriba: con 0,4 s restantes se ve 0:01, no 0:00. */
+fun formatCountdown(millis: Long): String {
+    val totalSeconds = ((millis.coerceAtLeast(0) + MILLIS_PER_SECOND - 1) / MILLIS_PER_SECOND)
+    val seconds = (totalSeconds % SECONDS_PER_MINUTE).toString().padStart(2, '0')
+    return "${totalSeconds / SECONDS_PER_MINUTE}:$seconds"
+}
+
 /** Redondea a céntimos de kg para que sumar pasos (2,5; 1,25) no arrastre errores de coma flotante. */
 fun roundKg(kg: Double): Double = (kg * CENTS).roundToLong() / CENTS
 

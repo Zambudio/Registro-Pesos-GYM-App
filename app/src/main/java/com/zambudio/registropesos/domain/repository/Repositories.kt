@@ -7,6 +7,7 @@ import com.zambudio.registropesos.domain.model.Exercise
 import com.zambudio.registropesos.domain.model.ExerciseSessionPoint
 import com.zambudio.registropesos.domain.model.FlatSet
 import com.zambudio.registropesos.domain.model.MuscleGroup
+import com.zambudio.registropesos.domain.model.RestTimerState
 import com.zambudio.registropesos.domain.model.RoutineDetail
 import com.zambudio.registropesos.domain.model.RoutineSummary
 import com.zambudio.registropesos.domain.model.SessionDetail
@@ -119,6 +120,20 @@ interface BackupRepository {
 
     /** Merge por UUID: gana el updatedAt más reciente; respeta tombstones. No copia imágenes. */
     suspend fun importSnapshot(snapshot: BackupSnapshot): ImportReport
+}
+
+/**
+ * Descanso entre series (ADR-020): una sola cuenta atrás a la vez. Sobrevive a salir de la pantalla y
+ * a que el sistema mate el proceso, y avisa al terminar aunque la app no esté delante.
+ */
+interface RestTimer {
+    /** null si no hay descanso en marcha. */
+    val state: Flow<RestTimerState?>
+    suspend fun start(durationMillis: Long)
+
+    /** Suma (o resta, si es negativo) tiempo al descanso en marcha; si llega a cero, lo para. */
+    suspend fun adjust(deltaMillis: Long)
+    suspend fun stop()
 }
 
 interface SettingsRepository {

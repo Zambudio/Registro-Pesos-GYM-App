@@ -35,3 +35,9 @@ tools/catalog/raw/
 
 # Excel origen del catálogo: contiene el historial de pesos y el repo es público
 docs/*.xlsx
+
+# Copias de seguridad exportadas desde la app (datos personales)
+docs/*.zip
+
+# Ilustraciones originales de la biblioteca (pesadas); van convertidas dentro de dist/biblioteca-ejercicios.zip
+docs/imagenes-ejercicios/imagenes/

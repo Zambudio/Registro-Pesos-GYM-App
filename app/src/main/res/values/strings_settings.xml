@@ -13,7 +13,19 @@
     <string name="settings_about">Acerca de</string>
 
     <!-- Ajustes -->
-    <string name="settings_section_preferences">Ajustes</string>
+    <string name="settings_section_data">Tus datos</string>
+    <string name="settings_section_preferences">Entrenamiento</string>
+    <string name="settings_section_appearance">Apariencia</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_summary">Claro, oscuro o el mismo que el del móvil</string>
+    <string name="settings_theme_system">Sistema</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_section_rest">Descanso entre series</string>
+    <string name="settings_rest_duration">Duración del descanso</string>
+    <string name="settings_rest_duration_summary">Cuenta atrás entre series; durante el entrenamiento puedes sumar o restar tiempo</string>
+    <string name="settings_rest_auto">Empezar al anotar una serie</string>
+    <string name="settings_rest_auto_summary">La cuenta atrás arranca sola al completar el peso y las repeticiones de una serie. Al terminar, el móvil vibra y avisa aunque esté bloqueado.</string>
     <string name="settings_weight_step">Paso de peso</string>
     <string name="settings_weight_step_summary">Cuánto suman o restan los botones de peso al entrenar</string>
     <string name="settings_weight_step_option">%1$s kg</string>

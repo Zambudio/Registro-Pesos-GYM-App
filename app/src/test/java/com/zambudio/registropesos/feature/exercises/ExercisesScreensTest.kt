@@ -3,6 +3,8 @@ package com.zambudio.registropesos.feature.exercises
 import android.app.Application
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -10,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.SavedStateHandle
@@ -91,8 +94,10 @@ class ExercisesScreensTest {
         )
 
         composeRule.onNodeWithText("Pecho").assertIsDisplayed()
-        composeRule.onNodeWithText("Espalda").assertIsDisplayed()
         composeRule.onNodeWithText("Archivado").assertIsDisplayed()
+        // Filas con foto grande: en la pantalla pequeña de Robolectric el segundo grupo queda más abajo.
+        composeRule.onNodeWithText("Espalda").performScrollTo().assertIsDisplayed()
+        composeRule.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Remo"))
         composeRule.onNodeWithText("Remo").performClick()
 
         assertEquals("e3", opened)
